@@ -7,8 +7,8 @@ import { SmartImage } from "@/components/ui/smart-image";
 type Slide = { img: string; alt: string };
 
 const SLIDES: Slide[] = [
-  { img: "/images/hero.png", alt: "Soluciones de diagnóstico Jaltest para flotas" },
-  { img: "/images/hero2.png", alt: "Cobertura Jaltest: comercial, off-highway, agrícola, marino y MHE" },
+  { img: "/images/hero.jpg", alt: "Soluciones de diagnóstico Jaltest para flotas" },
+  { img: "/images/hero2.jpg", alt: "Cobertura Jaltest: comercial, off-highway, agrícola, marino y MHE" },
 ];
 
 const AUTOPLAY_MS = 6000;
