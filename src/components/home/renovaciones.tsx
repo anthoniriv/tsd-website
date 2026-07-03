@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getLocaleData } from "@/lib/i18n.server";
 import { buttonVariants } from "@/components/ui/button";
 import { SmartImage } from "@/components/ui/smart-image";
 import { JaltestLogo } from "@/components/product/jaltest-logo";
@@ -18,12 +19,14 @@ const NODES = [
 ] as const;
 
 /** Bloque "Renueva o añade más cobertura" con imagen + red hexagonal de logos Jaltest. */
-export function Renovaciones() {
+export async function Renovaciones() {
+  const { dict } = await getLocaleData();
   return (
     <section className="py-20 sm:py-24">
       <div className="mx-auto max-w-5xl px-6">
         <h2 className="mb-12 text-center text-3xl font-bold text-foreground sm:text-[2.5rem]">
-          Renueva <span className="text-brand">o añade más cobertura</span>
+          {dict.renovaciones.title}{" "}
+          <span className="text-brand">{dict.renovaciones.titleAccent}</span>
         </h2>
 
         <div className="grid items-center gap-12 md:grid-cols-2">
@@ -50,7 +53,7 @@ export function Renovaciones() {
               wrapperClassName="aspect-square w-full bg-transparent"
             />
             <span className="absolute inset-x-0 bottom-1/3 text-center text-2xl font-bold italic text-white drop-shadow">
-              Renovaciones
+              {dict.renovaciones.watermark}
             </span>
           </div>
 
@@ -106,7 +109,7 @@ export function Renovaciones() {
               <div className="hex-clip flex aspect-[1/1.1] flex-col items-center justify-center gap-0.5 bg-brand text-white">
                 <span className="text-xl font-bold leading-none">+</span>
                 <span className="text-[9px] font-semibold uppercase tracking-wide">
-                  Cobertura
+                  {dict.renovaciones.plusCoverage}
                 </span>
               </div>
             </div>
@@ -122,7 +125,7 @@ export function Renovaciones() {
                 <span className="text-lg font-bold leading-none">+</span>
               </span>
               <span className="text-sm font-semibold uppercase tracking-wide text-brand">
-                + Cobertura
+                + {dict.renovaciones.plusCoverage}
               </span>
             </div>
             {JALTEST_LINES.slice(2, 4).map((line) => (
@@ -146,7 +149,7 @@ export function Renovaciones() {
               "bg-brand text-white hover:bg-brand-dark"
             )}
           >
-            Renovar o ampliar cobertura
+            {dict.renovaciones.cta}
           </Link>
         </div>
       </div>

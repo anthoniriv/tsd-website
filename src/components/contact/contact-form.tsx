@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CONTACT } from "@/lib/site";
+import type { Dict } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import { toast } from "sonner";
 
 type Errors = Partial<Record<"nombre" | "email" | "asunto" | "mensaje", string>>;
 
-export function ContactForm() {
+export function ContactForm({ dict }: { dict: Dict["contact"] }) {
   const [errors, setErrors] = useState<Errors>({});
   const [sending, setSending] = useState(false);
 
@@ -20,11 +21,11 @@ export function ContactForm() {
     const email = String(data.get("email") ?? "").trim();
     const asunto = String(data.get("asunto") ?? "").trim();
     const mensaje = String(data.get("mensaje") ?? "").trim();
-    if (!nombre) e.nombre = "Ingresa tu nombre y apellido.";
-    if (!email) e.email = "Ingresa tu email.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = "Email no válido.";
-    if (!asunto) e.asunto = "Ingresa un asunto.";
-    if (!mensaje) e.mensaje = "Escribe tu mensaje.";
+    if (!nombre) e.nombre = dict.errors.name;
+    if (!email) e.email = dict.errors.email;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = dict.errors.emailInvalid;
+    if (!asunto) e.asunto = dict.errors.subject;
+    if (!mensaje) e.mensaje = dict.errors.message;
     return e;
   }
 
@@ -41,7 +42,7 @@ export function ContactForm() {
     await new Promise((r) => setTimeout(r, 700));
     setSending(false);
     form.reset();
-    toast.success("¡Gracias! Te contactaremos pronto.");
+    toast.success(dict.toastSuccess);
   }
 
   const field = (key: keyof Errors) =>
@@ -50,18 +51,18 @@ export function ContactForm() {
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
       <h2 className="text-2xl font-bold uppercase tracking-wide text-foreground/80">
-        Queremos conocer más de ti
+        {dict.formHeading}
       </h2>
 
       <div className="space-y-1.5">
         <Label htmlFor="nombre">
-          Nombre y Apellido <span className="text-destructive">*</span>
+          {dict.name} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="nombre"
           name="nombre"
           required
-          placeholder="Juan Pérez"
+          placeholder={dict.namePh}
           className={field("nombre")}
           aria-invalid={!!errors.nombre}
         />
@@ -74,14 +75,14 @@ export function ContactForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="email">
-          Email <span className="text-destructive">*</span>
+          {dict.email} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="email"
           name="email"
           type="email"
           required
-          placeholder="tu@correo.com"
+          placeholder={dict.emailPh}
           className={field("email")}
           aria-invalid={!!errors.email}
         />
@@ -94,13 +95,13 @@ export function ContactForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="asunto">
-          Asunto <span className="text-destructive">*</span>
+          {dict.subject} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="asunto"
           name="asunto"
           required
-          placeholder="Consulta sobre kit CV"
+          placeholder={dict.subjectPh}
           className={field("asunto")}
           aria-invalid={!!errors.asunto}
         />
@@ -113,14 +114,14 @@ export function ContactForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="mensaje">
-          Mensaje <span className="text-destructive">*</span>
+          {dict.message} <span className="text-destructive">*</span>
         </Label>
         <Textarea
           id="mensaje"
           name="mensaje"
           rows={6}
           required
-          placeholder="Cuéntanos qué equipo o cobertura necesitas…"
+          placeholder={dict.messagePh}
           className={field("mensaje")}
           aria-invalid={!!errors.mensaje}
         />
@@ -137,11 +138,11 @@ export function ContactForm() {
         disabled={sending}
         className="w-full bg-brand text-white hover:bg-brand-dark sm:w-auto"
       >
-        {sending ? "Enviando…" : "Enviar consulta"}
+        {sending ? dict.sending : dict.submit}
       </Button>
 
       <p className="text-xs text-muted-foreground">
-        O escríbenos directamente a {CONTACT.company}, {CONTACT.city}.
+        {dict.footnotePre} {CONTACT.company}, {CONTACT.city}.
       </p>
     </form>
   );

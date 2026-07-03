@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { CONTACT, POLICIES, SITE, SOCIALS } from "@/lib/site";
+import { CONTACT, POLICIES, SOCIALS } from "@/lib/site";
+import type { Dict } from "@/lib/i18n";
 import { Logo } from "@/components/layout/logo";
 
 // Los teléfonos son placeholders (+0 000 000 0000); no mostramos datos falsos.
@@ -33,19 +34,19 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   ),
 };
 
-export function Footer() {
+export function Footer({ dict }: { dict: Dict }) {
   return (
     <footer className="mt-auto">
       <div className="bg-neutral-900 text-neutral-200">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-3 text-sm leading-relaxed">
             <Logo className="[&_span]:text-white" />
-            <p className="max-w-xs text-neutral-300">{SITE.description}</p>
+            <p className="max-w-xs text-neutral-300">{dict.meta.siteDescription}</p>
           </div>
 
           <div className="text-sm leading-relaxed">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">
-              Contacte con {CONTACT.company}
+              {dict.footer.contactWith} {CONTACT.company}
             </h3>
             <p>{CONTACT.company}</p>
             <p>{CONTACT.address}</p>
@@ -54,19 +55,19 @@ export function Footer() {
 
           <div className="text-sm leading-relaxed">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">
-              {CONTACT.supportTitle}
+              {dict.footer.support}
             </h3>
             {hasRealPhone ? (
               <>
                 <p>{CONTACT.phone}</p>
-                <p className="mt-1">Llame gratis:</p>
+                <p className="mt-1">{dict.footer.callFree}</p>
                 <p>{CONTACT.tollFree}</p>
               </>
             ) : (
               <p className="text-neutral-300">
-                Escríbenos desde la página de{" "}
+                {dict.footer.writeFromContactPre}{" "}
                 <Link href="/contacto" className="text-brand hover:underline">
-                  contacto
+                  {dict.footer.writeFromContactLink}
                 </Link>
                 .
               </p>
@@ -75,7 +76,7 @@ export function Footer() {
 
           <div className="text-sm lg:text-right">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">
-              Síguenos
+              {dict.footer.follow}
             </h3>
             <ul className="flex gap-3 lg:justify-end">
               {SOCIALS.map((s) => {
@@ -84,7 +85,7 @@ export function Footer() {
                   <li key={s.label}>
                     <Link
                       href={s.href}
-                      aria-label={`Síguenos en ${s.label}`}
+                      aria-label={`${dict.footer.followOn} ${s.label}`}
                       className="grid h-9 w-9 place-items-center rounded-full bg-white/10 transition-colors hover:bg-brand"
                     >
                       <Icon className="h-4 w-4" />
@@ -100,9 +101,9 @@ export function Footer() {
       <div className="border-t bg-muted">
         <ul className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-6 py-4 text-sm text-muted-foreground">
           {POLICIES.map((p, i) => (
-            <li key={p.label} className="flex items-center gap-3">
+            <li key={p.key} className="flex items-center gap-3">
               <Link href={p.href} className="hover:text-brand">
-                {p.label}
+                {dict.footer.policies[p.key]}
               </Link>
               {i < POLICIES.length - 1 && (
                 <span className="text-muted-foreground/60">·</span>

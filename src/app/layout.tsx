@@ -6,27 +6,33 @@ import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { ComingSoonProvider } from "@/components/ui/coming-soon";
 import { SITE } from "@/lib/site";
+import { getLocaleData } from "@/lib/i18n.server";
 
 const inter = Inter({ variable: "--font-sans", subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: {
-    default: `${SITE.name} · ${SITE.fullName}`,
-    template: `%s · ${SITE.name}`,
-  },
-  description: SITE.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { dict } = await getLocaleData();
+  return {
+    title: {
+      default: `${SITE.name} · ${SITE.fullName}`,
+      template: `%s · ${SITE.name}`,
+    },
+    description: dict.meta.siteDescription,
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const { code, lang, dict } = await getLocaleData();
+
   return (
-    <html lang="es" className={`${inter.variable} h-full antialiased`}>
+    <html lang={lang} className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-white">
-        <ComingSoonProvider>
-          <Header />
+        <ComingSoonProvider dict={dict.comingSoon}>
+          <Header locale={code} dict={dict} />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <Footer dict={dict} />
         </ComingSoonProvider>
         <Toaster richColors position="top-right" />
       </body>

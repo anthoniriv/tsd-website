@@ -7,10 +7,11 @@ export const SITE = {
     "Soluciones de diagnóstico profesional Jaltest para vehículos comerciales, off-highway, agrícolas, marinos y manejo de materiales.",
 } as const;
 
+// `key` referencia dict.nav; el label visible sale del diccionario.
 export const NAV = [
-  { label: "Inicio", href: "/" },
-  { label: "Producto", href: "/producto" },
-  { label: "Contáctenos", href: "/contacto" },
+  { key: "home", href: "/" },
+  { key: "product", href: "/producto" },
+  { key: "contact", href: "/contacto" },
 ] as const;
 
 export const CONTACT = {
@@ -35,9 +36,10 @@ export const SOCIALS = [
   { label: "X", href: "#", icon: "x" },
 ] as const;
 
+// `key` referencia dict.footer.policies; el label visible sale del diccionario.
 export const POLICIES = [
-  { label: "Refund Policy", href: "#" },
-  { label: "Privacy Policy", href: "#" },
-  { label: "Terms of Service", href: "#" },
-  { label: "Purchase Order Terms & Conditions", href: "#" },
+  { key: "refund", href: "#" },
+  { key: "privacy", href: "#" },
+  { key: "terms", href: "#" },
+  { key: "po", href: "#" },
 ] as const;

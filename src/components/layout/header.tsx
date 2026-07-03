@@ -6,7 +6,9 @@ import { usePathname } from "next/navigation";
 import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV } from "@/lib/site";
+import type { Dict, LocaleCode } from "@/lib/i18n";
 import { Logo } from "@/components/layout/logo";
+import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useComingSoon } from "@/components/ui/coming-soon";
@@ -18,28 +20,29 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-function SearchBar({ className }: { className?: string }) {
+function SearchBar({ dict, className }: { dict: Dict; className?: string }) {
   const comingSoon = useComingSoon();
+  const feature = dict.comingSoon.features.search;
   return (
     <form
       role="search"
       onSubmit={(e) => {
         e.preventDefault();
-        comingSoon({ feature: "La búsqueda de productos" });
+        comingSoon({ feature });
       }}
       className={cn("relative w-full", className)}
     >
       <Input
         type="search"
-        placeholder="Buscar productos, kits, cables…"
+        placeholder={dict.header.searchPlaceholder}
         className="h-10 pr-11"
-        aria-label="Buscar"
+        aria-label={dict.header.search}
         readOnly
-        onClick={() => comingSoon({ feature: "La búsqueda de productos" })}
+        onClick={() => comingSoon({ feature })}
       />
       <button
         type="submit"
-        aria-label="Buscar"
+        aria-label={dict.header.search}
         className="absolute right-1 top-1 grid h-8 w-9 place-items-center rounded-sm bg-brand text-white transition-colors hover:bg-brand-dark"
       >
         <Search className="h-4 w-4" />
@@ -48,7 +51,7 @@ function SearchBar({ className }: { className?: string }) {
   );
 }
 
-export function Header() {
+export function Header({ locale, dict }: { locale: LocaleCode; dict: Dict }) {
   const pathname = usePathname();
   const comingSoon = useComingSoon();
   const [scrolled, setScrolled] = useState(false);
@@ -74,23 +77,24 @@ export function Header() {
       {/* fila superior: logo + search + acciones */}
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3.5">
         <Logo />
-        <SearchBar className="hidden flex-1 md:block" />
+        <SearchBar dict={dict} className="hidden flex-1 md:block" />
         <div className="ml-auto flex items-center gap-1.5">
+          <LocaleSwitcher current={locale} className="hidden sm:flex" />
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Cuenta"
+            aria-label={dict.header.account}
             className="text-brand"
-            onClick={() => comingSoon({ feature: "Tu cuenta" })}
+            onClick={() => comingSoon({ feature: dict.comingSoon.features.account })}
           >
             <User className="h-5 w-5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Carrito"
+            aria-label={dict.header.cart}
             className="text-brand"
-            onClick={() => comingSoon({ feature: "El carrito de compras" })}
+            onClick={() => comingSoon({ feature: dict.comingSoon.features.cart })}
           >
             <ShoppingCart className="h-5 w-5" />
           </Button>
@@ -98,15 +102,15 @@ export function Header() {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
               className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "md:hidden")}
-              aria-label="Menú"
+              aria-label={dict.header.menu}
             >
               <Menu className="h-5 w-5" />
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
               <SheetHeader>
                 <SheetTitle className="flex items-center justify-between">
-                  Menú
-                  <button onClick={() => setOpen(false)} aria-label="Cerrar">
+                  {dict.header.menu}
+                  <button onClick={() => setOpen(false)} aria-label={dict.header.close}>
                     <X className="h-4 w-4" />
                   </button>
                 </SheetTitle>
@@ -123,12 +127,15 @@ export function Header() {
                       isActive(item.href) ? "text-brand" : "text-foreground"
                     )}
                   >
-                    {item.label}
+                    {dict.nav[item.key]}
                   </Link>
                 ))}
               </nav>
               <div className="space-y-4 px-4 pt-4">
-                <SearchBar />
+                <div className="flex justify-center">
+                  <LocaleSwitcher current={locale} />
+                </div>
+                <SearchBar dict={dict} />
                 <Link
                   href="/contacto"
                   onClick={() => setOpen(false)}
@@ -137,7 +144,7 @@ export function Header() {
                     "w-full bg-brand text-white hover:bg-brand-dark"
                   )}
                 >
-                  Solicitar una cotización
+                  {dict.header.requestQuote}
                 </Link>
               </div>
             </SheetContent>
@@ -160,7 +167,7 @@ export function Header() {
                     : "text-foreground/80 hover:bg-brand/5 hover:text-brand"
                 )}
               >
-                {item.label}
+                {dict.nav[item.key]}
               </Link>
             </li>
           ))}

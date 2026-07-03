@@ -2,18 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import type { Dict } from "@/lib/i18n";
 import { SmartImage } from "@/components/ui/smart-image";
 
-type Slide = { img: string; alt: string };
-
-const SLIDES: Slide[] = [
-  { img: "/images/hero.jpg", alt: "Soluciones de diagnóstico Jaltest para flotas" },
-  { img: "/images/hero2.jpg", alt: "Cobertura Jaltest: comercial, off-highway, agrícola, marino y MHE" },
-];
+const SLIDE_IMAGES = ["/images/hero.jpg", "/images/hero2.jpg"];
 
 const AUTOPLAY_MS = 6000;
 
-export function HeroSlider() {
+export function HeroSlider({ dict }: { dict: Dict["home"] }) {
+  const SLIDES = SLIDE_IMAGES.map((img, i) => ({ img, alt: dict.slides[i] }));
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const count = SLIDES.length;
@@ -36,14 +33,12 @@ export function HeroSlider() {
   return (
     <section
       className="relative overflow-hidden bg-neutral-100"
-      aria-roledescription="carrusel"
-      aria-label="Destacados TDS"
+      aria-roledescription="carousel"
+      aria-label={dict.carouselLabel}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <h1 className="sr-only">
-        TDS — Diagnóstico Jaltest para tu flota, con soporte local en Doral
-      </h1>
+      <h1 className="sr-only">{dict.srHeading}</h1>
 
       {/* slides apilados con crossfade */}
       <div className="relative aspect-[3/4] w-full sm:aspect-[16/9] md:aspect-[1600/600] md:min-h-[460px]">

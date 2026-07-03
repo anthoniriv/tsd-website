@@ -1,8 +1,9 @@
-import type { HardwareItem } from "@/lib/products";
+import { formatPrice, type HardwareItem } from "@/lib/products";
+import { getLocaleData } from "@/lib/i18n.server";
 import { ProductCard } from "@/components/product/product-card";
 
-/** Grid de productos con título. */
-export function ProductGrid({
+/** Grid de productos con título. Resuelve idioma/tier y pasa strings a las cards. */
+export async function ProductGrid({
   title,
   accentWord,
   items,
@@ -11,6 +12,8 @@ export function ProductGrid({
   accentWord?: string;
   items: HardwareItem[];
 }) {
+  const { dict, lang, tier } = await getLocaleData();
+
   return (
     <section className="py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-6">
@@ -22,7 +25,16 @@ export function ProductGrid({
 
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
           {items.map((item) => (
-            <ProductCard key={item.id} item={item} />
+            <ProductCard
+              key={item.id}
+              img={item.img}
+              name={item.name[lang]}
+              blurb={item.blurb[lang]}
+              price={formatPrice(item.priceUSD, tier)}
+              cta={dict.productCard.cta}
+              waGreeting={dict.productCard.waGreeting}
+              priceLabel={dict.productCard.priceLabel}
+            />
           ))}
         </div>
       </div>

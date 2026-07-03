@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { ACCENT, type JaltestLine } from "@/lib/products";
+import { ACCENT, formatPrice, type JaltestLine } from "@/lib/products";
+import { getLocaleData } from "@/lib/i18n.server";
 import { SmartImage } from "@/components/ui/smart-image";
 import { JaltestLogo } from "@/components/product/jaltest-logo";
 
@@ -79,7 +80,7 @@ const VISUALS: Record<
 };
 
 /** Badge hexagonal de precio: relleno translúcido del color + borde celeste. */
-function PriceBadge({ color, price }: { color: string; price: string }) {
+function PriceBadge({ color, price, label }: { color: string; price: string; label: string }) {
   return (
     <div
       className="relative grid aspect-[1.1547/1] w-[136px] shrink-0 place-items-center text-white shadow-sm md:w-[clamp(136px,12.8cqw,190px)]"
@@ -92,7 +93,7 @@ function PriceBadge({ color, price }: { color: string; price: string }) {
           backgroundColor: `color-mix(in srgb, ${color} 62%, transparent)`,
         }}
       >
-        <span className="text-[15px] font-extrabold leading-none md:text-[clamp(13px,1.2cqw,17px)]">Price</span>
+        <span className="text-[15px] font-extrabold leading-none md:text-[clamp(13px,1.2cqw,17px)]">{label}</span>
         <span className="mt-1 text-[34px] font-extrabold leading-none tracking-normal tabular-nums md:text-[clamp(28px,2.88cqw,42px)]">
           {price}
         </span>
@@ -107,9 +108,13 @@ function PriceBadge({ color, price }: { color: string; price: string }) {
  * (logo+kit izq, hexágono de precio centro, maquinaria der, descripción + CTA
  * debajo) vive en una capa max-w-6xl centrada → dentro de los márgenes generales.
  */
-export function ProductHero({ line }: { line: JaltestLine }) {
+export async function ProductHero({ line }: { line: JaltestLine }) {
   const accent = ACCENT[line.id];
   const visual = VISUALS[line.id];
+  const { dict, lang, tier } = await getLocaleData();
+  const price = formatPrice(line.priceUSD, tier);
+  const description = line.description[lang];
+  const quoteLabel = `${dict.productHero.quotePrefix} ${line.variant}`;
 
   return (
     <article className={cn("md:py-0", visual.pull)}>
@@ -138,10 +143,10 @@ export function ProductHero({ line }: { line: JaltestLine }) {
               style={{ backgroundColor: accent.color }}
             >
               <span className="block text-[11px] font-bold uppercase leading-none opacity-90">
-                Price
+                {dict.productHero.price}
               </span>
               <span className="mt-1 block text-[22px] font-extrabold leading-none tabular-nums">
-                {line.price}
+                {price}
               </span>
             </div>
           </div>
@@ -172,7 +177,7 @@ export function ProductHero({ line }: { line: JaltestLine }) {
           {/* Descripción + CTA */}
           <div className="px-5 pb-6 pt-4">
             <div className="space-y-3">
-              {line.description.map((p, i) => (
+              {description.map((p, i) => (
                 <p key={i} className="text-[14px] font-semibold leading-[1.45] text-[#666]">
                   {p}
                 </p>
@@ -183,7 +188,7 @@ export function ProductHero({ line }: { line: JaltestLine }) {
               className="mt-6 inline-flex h-[52px] w-full items-center justify-center rounded-full px-6 text-[1rem] font-extrabold uppercase leading-none text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: accent.color }}
             >
-              Cotizar Jaltest {line.variant}
+              {quoteLabel}
             </Link>
           </div>
         </div>
@@ -260,7 +265,7 @@ export function ProductHero({ line }: { line: JaltestLine }) {
             </div>
 
             <div className={cn("md:absolute md:z-20", visual.badge)}>
-              <PriceBadge color={accent.color} price={line.price} />
+              <PriceBadge color={accent.color} price={price} label={dict.productHero.price} />
             </div>
 
             <div className={cn("md:absolute", visual.vehicle)}>
@@ -277,7 +282,7 @@ export function ProductHero({ line }: { line: JaltestLine }) {
           {/* texto + CTA al ancho del contenedor (márgenes generales) */}
           <div className={cn("relative z-10 mt-8 md:absolute md:inset-x-0 md:mt-0", visual.text)}>
             <div className="space-y-4">
-              {line.description.map((p, i) => (
+              {description.map((p, i) => (
                 <p
                   key={i}
                   className="text-[clamp(14px,1.48vw,20px)] font-extrabold leading-[1.18] text-[#666]"
@@ -293,7 +298,7 @@ export function ProductHero({ line }: { line: JaltestLine }) {
                 className="inline-flex h-[53px] w-full max-w-full items-center justify-center rounded-full px-[2.1rem] text-center text-[1.05rem] font-extrabold uppercase leading-none text-white transition-opacity hover:opacity-90 sm:w-auto sm:min-w-[264px]"
                 style={{ backgroundColor: accent.color }}
               >
-                Cotizar Jaltest {line.variant}
+                {quoteLabel}
               </Link>
             </div>
           </div>

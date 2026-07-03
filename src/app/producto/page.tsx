@@ -7,33 +7,35 @@ import {
   CABLE_FINDER,
   JALTEST_LINES,
   LAPTOPS,
+  formatPrice,
   type JaltestLine,
 } from "@/lib/products";
+import type { PriceTier } from "@/lib/i18n";
+import { getLocaleData } from "@/lib/i18n.server";
 import { ProductHero } from "@/components/product/product-hero";
 import { ProductGrid } from "@/components/product/product-grid";
 import { SmartImage } from "@/components/ui/smart-image";
 import { cn } from "@/lib/utils";
 import { JaltestLogo } from "@/components/product/jaltest-logo";
 
-export const metadata: Metadata = {
-  title: "Producto",
-  description:
-    "Catálogo Jaltest: CV, OHW, AGV, Marine y MHE, laptops y tablets rugged, cables y adaptadores.",
-};
-
-const RENEW_BENEFITS = [
-  "Nuevas marcas y modelos compatibles",
-  "Actualizaciones de funciones avanzadas",
-  "Información técnica actualizada",
-  "Soporte especializado",
-  "Mayor eficiencia en cada diagnóstico",
-];
+export async function generateMetadata(): Promise<Metadata> {
+  const { dict } = await getLocaleData();
+  return { title: dict.meta.productoTitle, description: dict.meta.productoDescription };
+}
 
 const HEX = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
 
 const HONEYCOMB_ORDER: JaltestLine["id"][] = ["ohw", "cv", "agv", "marine", "mhe"];
 
-function RenewalHex({ line }: { line: JaltestLine }) {
+function RenewalHex({
+  line,
+  tier,
+  priceLabel,
+}: {
+  line: JaltestLine;
+  tier: PriceTier;
+  priceLabel: string;
+}) {
   const accent = ACCENT[line.id];
 
   return (
@@ -55,41 +57,33 @@ function RenewalHex({ line }: { line: JaltestLine }) {
           className="mt-2 rounded-full px-3 py-0.5 text-[clamp(10px,1vw,13px)] font-black leading-none text-white"
           style={{ backgroundColor: accent.color }}
         >
-          Price
+          {priceLabel}
         </span>
         <span className="mt-1 text-[clamp(25px,3.2vw,38px)] font-black leading-none tracking-normal text-[#49d719]">
-          {line.price}
+          {formatPrice(line.priceUSD, tier)}
         </span>
       </div>
     </div>
   );
 }
 
-function RenewalVehicles() {
+function RenewalVehicles({ alts }: { alts: Record<JaltestLine["id"], string> }) {
   const vehicles = [
-    {
-      src: "/images/veh-ohw.png",
-      alt: "Excavadora",
-      className: "z-10 w-[29%] -translate-y-[3%]",
-    },
+    { src: "/images/veh-ohw.png", alt: alts.ohw, className: "z-10 w-[29%] -translate-y-[3%]" },
     {
       src: "/images/veh-marine.png",
-      alt: "Embarcación",
+      alt: alts.marine,
       className: "z-20 -ml-[13%] w-[28%] translate-y-[12%]",
     },
-    {
-      src: "/images/veh-cv.png",
-      alt: "Camión comercial",
-      className: "z-30 -ml-[8%] w-[31%]",
-    },
+    { src: "/images/veh-cv.png", alt: alts.cv, className: "z-30 -ml-[8%] w-[31%]" },
     {
       src: "/images/veh-mhe.png",
-      alt: "Montacargas",
+      alt: alts.mhe,
       className: "z-20 -ml-[8%] w-[18%] translate-y-[5%]",
     },
     {
       src: "/images/tractor.png",
-      alt: "Equipo agrícola",
+      alt: alts.agv,
       className: "z-10 -ml-[5%] w-[31%] translate-y-[7%]",
     },
   ];
@@ -110,12 +104,19 @@ function RenewalVehicles() {
   );
 }
 
-export default function ProductoPage() {
+export default async function ProductoPage() {
+  const { dict, tier } = await getLocaleData();
+  const p = dict.producto;
+  const renewHex = (id: JaltestLine["id"]) => {
+    const line = JALTEST_LINES.find((item) => item.id === id);
+    return line ? (
+      <RenewalHex key={line.id} line={line} tier={tier} priceLabel={p.renew.price} />
+    ) : null;
+  };
+
   return (
     <>
-      <h1 className="sr-only">
-        Catálogo Jaltest: kits CV, OHW, AGV, Marine y MHE, hardware rugged y accesorios
-      </h1>
+      <h1 className="sr-only">{p.srHeading}</h1>
 
       {/* Bloques por línea Jaltest sobre base blanca continua: las capas
           decorativas (gris -z-20, triángulo -z-10) se ordenan en este contexto */}
@@ -130,31 +131,20 @@ export default function ProductoPage() {
         <div className="mx-auto grid w-full items-center gap-10 px-6 md:grid-cols-[minmax(420px,0.92fr)_minmax(320px,0.62fr)] md:px-[8vw]">
           <div className="max-w-[680px]">
             <p className="text-[24px] font-black uppercase leading-none tracking-normal text-[#666]">
-              Tablet y Laptop.
+              {p.panasonic.kicker}
             </p>
             <p className="mt-1 text-[clamp(56px,8vw,86px)] font-black leading-[0.9] tracking-normal text-black">
-              Panasonic
+              {p.panasonic.brand}
             </p>
             <div className="mt-7 space-y-6 text-[15px] font-medium leading-[1.6] text-[#666]">
-              <p>
-                Las laptops y tablets rugged están diseñadas para soportar las condiciones más
-                exigentes de trabajo en talleres, flotas, construcción, minería y operaciones de
-                campo. Resistentes al polvo, agua, vibraciones, golpes y temperaturas extremas,
-                ofrecen el rendimiento y la confiabilidad necesarios para trabajar donde una
-                computadora convencional no sobreviviría.
-              </p>
-              <p>
-                En Tech Diagnostic Solutions no solo te ayudamos a adquirir el equipo adecuado,
-                también te brindamos asesoría especializada para identificar la mejor opción según
-                tu operación, presupuesto y necesidades. Trabajamos con marcas reconocidas como
-                Panasonic Toughbook, Getac y Dell Rugged.
-              </p>
+              <p>{p.panasonic.p1}</p>
+              <p>{p.panasonic.p2}</p>
             </div>
           </div>
           <div className="mx-auto w-full max-w-[350px]">
             <SmartImage
               src="/images/renovaciones.png"
-              alt="Técnico usando laptop rugged"
+              alt={p.panasonic.imgAlt}
               wrapperClassName="aspect-square w-full rounded-full"
             />
           </div>
@@ -163,33 +153,30 @@ export default function ProductoPage() {
       </section>
 
       {/* Grids de hardware */}
-      <ProductGrid title="Tablet" accentWord="y Laptop." items={LAPTOPS} />
-      <ProductGrid title="Cables" accentWord="y Adaptadores." items={CABLES} />
-      <ProductGrid title="Cables Finder" items={CABLE_FINDER} />
+      <ProductGrid title={p.grids.tabletTitle} accentWord={p.grids.tabletAccent} items={LAPTOPS} />
+      <ProductGrid title={p.grids.cablesTitle} accentWord={p.grids.cablesAccent} items={CABLES} />
+      <ProductGrid title={p.grids.finderTitle} items={CABLE_FINDER} />
 
       <section className="overflow-hidden bg-white pt-16 sm:pt-20">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="text-center text-[clamp(29px,3.7vw,38px)] font-black uppercase leading-tight tracking-normal text-[#666]">
-            No dejes que tu diagnóstico se quede atrás
+            {p.renew.heading}
           </h2>
           <p className="mt-1 text-center text-[clamp(19px,2.4vw,25px)] leading-tight text-brand">
-            Los equipos evolucionan. &nbsp;Las tecnologías cambian. &nbsp;Las soluciones también.
+            {p.renew.sub}
           </p>
 
           <div className="mt-8 grid items-center gap-10 md:grid-cols-[1fr_264px_1fr]">
             <div className="text-left text-[18px] font-semibold leading-[1.22] text-[#666]">
               <h3 className="mb-6 text-[20px] font-black uppercase leading-[1.12] text-black">
-                Los equipos evolucionan.
-                <br />
-                Las tecnologías cambian.
-                <br />
-                Las soluciones también.
+                {p.renew.blockHeading.map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    {i < p.renew.blockHeading.length - 1 && <br />}
+                  </span>
+                ))}
               </h3>
-              <p>
-                Renueva tu licencia Jaltest y continúa trabajando con acceso a las últimas
-                actualizaciones, nuevas coberturas y funciones avanzadas para mantener tu operación
-                siempre un paso adelante.
-              </p>
+              <p>{p.renew.blockBody}</p>
             </div>
 
             <div className="mx-auto w-[264px] max-w-full">
@@ -199,7 +186,7 @@ export default function ProductoPage() {
               >
                 <SmartImage
                   src="/images/renovaciones.png"
-                  alt="Técnico renovando licencia Jaltest"
+                  alt={p.renew.hexAlt}
                   wrapperClassName="h-full w-full"
                   className="scale-110"
                 />
@@ -208,10 +195,10 @@ export default function ProductoPage() {
 
             <div className="text-left">
               <p className="text-[20px] font-black uppercase tracking-normal text-black">
-                Beneficios de renovar:
+                {p.renew.benefitsTitle}
               </p>
               <ul className="mt-6 space-y-1.5 text-[18px] font-extrabold leading-tight text-[#666]">
-                {RENEW_BENEFITS.map((b) => (
+                {p.renew.benefits.map((b) => (
                   <li key={b} className="flex items-start gap-2">
                     <Check className="mt-0.5 h-5 w-5 shrink-0 text-jt-agv" strokeWidth={3} />
                     {b}
@@ -222,32 +209,23 @@ export default function ProductoPage() {
                 href="/contacto"
                 className="mt-5 inline-flex h-[34px] items-center rounded-full bg-jt-agv px-6 text-[14px] font-black uppercase leading-none text-white hover:opacity-90"
               >
-                Solicitar información
+                {p.renew.cta}
               </Link>
             </div>
           </div>
 
           {/* mobile: grid simple */}
           <div className="mx-auto mt-10 grid max-w-[420px] grid-cols-2 place-items-center gap-3 md:hidden">
-            {HONEYCOMB_ORDER.map((id) => {
-              const line = JALTEST_LINES.find((item) => item.id === id);
-              return line ? <RenewalHex key={line.id} line={line} /> : null;
-            })}
+            {HONEYCOMB_ORDER.map((id) => renewHex(id))}
           </div>
 
           {/* desktop: panal apretado — fila inferior anidada en los valles */}
           <div className="mt-20 hidden flex-col items-center md:flex">
             <div className="flex gap-x-[5px]">
-              {["ohw", "cv", "agv"].map((id) => {
-                const line = JALTEST_LINES.find((item) => item.id === id);
-                return line ? <RenewalHex key={line.id} line={line} /> : null;
-              })}
+              {(["ohw", "cv", "agv"] as const).map((id) => renewHex(id))}
             </div>
             <div className="-mt-[clamp(36px,4.4vw,54px)] flex gap-x-[5px]">
-              {["marine", "mhe"].map((id) => {
-                const line = JALTEST_LINES.find((item) => item.id === id);
-                return line ? <RenewalHex key={line.id} line={line} /> : null;
-              })}
+              {(["marine", "mhe"] as const).map((id) => renewHex(id))}
             </div>
           </div>
         </div>
@@ -255,7 +233,7 @@ export default function ProductoPage() {
         <div className="relative mt-0 h-[clamp(150px,16.8vw,216px)]">
           <div className="absolute inset-x-0 bottom-0 h-[58%] bg-[#efeee9]" />
           <div className="absolute inset-x-0 bottom-[6%]">
-            <RenewalVehicles />
+            <RenewalVehicles alts={p.vehicleAlts} />
           </div>
         </div>
       </section>
@@ -263,19 +241,11 @@ export default function ProductoPage() {
       <section className="bg-[#efeee9] pb-16 pt-8 sm:pb-20 sm:pt-10">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="text-center text-[clamp(24px,2.76vw,35px)] font-extrabold uppercase leading-tight tracking-normal text-[#0085C9] md:whitespace-nowrap">
-            ¿Necesitas diagnosticar más tipos de equipos?
+            {p.more.heading}
           </h2>
           <div className="mx-auto mt-8 grid max-w-[900px] gap-10 text-[18px] font-semibold leading-[1.22] text-[#666] md:grid-cols-2">
-            <p>
-              Es posible que la cobertura que tienes hoy sea suficiente para tu operación actual.
-              Sin embargo, si tus clientes o tu flota evolucionan, Jaltest te brinda la posibilidad
-              de incorporar nuevas coberturas cuando lo necesites.
-            </p>
-            <p>
-              De esta manera podrás seguir utilizando una herramienta que ya conoces y en la que
-              confías, ampliando sus capacidades. Tu diagnóstico no tiene por qué quedarse donde
-              empezó. Crece contigo.
-            </p>
+            <p>{p.more.p1}</p>
+            <p>{p.more.p2}</p>
           </div>
         </div>
       </section>

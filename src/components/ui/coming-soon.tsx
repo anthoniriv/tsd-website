@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { Dict } from "@/lib/i18n";
 import { Hexagon } from "@/components/ui/hexagon";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +40,13 @@ export function useComingSoon(): OpenFn {
   return ctx;
 }
 
-export function ComingSoonProvider({ children }: { children: ReactNode }) {
+export function ComingSoonProvider({
+  children,
+  dict,
+}: {
+  children: ReactNode;
+  dict: Dict["comingSoon"];
+}) {
   const [open, setOpen] = useState(false);
   const [feature, setFeature] = useState<string | undefined>();
 
@@ -77,21 +84,17 @@ export function ComingSoonProvider({ children }: { children: ReactNode }) {
             </div>
 
             <DialogTitle className="text-xl font-extrabold tracking-tight text-text-main">
-              ¡Ops! Próximamente
+              {dict.title}
             </DialogTitle>
 
             <DialogDescription className="text-balance text-sm leading-relaxed text-text-secondary">
               {feature ? (
                 <>
                   <span className="font-semibold text-brand">{feature}</span>{" "}
-                  estará disponible muy pronto. Estamos afinando los últimos
-                  detalles de la tienda en línea.
+                  {dict.bodyAfterFeature}
                 </>
               ) : (
-                <>
-                  Esta función estará disponible muy pronto. Estamos afinando los
-                  últimos detalles de la tienda en línea.
-                </>
+                <>{dict.bodyGeneric}</>
               )}
             </DialogDescription>
 
@@ -103,7 +106,7 @@ export function ComingSoonProvider({ children }: { children: ReactNode }) {
                 />
               }
             >
-              Entendido
+              {dict.gotIt}
             </DialogClose>
           </div>
         </DialogContent>
