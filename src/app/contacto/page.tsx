@@ -18,9 +18,10 @@ export default function ContactoPage() {
           alt="Oficinas de Tech Diagnostic Solutions"
           wrapperClassName="h-[36vw] max-h-[420px] min-h-[220px] w-full bg-neutral-200"
         />
-        {/* tinte celeste de marca + gradiente oscuro abajo para legibilidad del texto */}
-        <span className="pointer-events-none absolute inset-0 bg-brand/35 mix-blend-multiply" />
-        <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-brand/15 to-transparent" />
+        {/* wash celeste de marca parejo + gradiente abajo para legibilidad del texto */}
+        <span className="pointer-events-none absolute inset-0 bg-brand/55 mix-blend-multiply" />
+        <span className="pointer-events-none absolute inset-0 bg-brand/30" />
+        <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
         <div className="absolute inset-0">
           <div className="mx-auto flex h-full max-w-5xl flex-col justify-end px-6 pb-8">
             <h1 className="text-3xl font-extrabold text-white drop-shadow-md sm:text-4xl">

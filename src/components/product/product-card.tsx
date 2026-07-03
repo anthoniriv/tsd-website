@@ -34,12 +34,12 @@ export function ProductCard({ item }: { item: HardwareItem }) {
       <div className="flex flex-1 flex-col gap-2.5 p-5">
         <h3 className="text-[15px] font-bold leading-snug">{item.name}</h3>
         <p className="line-clamp-3 text-xs leading-snug text-muted-foreground">{item.blurb}</p>
-        <div className="mt-auto flex items-center justify-between pt-2">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-2">
           <span className="text-base font-extrabold tabular-nums text-brand">{item.price}</span>
           <button
             type="button"
             onClick={openWhatsApp}
-            className="cursor-pointer rounded-full bg-brand px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white transition-colors group-hover:bg-brand-dark"
+            className="cursor-pointer whitespace-nowrap rounded-full bg-brand px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white transition-colors group-hover:bg-brand-dark"
           >
             Solicitar precio
           </button>
