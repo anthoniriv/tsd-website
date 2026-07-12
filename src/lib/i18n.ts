@@ -327,7 +327,7 @@ const es = {
     contact: "Contacto",
     paymentMethod: "Método de pago",
     card: "Tarjeta (Stripe)",
-    print: "Imprimir",
+    print: "Descargar boleta (PDF)",
     help: "¿Alguna duda con tu pedido? Escríbenos y te ayudamos.",
     timeline: "Seguimiento",
     status: {
@@ -661,7 +661,7 @@ const en: Dict = {
     contact: "Contact",
     paymentMethod: "Payment method",
     card: "Card (Stripe)",
-    print: "Print",
+    print: "Download receipt (PDF)",
     help: "Questions about your order? Write to us and we'll help.",
     timeline: "Tracking",
     status: {

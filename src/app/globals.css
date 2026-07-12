@@ -175,3 +175,15 @@
     scrollbar-width: none;
   }
 }
+/* Impresión: el documento serio es el PDF de la boleta (/pedido/[token]/pdf). Aun así,
+   si alguien pulsa Cmd+P, que no salgan el header, el footer ni los botones del sitio. */
+@media print {
+  header,
+  footer,
+  .print\:hidden {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}

@@ -294,7 +294,7 @@ export default async function PedidoPage({
               {dict.nav.contact}
             </Link>
           </p>
-          <PrintButton label={d.print} />
+          <PrintButton label={d.print} href={`/pedido/${token}/pdf`} />
         </div>
       </div>
     </>

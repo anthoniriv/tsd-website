@@ -17,6 +17,7 @@ import { resolveLocale, type Lang } from "@/lib/i18n";
 import { formatPrice } from "@/lib/products";
 import { siteUrl } from "@/lib/stripe";
 import { emailCopy } from "@/lib/email/copy";
+import { receiptFileName, renderReceiptPdf } from "@/lib/pdf/receipt";
 import {
   BRAND,
   FONT,
@@ -162,6 +163,16 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
     ${paragraph(`<span style="font-size:13px;color:${BRAND.muted}">${t.trackHint}</span>`)}
   `;
 
+  // La boleta va adjunta: el comprador la tiene aunque nunca abra el link.
+  let attachments;
+  try {
+    const pdf = await renderReceiptPdf(order);
+    attachments = [{ filename: receiptFileName(order), content: pdf.toString("base64") }];
+  } catch (err) {
+    // Un fallo generando el PDF no puede impedir la confirmación de una compra pagada.
+    console.error(`[email] no se pudo adjuntar la boleta de ${order.orderNumber}:`, err);
+  }
+
   await send({
     to: order.email,
     subject: t.confirmSubject(order.orderNumber),
@@ -170,6 +181,7 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
       preheader: `${t.total}: ${formatPrice(order.totalCents)}`,
       content,
     }),
+    attachments,
   });
 }
 
@@ -338,7 +350,12 @@ function escapeHtml(s: string): string {
  * Sin comprobarlo, un envío rechazado (dominio sin verificar, destinatario no permitido
  * en modo desarrollo) pasaría totalmente desapercibido.
  */
-async function send(msg: { to: string; subject: string; html: string }) {
+async function send(msg: {
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: { filename: string; content: string }[];
+}) {
   if (!resend) {
     console.warn(`[email] sin RESEND_API_KEY — no enviado: "${msg.subject}" → ${msg.to}`);
     return;

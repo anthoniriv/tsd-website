@@ -1,16 +1,17 @@
-"use client";
+import { Download } from "lucide-react";
 
-import { Printer } from "lucide-react";
-
-export function PrintButton({ label }: { label: string }) {
+/**
+ * Descarga la boleta en PDF. Sustituye al window.print(): imprimir la página arrastraba
+ * el header y el footer del sitio, y el resultado no era un documento presentable.
+ */
+export function PrintButton({ label, href }: { label: string; href: string }) {
   return (
-    <button
-      type="button"
-      onClick={() => window.print()}
-      className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:border-brand hover:text-brand"
+    <a
+      href={href}
+      className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:border-brand hover:text-brand"
     >
-      <Printer className="h-4 w-4" />
+      <Download className="h-4 w-4" />
       {label}
-    </button>
+    </a>
   );
 }
