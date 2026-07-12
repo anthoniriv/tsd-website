@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { db } from "@/db";
 import { contactRequests } from "@/db/schema";
-import { sendContactNotification } from "@/lib/email";
+import { sendContactAck, sendContactNotification } from "@/lib/email";
 import { getLocaleData } from "@/lib/i18n.server";
 
 const schema = z.object({
@@ -19,7 +19,7 @@ export async function submitContact(formData: FormData): Promise<{ error?: strin
   if (!parsed.success) return { error: "Datos inválidos." };
 
   const { nombre, email, asunto, mensaje } = parsed.data;
-  const { code } = await getLocaleData();
+  const { code, lang } = await getLocaleData();
 
   await db.insert(contactRequests).values({
     name: nombre,
@@ -29,7 +29,12 @@ export async function submitContact(formData: FormData): Promise<{ error?: strin
     locale: code,
   });
 
-  await sendContactNotification({ name: nombre, email, subject: asunto, message: mensaje });
+  // Aviso a TDS + acuse de recibo al visitante (en su idioma). En paralelo: ninguno
+  // depende del otro, y un fallo de email no debe perder la consulta ya guardada.
+  await Promise.all([
+    sendContactNotification({ name: nombre, email, subject: asunto, message: mensaje }),
+    sendContactAck({ name: nombre, email, lang }),
+  ]);
 
   return {};
 }

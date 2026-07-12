@@ -157,6 +157,15 @@ export async function markOrderPaid(
   return updated;
 }
 
+/** Pedido + líneas por id. Lo usa el panel para poder enviar el correo de estado. */
+export async function getOrderWithItems(id: string): Promise<OrderWithItems | null> {
+  const [order] = await db.select().from(orders).where(eq(orders.id, id)).limit(1);
+  if (!order) return null;
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
+  return { ...order, items };
+}
+
 export async function getOrderByToken(token: string): Promise<OrderWithItems | null> {
   const [order] = await db.select().from(orders).where(eq(orders.publicToken, token)).limit(1);
   if (!order) return null;

@@ -18,6 +18,8 @@ import {
   products,
 } from "@/db/schema";
 import { hashPassword, login, logout, requireRole } from "@/lib/auth";
+import { sendOrderStatusUpdate } from "@/lib/email";
+import { getOrderWithItems } from "@/lib/orders";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -201,10 +203,23 @@ export async function updateOrderStatusAction(
     .safeParse({ id, status });
   if (!parsed.success) return { error: "Estado inválido." };
 
+  const [previous] = await db
+    .select({ status: orders.status })
+    .from(orders)
+    .where(eq(orders.id, parsed.data.id))
+    .limit(1);
+
   await db
     .update(orders)
     .set({ status: parsed.data.status, updatedAt: new Date() })
     .where(eq(orders.id, parsed.data.id));
+
+  // Solo se avisa si el estado cambió de verdad: reguardar el mismo estado no debe
+  // disparar un correo al comprador.
+  if (previous && previous.status !== parsed.data.status) {
+    const order = await getOrderWithItems(parsed.data.id);
+    if (order) await sendOrderStatusUpdate(order);
+  }
 
   revalidatePath("/admin/pedidos");
   return { ok: true };
