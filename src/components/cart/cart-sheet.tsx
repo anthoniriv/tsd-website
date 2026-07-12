@@ -155,8 +155,10 @@ export function CartSheet({ dict }: { dict: Dict["cart"] }) {
                   {formatPrice(subtotal)}
                 </span>
               </div>
+              {/* El drawer es una vista rápida; la revisión (cupones, cantidades) vive en
+                  /carrito, el paso 1 del flujo. */}
               <Link
-                href="/checkout"
+                href="/carrito"
                 onClick={() => setOpen(false)}
                 className="flex h-11 w-full items-center justify-center rounded-full bg-brand text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-brand-dark"
               >

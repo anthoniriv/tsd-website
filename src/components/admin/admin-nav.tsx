@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Image, Inbox, LayoutDashboard, Package, ShoppingBag, Users } from "lucide-react";
+import { Image, Inbox, LayoutDashboard, Package, ShoppingBag, Tag, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/admin/productos", label: "Productos", icon: Package },
   { href: "/admin/banners", label: "Banners", icon: Image },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag },
+  { href: "/admin/cupones", label: "Cupones", icon: Tag },
   { href: "/admin/contacto", label: "Solicitudes", icon: Inbox },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users },
 ];

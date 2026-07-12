@@ -12,6 +12,7 @@ import {
   adminUsers,
   banners,
   contactRequests,
+  coupons,
   orders,
   productPrices,
   products,
@@ -207,6 +208,79 @@ export async function updateOrderStatusAction(
 
   revalidatePath("/admin/pedidos");
   return { ok: true };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cupones
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function saveCouponAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireRole("admin");
+
+  const raw = Object.fromEntries(formData);
+  const parsed = z
+    .object({
+      code: z
+        .string()
+        .trim()
+        .min(3, "El código debe tener al menos 3 caracteres.")
+        .regex(/^[A-Za-z0-9-]+$/, "Solo letras, números y guiones."),
+      kind: z.enum(["percent", "fixed"]),
+      value: z.coerce.number().positive("El valor debe ser mayor que cero."),
+      minSubtotal: z.coerce.number().min(0),
+      maxUses: z.string().optional(),
+      expiresAt: z.string().optional(),
+      active: z.coerce.boolean(),
+    })
+    .safeParse({ ...raw, active: raw.active === "on" });
+
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  const d = parsed.data;
+
+  if (d.kind === "percent" && d.value > 100) {
+    return { error: "Un descuento porcentual no puede superar el 100%." };
+  }
+
+  try {
+    await db.insert(coupons).values({
+      code: d.code.toUpperCase(),
+      kind: d.kind,
+      // percent → se guarda tal cual (1..100). fixed → el admin teclea dólares, se guardan centavos.
+      value: d.kind === "percent" ? Math.round(d.value) : Math.round(d.value * 100),
+      minSubtotalCents: Math.round(d.minSubtotal * 100),
+      maxUses: d.maxUses ? Number(d.maxUses) : null,
+      expiresAt: d.expiresAt ? new Date(d.expiresAt) : null,
+      active: d.active,
+    });
+  } catch (err) {
+    if (String(err).includes("coupons_code_uniq")) {
+      return { error: `El cupón "${d.code.toUpperCase()}" ya existe.` };
+    }
+    throw err;
+  }
+
+  revalidatePath("/admin/cupones");
+  return { ok: true };
+}
+
+export async function toggleCouponAction(formData: FormData) {
+  await requireRole("admin");
+  const id = z.uuid().parse(formData.get("id"));
+  const active = formData.get("active") === "1";
+
+  await db.update(coupons).set({ active }).where(eq(coupons.id, id));
+  revalidatePath("/admin/cupones");
+}
+
+export async function deleteCouponAction(formData: FormData) {
+  await requireRole("admin");
+  const id = z.uuid().parse(formData.get("id"));
+
+  await db.delete(coupons).where(eq(coupons.id, id));
+  revalidatePath("/admin/cupones");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { orderItems, orders, products, type Order, type OrderItem } from "@/db/schema";
 import type { LocaleCode, PriceTier } from "@/lib/i18n";
 import { priceMapFor } from "@/lib/pricing";
+import { consumeCoupon, validateCoupon } from "@/lib/coupons";
 
 export type DraftLine = { id: string; qty: number };
 
@@ -28,6 +29,8 @@ export async function createPendingOrder(input: {
   lines: DraftLine[];
   customer: { name: string; email: string; phone?: string };
   shipping?: Order["shipping"];
+  billing?: Order["billing"];
+  couponCode?: string;
   locale: LocaleCode;
   tier: PriceTier;
 }): Promise<OrderWithItems> {
@@ -73,6 +76,19 @@ export async function createPendingOrder(input: {
 
   const subtotalCents = items.reduce((sum, i) => sum + i.unitPriceCents * i.qty, 0);
 
+  // El descuento se recalcula aquí aunque el cliente ya lo hubiera visto en el carrito:
+  // el navegador solo aporta el CÓDIGO. Si el cupón caducó entre medias, el checkout falla
+  // en vez de cobrar de menos.
+  let discountCents = 0;
+  let couponCode: string | null = null;
+
+  if (input.couponCode?.trim()) {
+    const res = await validateCoupon(input.couponCode, subtotalCents);
+    if (!res.ok) throw new OrderError("El cupón ya no es válido.");
+    discountCents = res.discountCents;
+    couponCode = res.coupon.code;
+  }
+
   const [order] = await db
     .insert(orders)
     .values({
@@ -82,11 +98,14 @@ export async function createPendingOrder(input: {
       name: input.customer.name.trim(),
       phone: input.customer.phone?.trim() || null,
       shipping: input.shipping ?? null,
+      billing: input.billing ?? null,
       locale: input.locale,
       tier: input.tier,
       subtotalCents,
-      // Sin impuestos ni envío por ahora: el total es el subtotal.
-      totalCents: subtotalCents,
+      discountCents,
+      couponCode,
+      // Sin impuestos ni coste de envío por ahora.
+      totalCents: subtotalCents - discountCents,
       status: "pending",
     })
     .returning();
@@ -123,6 +142,11 @@ export async function markOrderPaid(
       .set({ stock: sql`greatest(${products.stock} - ${item.qty}, 0)` })
       .where(eq(products.id, item.productId));
   }
+
+  // El uso del cupón se contabiliza al PAGAR, no al aplicarlo: un carrito abandonado no
+  // debe gastar un uso. Va dentro del bloque idempotente, así un reintento del webhook
+  // tampoco lo cuenta dos veces.
+  if (order.couponCode) await consumeCoupon(order.couponCode);
 
   const [updated] = await db
     .update(orders)

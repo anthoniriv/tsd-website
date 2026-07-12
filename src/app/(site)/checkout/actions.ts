@@ -10,16 +10,35 @@ import { getStripe, siteUrl } from "@/lib/stripe";
 
 export type CheckoutState = { error?: string };
 
+const address = (p: string) => ({
+  [`${p}_line1`]: z.string().optional(),
+  [`${p}_line2`]: z.string().optional(),
+  [`${p}_city`]: z.string().optional(),
+  [`${p}_state`]: z.string().optional(),
+  [`${p}_postalCode`]: z.string().optional(),
+  [`${p}_country`]: z.string().optional(),
+});
+
 const schema = z.object({
   name: z.string().min(2, "Ingresa tu nombre."),
   email: z.email("Email no válido."),
   phone: z.string().optional(),
-  line1: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
+  billingSame: z.string().optional(),
+  ...address("ship"),
+  ...address("bill"),
 });
+
+function pickAddress(d: Record<string, unknown>, p: string) {
+  const a = {
+    line1: d[`${p}_line1`] as string | undefined,
+    line2: d[`${p}_line2`] as string | undefined,
+    city: d[`${p}_city`] as string | undefined,
+    state: d[`${p}_state`] as string | undefined,
+    postalCode: d[`${p}_postalCode`] as string | undefined,
+    country: d[`${p}_country`] as string | undefined,
+  };
+  return Object.values(a).some(Boolean) ? a : undefined;
+}
 
 /**
  * Crea el pedido y devuelve la URL de Stripe Checkout.
@@ -30,27 +49,27 @@ const schema = z.object({
  */
 export async function startCheckout(
   lines: DraftLine[],
+  couponCode: string | null,
   formData: FormData,
 ): Promise<CheckoutState & { url?: string }> {
   const parsed = schema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
   }
-  const d = parsed.data;
+  const d = parsed.data as Record<string, string | undefined>;
   const { code, tier } = await getLocaleData();
+
+  const shipping = pickAddress(d, "ship");
+  const billingSame = d.billingSame === "on";
 
   let order;
   try {
     order = await createPendingOrder({
       lines,
-      customer: { name: d.name, email: d.email, phone: d.phone },
-      shipping: {
-        line1: d.line1,
-        city: d.city,
-        state: d.state,
-        postalCode: d.postalCode,
-        country: d.country,
-      },
+      customer: { name: d.name!, email: d.email!, phone: d.phone },
+      shipping,
+      billing: billingSame ? shipping : pickAddress(d, "bill"),
+      couponCode: couponCode ?? undefined,
       locale: code,
       tier,
     });
@@ -71,6 +90,23 @@ export async function startCheckout(
         product_data: { name: i.nameSnapshot },
       },
     })),
+    // El descuento va como cupón de Stripe, para que la página de pago muestre el
+    // desglose real (subtotal, descuento, total) en vez de un importe ya rebajado.
+    discounts:
+      order.discountCents > 0
+        ? [
+            {
+              coupon: (
+                await getStripe().coupons.create({
+                  amount_off: order.discountCents,
+                  currency: "usd",
+                  duration: "once",
+                  name: order.couponCode ?? "Descuento",
+                })
+              ).id,
+            },
+          ]
+        : undefined,
     success_url: `${siteUrl()}/pedido/${order.publicToken}?pago=ok`,
     cancel_url: `${siteUrl()}/checkout?cancelado=1`,
     metadata: { orderId: order.id, orderNumber: order.orderNumber },

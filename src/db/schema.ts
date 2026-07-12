@@ -25,6 +25,15 @@ import {
 /** Alias del tipo localizado, para tipar las columnas jsonb. */
 type Loc<T> = Record<Lang, T>;
 
+export type Address = {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+};
+
 export const productKind = pgEnum("product_kind", ["jaltest", "hardware"]);
 export const productCategory = pgEnum("product_category", ["laptop", "cable", "finder"]);
 export const productStatus = pgEnum("product_status", ["draft", "published"]);
@@ -38,6 +47,32 @@ export const orderStatus = pgEnum("order_status", [
   "cancelled",
 ]);
 export const adminRole = pgEnum("admin_role", ["owner", "admin", "editor"]);
+export const couponKind = pgEnum("coupon_kind", ["percent", "fixed"]);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cupones
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const coupons = pgTable(
+  "coupons",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** Se guarda SIEMPRE en mayúsculas; la comparación es exacta. */
+    code: text("code").notNull(),
+    kind: couponKind("kind").notNull(),
+    /** percent → 1..100 · fixed → centavos de descuento. */
+    value: integer("value").notNull(),
+    /** Compra mínima para poder aplicarlo (centavos). 0 = sin mínimo. */
+    minSubtotalCents: integer("min_subtotal_cents").notNull().default(0),
+    /** null = usos ilimitados. */
+    maxUses: integer("max_uses"),
+    usedCount: integer("used_count").notNull().default(0),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("coupons_code_uniq").on(t.code)],
+);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Catálogo
@@ -131,19 +166,18 @@ export const orders = pgTable(
     email: text("email").notNull(),
     name: text("name").notNull(),
     phone: text("phone"),
-    shipping: jsonb("shipping").$type<{
-      line1?: string;
-      line2?: string;
-      city?: string;
-      state?: string;
-      postalCode?: string;
-      country?: string;
-    }>(),
+    shipping: jsonb("shipping").$type<Address>(),
+    /** null = se facturó a la dirección de envío. */
+    billing: jsonb("billing").$type<Address>(),
 
     locale: text("locale").$type<LocaleCode>().notNull(),
     tier: priceTier("tier").notNull(), // tier con el que se cotizó el pedido
 
     subtotalCents: integer("subtotal_cents").notNull(),
+    /** Descuento aplicado, ya recalculado en servidor. Snapshot: si el cupón cambia
+     *  después, el pedido conserva lo que realmente se descontó. */
+    discountCents: integer("discount_cents").notNull().default(0),
+    couponCode: text("coupon_code"),
     totalCents: integer("total_cents").notNull(),
     currency: text("currency").notNull().default("USD"),
 
@@ -273,6 +307,7 @@ export type OrderItem = typeof orderItems.$inferSelect;
 export type ContactRequest = typeof contactRequests.$inferSelect;
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
+export type Coupon = typeof coupons.$inferSelect;
 
 /** Producto con sus 3 precios ya resueltos a un mapa por tier. */
 export type ProductWithPrices = Product & { prices: Record<PriceTier, number> };

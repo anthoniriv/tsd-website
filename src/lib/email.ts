@@ -28,9 +28,23 @@ function itemsTable(order: OrderWithItems) {
     )
     .join("");
 
+  const discount =
+    order.discountCents > 0
+      ? `
+      <tr>
+        <td style="padding:8px 0;color:#486581">
+          Descuento ${order.couponCode ? `(${order.couponCode})` : ""}
+        </td>
+        <td style="padding:8px 0;text-align:right;font-weight:700;color:#5f8f14">
+          −${formatPrice(order.discountCents)}
+        </td>
+      </tr>`
+      : "";
+
   return `
     <table style="width:100%;border-collapse:collapse;font-size:14px">
       ${rows}
+      ${discount}
       <tr>
         <td style="padding:12px 0;font-weight:800">Total</td>
         <td style="padding:12px 0;text-align:right;font-weight:800;font-size:18px;color:#0285C9">
