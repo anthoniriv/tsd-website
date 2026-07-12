@@ -114,6 +114,10 @@ export async function sendContactNotification(input: {
 /**
  * Un fallo de email NUNCA debe tumbar un pedido ya pagado: se registra y se sigue.
  * El pedido queda igualmente en el panel.
+ *
+ * Ojo: el SDK de Resend NO lanza en los errores de la API — los devuelve en
+ * `{ error }`. Sin comprobarlo, un envío rechazado (dominio sin verificar, destinatario
+ * no permitido en modo desarrollo) pasaría totalmente desapercibido.
  */
 async function send(msg: { to: string; subject: string; html: string }) {
   if (!resend) {
@@ -121,8 +125,13 @@ async function send(msg: { to: string; subject: string; html: string }) {
     return;
   }
   try {
-    await resend.emails.send({ from: FROM, ...msg });
+    const { data, error } = await resend.emails.send({ from: FROM, ...msg });
+    if (error) {
+      console.error(`[email] rechazado "${msg.subject}" → ${msg.to}:`, error.message);
+      return;
+    }
+    console.info(`[email] enviado "${msg.subject}" → ${msg.to} (${data?.id})`);
   } catch (err) {
-    console.error(`[email] fallo al enviar "${msg.subject}" a ${msg.to}:`, err);
+    console.error(`[email] fallo de red al enviar "${msg.subject}" a ${msg.to}:`, err);
   }
 }
