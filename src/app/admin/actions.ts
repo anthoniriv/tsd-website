@@ -8,8 +8,15 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { banners, orders, productPrices, products } from "@/db/schema";
-import { login, logout, requireRole } from "@/lib/auth";
+import {
+  adminUsers,
+  banners,
+  contactRequests,
+  orders,
+  productPrices,
+  products,
+} from "@/db/schema";
+import { hashPassword, login, logout, requireRole } from "@/lib/auth";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -200,6 +207,76 @@ export async function updateOrderStatusAction(
 
   revalidatePath("/admin/pedidos");
   return { ok: true };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bandeja de contacto
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function toggleContactReadAction(formData: FormData) {
+  await requireRole("editor");
+
+  const id = z.uuid().parse(formData.get("id"));
+  const read = formData.get("read") === "1";
+
+  await db.update(contactRequests).set({ read }).where(eq(contactRequests.id, id));
+
+  revalidatePath("/admin/contacto");
+  revalidatePath("/admin");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Usuarios del panel
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ROLES = ["owner", "admin", "editor"] as const;
+
+export async function createUserAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  // Solo un owner reparte accesos.
+  await requireRole("owner");
+
+  const parsed = z
+    .object({
+      name: z.string().trim().min(2, "Ingresa un nombre."),
+      email: z.email("Email no válido."),
+      password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres."),
+      role: z.enum(ROLES),
+    })
+    .safeParse(Object.fromEntries(formData));
+
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  const d = parsed.data;
+
+  try {
+    await db.insert(adminUsers).values({
+      name: d.name,
+      email: d.email.toLowerCase(),
+      passwordHash: await hashPassword(d.password),
+      role: d.role,
+    });
+  } catch (err) {
+    if (String(err).includes("admin_users_email_uniq")) {
+      return { error: "Ya existe un usuario con ese email." };
+    }
+    throw err;
+  }
+
+  revalidatePath("/admin/usuarios");
+  return { ok: true };
+}
+
+export async function deleteUserAction(formData: FormData) {
+  const me = await requireRole("owner");
+  const id = z.uuid().parse(formData.get("id"));
+
+  // Sin esto, un owner podría dejarse fuera de su propio panel.
+  if (id === me.id) throw new Error("No puedes eliminar tu propio usuario.");
+
+  await db.delete(adminUsers).where(eq(adminUsers.id, id));
+  revalidatePath("/admin/usuarios");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

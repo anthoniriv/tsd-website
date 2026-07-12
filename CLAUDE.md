@@ -2,61 +2,102 @@
 
 # TDS — Tech Diagnostic Solutions
 
-Landing del revendedor **Jaltest / Cojali USA** (Doral, FL). Hoy es landing; está
-diseñada para **convertirse en ecommerce** sin reescribir la UI. Diseño basado en una
-referencia del cliente — replicar fiel pero refinando UX/UI (espaciado, hover, mobile,
-skeletons, lazy loading).
+Sitio del revendedor **Jaltest / Cojali USA** (Doral, FL): landing + **ecommerce** +
+**panel admin**, en 3 locales. Diseño basado en una referencia del cliente — replicar
+fiel pero refinando UX/UI (espaciado, hover, mobile, skeletons, lazy loading).
 
 ## Stack
 
 - **Next.js 16** (App Router, RSC, Turbopack) + **React 19**
 - **Tailwind CSS v4** (config en `globals.css` con `@theme`, no `tailwind.config`)
 - **shadcn** sobre **@base-ui/react** (⚠️ NO Radix) — `components.json`
-- `lucide-react` iconos · `sonner` toasts · `next-themes` (presente, sin uso aún)
-- Node v20 local. Deploy objetivo: **Vercel**.
+- **Neon Postgres** + **Drizzle ORM** · **Stripe Checkout** · **Resend** (emails) · `zod`
+- `lucide-react` iconos · `sonner` toasts · `bcryptjs` (auth admin)
+- Node v20 local. Deploy: **Vercel** (proyecto `tds`, Neon vía Marketplace).
 
 ## Comandos
 
 ```bash
 rtk proxy npm run dev      # dev (rtk rompe npx/npm directo → usar 'rtk proxy')
 rtk proxy npm run build    # build prod + type check (la verificación real)
-rtk proxy npm run start    # servir build
+rtk proxy npm run db:generate  # migración desde el schema
+rtk proxy npm run db:migrate   # aplicar a Neon
+rtk proxy npm run db:seed      # sembrar catálogo + admin owner
+rtk proxy npm run db:studio    # inspeccionar la BD
 ```
 
-Rutas: `/` (Inicio) · `/producto` · `/contacto`. Las 3 son estáticas (prerender).
+Env necesarias (`.env.local`, vía `vercel env pull`): `DATABASE_URL` (Neon),
+`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `NEXT_PUBLIC_SITE_URL`,
+`ORDER_NOTIFY_EMAIL`. Para el seed: `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD`.
+
+**Rutas**. Público: `/` · `/producto` (institucional, las 5 líneas Jaltest) · `/tienda`
+(catálogo con búsqueda/filtros) · `/tienda/[slug]` · `/checkout` · `/pedido/[token]`
+(seguimiento sin cuenta) · `/contacto`. Panel: `/admin/*`. API: `/api/stripe/webhook`.
+
+**Todas las rutas son dinámicas** (`ƒ`): el locale se lee de una cookie en el layout.
+`cacheComponents` NO está activado — hacerlo obligaría a rediseñar cada página con
+Suspense sin beneficio real con un catálogo de ~20 productos.
 
 ## Arquitectura
 
 ```
 src/
-  app/                  # rutas (RSC por defecto)
-    layout.tsx          # Header + Footer + Toaster, fuente Inter, metadata SEO, lang="es"
-    page.tsx            # Inicio: HeroSlider → CoverageKits → HardwareKits → Renovaciones
-    producto/page.tsx   # 5 ProductHero + Panasonic + 3 ProductGrid + renovar + precios
-    contacto/page.tsx   # hero + LocationMap + ContactForm
-    loading.tsx         # skeleton a nivel ruta
-    globals.css         # tokens de marca + utilidades (hex-clip, no-scrollbar)
-  components/
-    layout/             # header, footer, logo (compartidos)
-    home/               # hero-slider, coverage-kits, hardware-kits, hex-tile, renovaciones
-    product/            # product-hero, product-card, product-grid, jaltest-logo
-    contact/            # contact-form, location-map
-    ui/                 # shadcn + primitivos propios (smart-image, hexagon)
+  app/
+    layout.tsx          # html/body + Toaster + fuente Inter (sin chrome)
+    (site)/             # sitio público — Header + Footer + CartProvider
+      layout.tsx        #   el chrome vive aquí, NO en el layout raíz (si no, /admin lo heredaría)
+      page.tsx          #   Inicio: HeroSlider (banners de BD) → CoverageKits → …
+      producto/         #   institucional: 5 ProductHero + Panasonic + grids
+      tienda/           #   catálogo con búsqueda/filtros + [slug] ficha
+      checkout/         #   form + Server Action → Stripe
+      pedido/[token]/   #   seguimiento sin cuenta
+      contacto/         #   hero + LocationMap + ContactForm (+ actions.ts)
+      cart-actions.ts   #   detalles del carrito resueltos en servidor
+    admin/              # panel (sidebar propia) — productos, banners, pedidos,
+      actions.ts        #   contacto, usuarios. TODA escritura pasa por actions.ts
+    api/stripe/webhook/ # única fuente de verdad del pago
+  proxy.ts              # (el "middleware" de Next 16) filtra /admin por cookie
+  db/
+    schema.ts           # 8 tablas. Textos localizados = JSONB {es,en}. Dinero en centavos
+    seed.ts / seed-data.ts
   lib/
-    products.ts         # DATA (líneas Jaltest, kits, catálogo hardware) — fuente única
-    site.ts             # constantes (nav, contacto, redes, policies)
-    utils.ts            # cn()
-public/images/          # assets planos (ver public/images/README.md)
+    catalog.ts          # lecturas del catálogo (server-only, react.cache)
+    pricing.ts          # precio por tier — fuente única, la usan carrito y checkout
+    orders.ts           # crear pedido, marcar pagado, seguimiento
+    auth.ts             # sesión admin (bcrypt + cookie httpOnly)
+    auth.shared.ts      # constantes sin deps de servidor (las importa proxy.ts)
+    products.ts         # TIPOS de UI + ACCENT + kits decorativos (ya NO es la data)
+    i18n.ts / i18n.server.ts / site.ts / email.ts / stripe.ts
 ```
 
 ## Patrones clave
 
-### Datos centralizados → ecommerce-ready
-Toda la data de productos vive en `src/lib/products.ts` (tipos `JaltestLine`,
-`HardwareItem`, `AccentKey`). La UI sólo consume estas estructuras. Migrar a API/CMS/DB
-luego = cambiar la fuente de `products.ts`, sin tocar componentes. `ProductCard` ya
-modela `{id, name, img, price, blurb, category}`; el CTA "Cotizar" pasará a "Añadir al
-carrito". Precios y descripciones del catálogo de hardware son **DEMO**.
+### La data vive en Postgres, no en el código
+`src/lib/products.ts` conserva los **tipos** (`JaltestLine`, `HardwareItem`, `AccentKey`)
+y los kits decorativos del honeycomb, pero **ya no contiene el catálogo**: las lecturas
+son `getJaltestLines(tier)` / `getHardware(cat, tier)` / `searchHardware(…)` en
+`src/lib/catalog.ts`. Los componentes no cambiaron: siguen haciendo `item.name[lang]`
+porque los textos localizados se guardan como JSONB `{es, en}`, que mapea 1:1 a
+`Localized<T>`.
+
+### Precios: nunca confíes en el cliente
+Tabla `product_prices(product_id, tier, amount_cents)` — un precio **explícito** por tier
+(`us` / `latam` / `es`), editable desde el panel. Ya no hay multiplicador. El carrito del
+navegador guarda **solo `{id, qty}`**; el importe se resuelve siempre en servidor con
+`priceMapFor()` (`lib/pricing.ts`), tanto para mostrar como para cobrar. Los `order_items`
+guardan un **snapshot** de nombre y precio: cambiar el catálogo no reescribe pedidos ya
+hechos.
+
+### El webhook manda, no el redirect
+`/api/stripe/webhook` es lo único que marca un pedido como pagado, descuenta stock y
+dispara los emails. El `success_url` puede no visitarse nunca (el usuario cierra la
+pestaña) — el webhook siempre llega. Es **idempotente** porque Stripe reintenta.
+
+### Auth del admin
+Sesión opaca en tabla `sessions` + cookie httpOnly. `proxy.ts` solo comprueba que la
+cookie *exista* (filtro barato); la validación real (token vivo + rol) está en
+`requireUser()` / `requireRole()`, que corren en el layout y en **cada** Server Action.
+Roles: `owner` ⊃ `admin` ⊃ `editor`.
 
 Constantes globales (nav, dirección, redes, policies) en `src/lib/site.ts`.
 
@@ -148,13 +189,30 @@ Mantener este ritmo al añadir secciones para conservar el "aire".
 
 ## Idioma
 
-Sitio **solo en español** (`lang="es"`). UI, copy y comentarios en español; nombres de
-código en inglés.
+**3 locales sobre 2 idiomas de contenido y 3 tiers de precio** (todo USD):
+`en-US` (en / tier us) · `en-LATAM` (en / tier latam) · `es` (es / tier es). El locale se
+guarda en la cookie `tds_locale` (no httpOnly, la escribe el `LocaleSwitcher`) y se lee
+con `getLocaleData()` en RSC.
+
+Dos capas separadas: el **chrome de UI** vive en el diccionario `src/lib/i18n.ts`
+(añadir una clave a `es` rompe el build si falta en `en` — es deliberado); el **contenido
+de catálogo y banners** vive en BD, editable desde el panel.
+
+En client components no hay contexto de i18n: se pasan **slices tipados** (`Dict["cart"]`)
+o strings ya resueltos desde el servidor.
+
+Comentarios y copy en español; nombres de código en inglés.
 
 ## Pendientes conocidos
 
-- Optimizar `hero.png` (~9 MB) o migrar a `next/image`.
-- Buscador del header y de las secciones es UI (sin lógica de búsqueda aún).
-- Form de contacto: validación cliente OK; submit es stub (`setTimeout` + toast) — falta
-  Server Action / servicio de email.
+- **Checkout no verificado end-to-end**: el flujo de Stripe está escrito y compila, pero
+  falta ejecutar una compra real con `stripe listen` + tarjeta `4242…` para confirmar que
+  el webhook marca el pedido pagado, baja el stock y envía el email.
+- Emails en modo desarrollo (`onboarding@resend.dev`): solo entregan al dueño de la cuenta
+  de Resend. Al lanzar, verificar el dominio de TDS y ajustar `ORDER_FROM_EMAIL`.
+- Las **5 líneas Jaltest no son creables desde el panel**: su layout en `/producto` está
+  atado a los 5 ids (`VISUALS` en `product-hero.tsx`). Editar textos/precios/imágenes sí;
+  añadir una sexta línea exige tocar el diseño.
+- Imágenes: el panel pide una **ruta** (`/images/…`); falta subida de archivos (Vercel Blob).
+- Sin impuestos ni costes de envío: el total es el subtotal.
 - Footer/redes/policies con `href="#"` placeholder.
