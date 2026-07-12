@@ -84,26 +84,18 @@ export default async function PedidoPage({
   });
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14">
+    <>
       {pago === "ok" && <OrderPaidEffect message={d.paidToast} clear={paid} />}
 
-      <div className="print:hidden">
-        <CheckoutSteps current={3} dict={dict.checkout.steps} />
-      </div>
+      <CheckoutSteps
+        current={3}
+        title={paid ? d.thanks : d.title}
+        subtitle={paid ? `${d.thanksSub} ${order.email}` : undefined}
+        dict={dict.checkout.steps}
+      />
 
-      {paid && (
-        <div className="mb-8 text-center print:hidden">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-jt-agv/15">
-            <Check className="h-7 w-7 text-[#5f8f14]" strokeWidth={3} />
-          </span>
-          <h1 className="mt-4 text-2xl font-black text-text-main">{d.thanks}</h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            {d.thanksSub} <strong>{order.email}</strong>
-          </p>
-        </div>
-      )}
-
-      {/* Boleta */}
+      <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14">
+        {/* Boleta */}
       <article className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-dashed border-border px-7 py-6">
           <div>
@@ -295,16 +287,17 @@ export default async function PedidoPage({
         )}
       </article>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
-        <p className="text-sm text-text-muted">
-          {d.help}{" "}
-          <Link href="/contacto" className="font-semibold text-brand hover:underline">
-            {dict.nav.contact}
-          </Link>
-        </p>
-        <PrintButton label={d.print} />
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
+          <p className="text-sm text-text-muted">
+            {d.help}{" "}
+            <Link href="/contacto" className="font-semibold text-brand hover:underline">
+              {dict.nav.contact}
+            </Link>
+          </p>
+          <PrintButton label={d.print} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

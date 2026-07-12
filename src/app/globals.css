@@ -28,6 +28,7 @@
   --color-text-main: #102a43;
   --color-text-secondary: #486581;
   --color-text-muted: #829ab1;
+  --color-border-light: #e5edf3; /* rellenos inertes: pasos no alcanzados, badges neutros */
   --color-border-soft: #d9e2ec;
   --color-border-medium: #bcccdc;
   --font-sans: var(--font-sans);

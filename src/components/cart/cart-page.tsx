@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Minus, Plus, ShoppingCart, Tag, Trash2, X } from "lucide-react";
+import {
+  ArrowRight,
+  Headset,
+  Minus,
+  Plus,
+  ShieldCheck,
+  ShoppingCart,
+  Tag,
+  Trash2,
+  Truck,
+  X,
+} from "lucide-react";
 import { getCartItems, type CartItemView } from "@/app/(site)/cart-actions";
 import { applyCoupon } from "@/app/(site)/carrito/actions";
 import { useCart } from "@/components/cart/cart-provider";
@@ -14,7 +25,13 @@ import { SmartImage } from "@/components/ui/smart-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-export function CartPage({ dict }: { dict: Dict["cartPage"] }) {
+export function CartPage({
+  dict,
+  trust,
+}: {
+  dict: Dict["cartPage"];
+  trust: Dict["product"]["trust"];
+}) {
   const { lines, ready, couponCode, setCouponCode, setQty, remove } = useCart();
   const [items, setItems] = useState<CartItemView[]>([]);
   const [loading, setLoading] = useState(true);
@@ -309,11 +326,25 @@ export function CartPage({ dict }: { dict: Dict["cartPage"] }) {
 
         <Link
           href="/checkout"
-          className="group flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-brand-dark"
+          className="group flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand text-sm font-bold uppercase tracking-wide text-white shadow-lg shadow-brand/25 transition-all hover:-translate-y-0.5 hover:bg-brand-dark"
         >
           {dict.continue}
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
+
+        {/* Refuerzo de confianza justo donde se decide la compra. */}
+        <ul className="space-y-2.5 border-t border-border pt-4">
+          {[
+            { icon: Truck, label: trust.shipping },
+            { icon: ShieldCheck, label: trust.secure },
+            { icon: Headset, label: trust.support },
+          ].map(({ icon: Icon, label }) => (
+            <li key={label} className="flex items-center gap-2.5 text-xs text-text-secondary">
+              <Icon className="h-4 w-4 shrink-0 text-brand" />
+              {label}
+            </li>
+          ))}
+        </ul>
       </aside>
     </div>
   );

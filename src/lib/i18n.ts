@@ -250,6 +250,7 @@ const es = {
   },
   checkout: {
     title: "Finalizar compra",
+    subtitle: "Dinos a dónde enviamos tu pedido. El pago es el último paso.",
     contactData: "Tus datos",
     shipping: "Dirección de envío",
     billing: "Dirección de facturación",
@@ -275,6 +276,7 @@ const es = {
   },
   cartPage: {
     title: "Tu carrito",
+    subtitle: "Revisa tus productos y aplica tu cupón antes de continuar.",
     empty: "Todavía no has añadido productos.",
     goToShop: "Ir a la tienda",
     product: "Producto",
@@ -582,6 +584,7 @@ const en: Dict = {
   },
   checkout: {
     title: "Checkout",
+    subtitle: "Tell us where to ship your order. Payment is the last step.",
     contactData: "Your details",
     shipping: "Shipping address",
     billing: "Billing address",
@@ -607,6 +610,7 @@ const en: Dict = {
   },
   cartPage: {
     title: "Your cart",
+    subtitle: "Review your items and apply your coupon before continuing.",
     empty: "You haven't added any products yet.",
     goToShop: "Go to shop",
     product: "Product",

@@ -12,12 +12,17 @@ export default async function CarritoPage() {
   const { dict } = await getLocaleData();
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-      <CheckoutSteps current={1} dict={dict.checkout.steps} />
-      <h1 className="mb-8 text-3xl font-black uppercase tracking-wide text-text-main">
-        {dict.cartPage.title}
-      </h1>
-      <CartPage dict={dict.cartPage} />
-    </div>
+    <>
+      <CheckoutSteps
+        current={1}
+        title={dict.cartPage.title}
+        subtitle={dict.cartPage.subtitle}
+        dict={dict.checkout.steps}
+      />
+
+      <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <CartPage dict={dict.cartPage} trust={dict.product.trust} />
+      </div>
+    </>
   );
 }

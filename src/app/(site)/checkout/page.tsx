@@ -12,12 +12,17 @@ export default async function CheckoutPage() {
   const { dict } = await getLocaleData();
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-      <CheckoutSteps current={2} dict={dict.checkout.steps} />
-      <h1 className="mb-8 text-3xl font-black uppercase tracking-wide text-text-main">
-        {dict.checkout.title}
-      </h1>
-      <CheckoutForm dict={dict.checkout} cartDict={dict.cartPage} />
-    </div>
+    <>
+      <CheckoutSteps
+        current={2}
+        title={dict.checkout.title}
+        subtitle={dict.checkout.subtitle}
+        dict={dict.checkout.steps}
+      />
+
+      <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <CheckoutForm dict={dict.checkout} cartDict={dict.cartPage} />
+      </div>
+    </>
   );
 }
