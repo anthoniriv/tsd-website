@@ -24,16 +24,27 @@ export function CartSheet({ dict }: { dict: Dict["cart"] }) {
   const [items, setItems] = useState<CartItemView[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Los detalles (nombre/precio/imagen) se piden al servidor al abrir el carrito, y
-  // se refrescan si cambian las líneas: así el precio siempre es el del tier vigente.
+  // Clave de los PRODUCTOS del carrito. Cambiar una cantidad no cambia esta clave, así
+  // que no dispara una consulta: el precio unitario es el mismo.
+  const idsKey = lines
+    .map((l) => l.id)
+    .sort()
+    .join(",");
+
+  /**
+   * Los detalles (nombre/precio/imagen) se resuelven en servidor —el carrito solo guarda
+   * {id, qty}— y se cachean mientras el carrito no cambie. No se piden "al abrir": se
+   * piden en cuanto entra un producto, así el drawer abre ya con todo pintado.
+   */
   useEffect(() => {
-    if (!open || lines.length === 0) {
+    if (!ready) return;
+    if (idsKey === "") {
       setItems([]);
       return;
     }
     let cancelled = false;
     setLoading(true);
-    getCartItems(lines.map((l) => l.id))
+    getCartItems(idsKey.split(","))
       .then((res) => {
         if (!cancelled) setItems(res);
       })
@@ -43,7 +54,7 @@ export function CartSheet({ dict }: { dict: Dict["cart"] }) {
     return () => {
       cancelled = true;
     };
-  }, [open, lines]);
+  }, [idsKey, ready]);
 
   const qtyOf = (id: string) => lines.find((l) => l.id === id)?.qty ?? 0;
   const subtotal = items.reduce((sum, i) => sum + i.priceCents * qtyOf(i.id), 0);

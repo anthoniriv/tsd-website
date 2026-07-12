@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { searchSuggestions, type Suggestion } from "@/app/(site)/search-actions";
 import type { Dict } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
@@ -30,27 +30,33 @@ export function SearchBar({
   const router = useRouter();
   const [q, setQ] = useState("");
   const [items, setItems] = useState<Suggestion[]>([]);
+  /** Término del que ya tenemos respuesta. Sin esto, mientras corre el debounce el panel
+   *  diría "sin resultados" para algo que todavía no se ha buscado. */
+  const [settled, setSettled] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [pending, startTransition] = useTransition();
   const boxRef = useRef<HTMLDivElement>(null);
 
+  const term = q.trim();
+
   // Debounce: no lanzamos una query por tecla.
   useEffect(() => {
-    const term = q.trim();
     if (term.length < MIN_CHARS) {
       setItems([]);
+      setSettled("");
       return;
     }
     const id = setTimeout(() => {
       startTransition(async () => {
         const res = await searchSuggestions(term);
         setItems(res);
+        setSettled(term);
         setActive(-1);
       });
     }, DEBOUNCE_MS);
     return () => clearTimeout(id);
-  }, [q]);
+  }, [term]);
 
   // Cerrar al hacer click fuera.
   useEffect(() => {
@@ -69,7 +75,6 @@ export function SearchBar({
   };
 
   const submit = () => {
-    const term = q.trim();
     go(term ? `/tienda?q=${encodeURIComponent(term)}` : "/tienda");
   };
 
@@ -89,8 +94,10 @@ export function SearchBar({
     }
   };
 
-  const showPanel = open && q.trim().length >= MIN_CHARS;
-  const empty = !pending && items.length === 0;
+  const showPanel = open && term.length >= MIN_CHARS;
+  // "Buscando" mientras el término tecleado aún no tiene respuesta (debounce incluido).
+  const searching = settled !== term;
+  const empty = !searching && items.length === 0;
 
   return (
     <div ref={boxRef} className={cn("relative w-full", className)}>
@@ -133,22 +140,28 @@ export function SearchBar({
           role="listbox"
           className="absolute inset-x-0 top-12 z-50 overflow-hidden rounded-xl border border-border bg-white shadow-xl"
         >
-          {pending && items.length === 0 ? (
-            <div className="space-y-3 p-3">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <Skeleton className="h-11 w-11 rounded-lg" />
-                  <div className="flex-1 space-y-1.5">
-                    <Skeleton className="h-3 w-3/4" />
-                    <Skeleton className="h-3 w-1/4" />
+          {searching && items.length === 0 ? (
+            <div className="p-3">
+              <p className="flex items-center gap-2 px-1 pb-2 text-xs font-semibold text-text-muted">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                {dict.shop.searching}
+              </p>
+              <div className="space-y-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Skeleton className="h-11 w-11 rounded-lg" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3 w-3/4" />
+                      <Skeleton className="h-3 w-1/4" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : empty ? (
             <div className="p-6 text-center">
               <p className="text-sm text-text-secondary">
-                {dict.shop.noSuggestions} <strong>“{q.trim()}”</strong>
+                {dict.shop.noSuggestions} <strong>“{term}”</strong>
               </p>
               <Link
                 href="/tienda"
