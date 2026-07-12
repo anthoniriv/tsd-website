@@ -5,12 +5,18 @@ import { cn } from "@/lib/utils";
 import type { Dict } from "@/lib/i18n";
 import { SmartImage } from "@/components/ui/smart-image";
 
-const SLIDE_IMAGES = ["/images/hero.jpg", "/images/hero2.jpg"];
-
 const AUTOPLAY_MS = 6000;
 
-export function HeroSlider({ dict }: { dict: Dict["home"] }) {
-  const SLIDES = SLIDE_IMAGES.map((img, i) => ({ img, alt: dict.slides[i] }));
+/**
+ * Las imágenes llegan de la BD (tabla `banners`, gestionables desde el admin). Los alt
+ * salen del diccionario por índice; si el admin añade más slides de los que hay alt,
+ * el último se reutiliza — es texto accesible, no contenido visible.
+ */
+export function HeroSlider({ dict, images }: { dict: Dict["home"]; images: string[] }) {
+  const SLIDES = images.map((img, i) => ({
+    img,
+    alt: dict.slides[i] ?? dict.slides[dict.slides.length - 1],
+  }));
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const count = SLIDES.length;
