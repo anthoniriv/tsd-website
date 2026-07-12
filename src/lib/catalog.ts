@@ -6,7 +6,7 @@
 
 import "server-only";
 import { cache } from "react";
-import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { productPrices, products, banners } from "@/db/schema";
 import type { PriceTier } from "@/lib/i18n";
@@ -71,8 +71,12 @@ export const getJaltestLines = cache(async (tier: PriceTier): Promise<JaltestLin
 type HardwareCategory = HardwareItem["category"];
 
 export const getHardware = cache(
-  async (category: HardwareCategory, tier: PriceTier): Promise<HardwareItem[]> => {
-    const rows = await db
+  async (
+    category: HardwareCategory,
+    tier: PriceTier,
+    limit?: number,
+  ): Promise<HardwareItem[]> => {
+    const q = db
       .select({ ...baseCols, priceCents: priceFor(tier) })
       .from(products)
       .where(
@@ -84,7 +88,54 @@ export const getHardware = cache(
       )
       .orderBy(asc(products.sort));
 
+    const rows = limit ? await q.limit(limit) : await q;
     return rows.map(toHardware);
+  },
+);
+
+/**
+ * Recomendaciones de la ficha: misma categoría primero; si no llenan el cupo, se completa
+ * con otros productos publicados para no dejar la sección a medias.
+ */
+export const getRelatedProducts = cache(
+  async (
+    productId: string,
+    category: HardwareCategory | null,
+    tier: PriceTier,
+    limit = 4,
+  ): Promise<HardwareItem[]> => {
+    const base = [
+      eq(products.kind, "hardware"),
+      eq(products.status, "published"),
+      ne(products.id, productId),
+    ];
+
+    const sameCategory = category
+      ? await db
+          .select({ ...baseCols, priceCents: priceFor(tier) })
+          .from(products)
+          .where(and(...base, eq(products.category, category)))
+          .orderBy(asc(products.sort))
+          .limit(limit)
+      : [];
+
+    if (sameCategory.length >= limit) return sameCategory.map(toHardware);
+
+    const exclude = [productId, ...sameCategory.map((r) => r.id)];
+    const filler = await db
+      .select({ ...baseCols, priceCents: priceFor(tier) })
+      .from(products)
+      .where(
+        and(
+          eq(products.kind, "hardware"),
+          eq(products.status, "published"),
+          sql`${products.id} <> all(${sql.param(exclude)}::uuid[])`,
+        ),
+      )
+      .orderBy(asc(products.sort))
+      .limit(limit - sameCategory.length);
+
+    return [...sameCategory, ...filler].map(toHardware);
   },
 );
 

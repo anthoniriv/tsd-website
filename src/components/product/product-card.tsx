@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, MessageCircle, ShoppingCart } from "lucide-react";
+import { Check, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart/cart-provider";
 import { SmartImage } from "@/components/ui/smart-image";
-import { CONTACT } from "@/lib/site";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 /**
@@ -57,15 +58,8 @@ export function ProductCard({
   };
 
   const openWhatsApp = () => {
-    const imgUrl =
-      typeof window !== "undefined" ? new URL(img, window.location.origin).href : img;
-    const text =
-      `${waGreeting}\n\n` + `*${name}*\n${blurb}\n${priceLabel} ${price}\n\n${imgUrl}`;
-    window.open(
-      `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(text)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+    const url = buildWhatsAppUrl({ greeting: waGreeting, name, blurb, priceLabel, price, img });
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -96,9 +90,9 @@ export function ProductCard({
               onClick={openWhatsApp}
               aria-label={waCta}
               title={waCta}
-              className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full border border-border text-text-muted transition-colors hover:border-brand hover:text-brand"
+              className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full bg-whatsapp text-white transition-colors hover:bg-whatsapp-dark"
             >
-              <MessageCircle className="h-4 w-4" />
+              <WhatsAppIcon className="h-[18px] w-[18px]" />
             </button>
           </div>
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { ACCENT, formatPrice, type JaltestLine } from "@/lib/products";
 import { getHardware, getJaltestLines } from "@/lib/catalog";
 import { getLocaleData } from "@/lib/i18n.server";
@@ -92,11 +92,15 @@ export default async function ProductoPage() {
   const { dict, tier } = await getLocaleData();
   const p = dict.producto;
 
+  // Máximo 8 por categoría: es lo máximo que la sección puede llegar a mostrar tras
+  // "Ver más". El catálogo completo vive en /tienda.
+  const MAX_PER_SECTION = 8;
+
   const [lines, laptops, cables, finders] = await Promise.all([
     getJaltestLines(tier),
-    getHardware("laptop", tier),
-    getHardware("cable", tier),
-    getHardware("finder", tier),
+    getHardware("laptop", tier, MAX_PER_SECTION),
+    getHardware("cable", tier, MAX_PER_SECTION),
+    getHardware("finder", tier, MAX_PER_SECTION),
   ]);
 
   const renewHex = (id: JaltestLine["id"]) => {
@@ -143,9 +147,33 @@ export default async function ProductoPage() {
       </section>
 
       {/* Grids de hardware */}
-      <ProductGrid title={p.grids.tabletTitle} accentWord={p.grids.tabletAccent} items={laptops} />
-      <ProductGrid title={p.grids.cablesTitle} accentWord={p.grids.cablesAccent} items={cables} />
-      <ProductGrid title={p.grids.finderTitle} items={finders} />
+      <ProductGrid
+        title={p.grids.tabletTitle}
+        accentWord={p.grids.tabletAccent}
+        items={laptops}
+        category="laptop"
+      />
+      <ProductGrid
+        title={p.grids.cablesTitle}
+        accentWord={p.grids.cablesAccent}
+        items={cables}
+        category="cable"
+      />
+      <ProductGrid title={p.grids.finderTitle} items={finders} category="finder" />
+
+      {/* Salida al catálogo completo: la página de producto es institucional, la compra
+          vive en /tienda */}
+      <section className="pb-16 sm:pb-20">
+        <div className="mx-auto flex max-w-6xl justify-center px-6">
+          <Link
+            href="/tienda"
+            className="group inline-flex items-center gap-2.5 rounded-full bg-brand px-8 py-4 text-sm font-black uppercase tracking-wide text-white shadow-lg shadow-brand/20 transition-all hover:-translate-y-0.5 hover:bg-brand-dark"
+          >
+            {dict.shop.seeAllProducts}
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+      </section>
 
       <section className="overflow-hidden bg-white pt-16 sm:pt-20">
         <div className="mx-auto max-w-6xl px-6">

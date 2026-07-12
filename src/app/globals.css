@@ -19,6 +19,8 @@
   --color-jt-marine: #01a3b3; /* multibrand marine */
   --color-jt-mhe: #b02a37; /* material handling */
   --color-price: #77e530; /* precios / ofertas */
+  --color-whatsapp: #25d366; /* verde oficial de la marca — solo CTAs de WhatsApp */
+  --color-whatsapp-dark: #1da851; /* hover */
   /* Bases neutras */
   --color-bg-main: #f7fafc;
   --color-bg-section: #ffffff;

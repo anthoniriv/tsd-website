@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Menu, Search, User, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, User, X } from "lucide-react";
 import { CartSheet } from "@/components/cart/cart-sheet";
 import { cn } from "@/lib/utils";
 import { NAV } from "@/lib/site";
 import type { Dict, LocaleCode } from "@/lib/i18n";
 import { Logo } from "@/components/layout/logo";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
+import { SearchBar } from "@/components/layout/search-bar";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useComingSoon } from "@/components/ui/coming-soon";
 import {
   Sheet,
@@ -21,46 +21,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-/** Busca en el catálogo: navega a /tienda?q=… (GET, así la búsqueda es enlazable). */
-function SearchBar({
-  dict,
-  className,
-  onNavigate,
-}: {
-  dict: Dict;
-  className?: string;
-  onNavigate?: () => void;
-}) {
-  const router = useRouter();
-
-  return (
-    <form
-      role="search"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const q = new FormData(e.currentTarget).get("q")?.toString().trim() ?? "";
-        onNavigate?.();
-        router.push(q ? `/tienda?q=${encodeURIComponent(q)}` : "/tienda");
-      }}
-      className={cn("relative w-full", className)}
-    >
-      <Input
-        type="search"
-        name="q"
-        placeholder={dict.header.searchPlaceholder}
-        className="h-10 pr-11"
-        aria-label={dict.header.search}
-      />
-      <button
-        type="submit"
-        aria-label={dict.header.search}
-        className="absolute right-1 top-1 grid h-8 w-9 place-items-center rounded-sm bg-brand text-white transition-colors hover:bg-brand-dark"
-      >
-        <Search className="h-4 w-4" />
-      </button>
-    </form>
-  );
-}
 
 export function Header({ locale, dict }: { locale: LocaleCode; dict: Dict }) {
   const pathname = usePathname();
