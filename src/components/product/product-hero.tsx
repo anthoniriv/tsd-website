@@ -111,8 +111,8 @@ function PriceBadge({ color, price, label }: { color: string; price: string; lab
 export async function ProductHero({ line }: { line: JaltestLine }) {
   const accent = ACCENT[line.id];
   const visual = VISUALS[line.id];
-  const { dict, lang, tier } = await getLocaleData();
-  const price = formatPrice(line.priceUSD, tier);
+  const { dict, lang } = await getLocaleData();
+  const price = formatPrice(line.priceCents ?? 0);
   const description = line.description[lang];
   const quoteLabel = `${dict.productHero.quotePrefix} ${line.variant}`;
 

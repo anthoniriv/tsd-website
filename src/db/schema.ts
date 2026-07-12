@@ -1,0 +1,278 @@
+// Schema Drizzle — fuente de verdad del catálogo, pedidos y admin.
+//
+// Los textos localizados se guardan como JSONB `{ es, en }`, que mapea 1:1 al tipo
+// `Localized<T>` de `@/lib/i18n`. Así los componentes que ya hacen `item.name[lang]`
+// no cambian al pasar de data estática a BD.
+//
+// Dinero: siempre `*_cents` (integer, USD). Nunca float.
+
+import type { Lang, LocaleCode, PriceTier } from "@/lib/i18n";
+import type { AccentKey } from "@/lib/products";
+import { relations, sql } from "drizzle-orm";
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
+
+/** Alias del tipo localizado, para tipar las columnas jsonb. */
+type Loc<T> = Record<Lang, T>;
+
+export const productKind = pgEnum("product_kind", ["jaltest", "hardware"]);
+export const productCategory = pgEnum("product_category", ["laptop", "cable", "finder"]);
+export const productStatus = pgEnum("product_status", ["draft", "published"]);
+export const priceTier = pgEnum("price_tier", ["us", "latam", "es"]);
+export const orderStatus = pgEnum("order_status", [
+  "pending",
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+]);
+export const adminRole = pgEnum("admin_role", ["owner", "admin", "editor"]);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Catálogo
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const products = pgTable(
+  "products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    kind: productKind("kind").notNull(),
+    sku: text("sku"),
+
+    // Solo hardware. Las líneas Jaltest usan `accentKey`.
+    category: productCategory("category"),
+    // Solo jaltest: cv | ohw | agv | marine | mhe. Es la clave del sistema de acentos.
+    accentKey: text("accent_key").$type<AccentKey>(),
+    brand: text("brand"),
+    variant: text("variant"), // "CV", "OHW"…
+    segment: text("segment"), // "Commercial Vehicles" (no localizado, va en inglés)
+
+    name: jsonb("name").$type<Loc<string>>().notNull(),
+    blurb: jsonb("blurb").$type<Loc<string>>(),
+    description: jsonb("description").$type<Loc<string[]>>(), // párrafos
+
+    img: text("img").notNull(),
+    vehicleImg: text("vehicle_img"),
+    logo: text("logo"),
+    gallery: jsonb("gallery").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+
+    stock: integer("stock").notNull().default(0),
+    status: productStatus("status").notNull().default("published"),
+    featured: boolean("featured").notNull().default(false),
+    sort: integer("sort").notNull().default(0),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("products_slug_uniq").on(t.slug),
+    index("products_kind_status_idx").on(t.kind, t.status),
+    index("products_category_idx").on(t.category),
+  ],
+);
+
+/** Precio explícito por tier regional. Sin multiplicadores: el admin fija cada uno. */
+export const productPrices = pgTable(
+  "product_prices",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    tier: priceTier("tier").notNull(),
+    amountCents: integer("amount_cents").notNull(),
+  },
+  (t) => [uniqueIndex("product_prices_product_tier_uniq").on(t.productId, t.tier)],
+);
+
+/** Slides del hero + banners editables desde el admin. */
+export const banners = pgTable(
+  "banners",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    key: text("key").notNull(), // "home-hero" | "contact" …
+    img: text("img").notNull(),
+    title: jsonb("title").$type<Loc<string>>(),
+    subtitle: jsonb("subtitle").$type<Loc<string>>(),
+    ctaLabel: jsonb("cta_label").$type<Loc<string>>(),
+    ctaHref: text("cta_href"),
+    sort: integer("sort").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("banners_key_sort_idx").on(t.key, t.sort)],
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pedidos (checkout como invitado — no hay cuentas de cliente)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const orders = pgTable(
+  "orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderNumber: text("order_number").notNull(), // legible: TDS-2026-0001
+    /** Token público del link de seguimiento enviado por email. Sustituye al login. */
+    publicToken: text("public_token").notNull(),
+
+    email: text("email").notNull(),
+    name: text("name").notNull(),
+    phone: text("phone"),
+    shipping: jsonb("shipping").$type<{
+      line1?: string;
+      line2?: string;
+      city?: string;
+      state?: string;
+      postalCode?: string;
+      country?: string;
+    }>(),
+
+    locale: text("locale").$type<LocaleCode>().notNull(),
+    tier: priceTier("tier").notNull(), // tier con el que se cotizó el pedido
+
+    subtotalCents: integer("subtotal_cents").notNull(),
+    totalCents: integer("total_cents").notNull(),
+    currency: text("currency").notNull().default("USD"),
+
+    status: orderStatus("status").notNull().default("pending"),
+    stripeSessionId: text("stripe_session_id"),
+    stripePaymentIntent: text("stripe_payment_intent"),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("orders_number_uniq").on(t.orderNumber),
+    uniqueIndex("orders_token_uniq").on(t.publicToken),
+    index("orders_status_created_idx").on(t.status, t.createdAt),
+    index("orders_stripe_session_idx").on(t.stripeSessionId),
+  ],
+);
+
+/**
+ * Snapshot: nombre y precio se congelan al comprar. Si el catálogo cambia (o el
+ * producto se borra), el pedido histórico sigue siendo fiel.
+ */
+export const orderItems = pgTable(
+  "order_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+    nameSnapshot: text("name_snapshot").notNull(),
+    imgSnapshot: text("img_snapshot"),
+    unitPriceCents: integer("unit_price_cents").notNull(),
+    qty: integer("qty").notNull(),
+  },
+  (t) => [index("order_items_order_idx").on(t.orderId)],
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bandeja de contacto
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const contactRequests = pgTable(
+  "contact_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    subject: text("subject").notNull(),
+    message: text("message").notNull(),
+    locale: text("locale").$type<LocaleCode>().notNull(),
+    read: boolean("read").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("contact_requests_read_created_idx").on(t.read, t.createdAt)],
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auth del admin (sesión por cookie httpOnly; no hay cuentas de cliente)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const adminUsers = pgTable(
+  "admin_users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: text("email").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    name: text("name").notNull(),
+    role: adminRole("role").notNull().default("editor"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("admin_users_email_uniq").on(t.email)],
+);
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: text("id").primaryKey(), // token opaco, va en la cookie httpOnly
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => adminUsers.id, { onDelete: "cascade" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("sessions_user_idx").on(t.userId)],
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Relaciones
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const productsRelations = relations(products, ({ many }) => ({
+  prices: many(productPrices),
+}));
+
+export const productPricesRelations = relations(productPrices, ({ one }) => ({
+  product: one(products, { fields: [productPrices.productId], references: [products.id] }),
+}));
+
+export const ordersRelations = relations(orders, ({ many }) => ({
+  items: many(orderItems),
+}));
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, { fields: [orderItems.orderId], references: [orders.id] }),
+  product: one(products, { fields: [orderItems.productId], references: [products.id] }),
+}));
+
+export const adminUsersRelations = relations(adminUsers, ({ many }) => ({
+  sessions: many(sessions),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(adminUsers, { fields: [sessions.userId], references: [adminUsers.id] }),
+}));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tipos inferidos (los consume la capa de datos y el admin)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type Product = typeof products.$inferSelect;
+export type NewProduct = typeof products.$inferInsert;
+export type ProductPrice = typeof productPrices.$inferSelect;
+export type Banner = typeof banners.$inferSelect;
+export type Order = typeof orders.$inferSelect;
+export type OrderItem = typeof orderItems.$inferSelect;
+export type ContactRequest = typeof contactRequests.$inferSelect;
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type Session = typeof sessions.$inferSelect;
+
+/** Producto con sus 3 precios ya resueltos a un mapa por tier. */
+export type ProductWithPrices = Product & { prices: Record<PriceTier, number> };

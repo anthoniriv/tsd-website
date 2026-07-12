@@ -1,16 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Check } from "lucide-react";
-import {
-  ACCENT,
-  CABLES,
-  CABLE_FINDER,
-  JALTEST_LINES,
-  LAPTOPS,
-  formatPrice,
-  type JaltestLine,
-} from "@/lib/products";
-import type { PriceTier } from "@/lib/i18n";
+import { ACCENT, formatPrice, type JaltestLine } from "@/lib/products";
+import { getHardware, getJaltestLines } from "@/lib/catalog";
 import { getLocaleData } from "@/lib/i18n.server";
 import { ProductHero } from "@/components/product/product-hero";
 import { ProductGrid } from "@/components/product/product-grid";
@@ -27,15 +19,7 @@ const HEX = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
 
 const HONEYCOMB_ORDER: JaltestLine["id"][] = ["ohw", "cv", "agv", "marine", "mhe"];
 
-function RenewalHex({
-  line,
-  tier,
-  priceLabel,
-}: {
-  line: JaltestLine;
-  tier: PriceTier;
-  priceLabel: string;
-}) {
+function RenewalHex({ line, priceLabel }: { line: JaltestLine; priceLabel: string }) {
   const accent = ACCENT[line.id];
 
   return (
@@ -60,7 +44,7 @@ function RenewalHex({
           {priceLabel}
         </span>
         <span className="mt-1 text-[clamp(25px,3.2vw,38px)] font-black leading-none tracking-normal text-[#49d719]">
-          {formatPrice(line.priceUSD, tier)}
+          {formatPrice(line.priceCents ?? 0)}
         </span>
       </div>
     </div>
@@ -107,11 +91,17 @@ function RenewalVehicles({ alts }: { alts: Record<JaltestLine["id"], string> }) 
 export default async function ProductoPage() {
   const { dict, tier } = await getLocaleData();
   const p = dict.producto;
+
+  const [lines, laptops, cables, finders] = await Promise.all([
+    getJaltestLines(tier),
+    getHardware("laptop", tier),
+    getHardware("cable", tier),
+    getHardware("finder", tier),
+  ]);
+
   const renewHex = (id: JaltestLine["id"]) => {
-    const line = JALTEST_LINES.find((item) => item.id === id);
-    return line ? (
-      <RenewalHex key={line.id} line={line} tier={tier} priceLabel={p.renew.price} />
-    ) : null;
+    const line = lines.find((item) => item.id === id);
+    return line ? <RenewalHex key={line.id} line={line} priceLabel={p.renew.price} /> : null;
   };
 
   return (
@@ -121,7 +111,7 @@ export default async function ProductoPage() {
       {/* Bloques por línea Jaltest sobre base blanca continua: las capas
           decorativas (gris -z-20, triángulo -z-10) se ordenan en este contexto */}
       <section className="relative isolate bg-white">
-        {JALTEST_LINES.map((line) => (
+        {lines.map((line) => (
           <ProductHero key={line.id} line={line} />
         ))}
 
@@ -153,9 +143,9 @@ export default async function ProductoPage() {
       </section>
 
       {/* Grids de hardware */}
-      <ProductGrid title={p.grids.tabletTitle} accentWord={p.grids.tabletAccent} items={LAPTOPS} />
-      <ProductGrid title={p.grids.cablesTitle} accentWord={p.grids.cablesAccent} items={CABLES} />
-      <ProductGrid title={p.grids.finderTitle} items={CABLE_FINDER} />
+      <ProductGrid title={p.grids.tabletTitle} accentWord={p.grids.tabletAccent} items={laptops} />
+      <ProductGrid title={p.grids.cablesTitle} accentWord={p.grids.cablesAccent} items={cables} />
+      <ProductGrid title={p.grids.finderTitle} items={finders} />
 
       <section className="overflow-hidden bg-white pt-16 sm:pt-20">
         <div className="mx-auto max-w-6xl px-6">

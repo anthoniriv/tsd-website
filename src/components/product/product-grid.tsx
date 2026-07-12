@@ -12,7 +12,7 @@ export async function ProductGrid({
   accentWord?: string;
   items: HardwareItem[];
 }) {
-  const { dict, lang, tier } = await getLocaleData();
+  const { dict, lang } = await getLocaleData();
 
   return (
     <section className="py-16 sm:py-20">
@@ -30,7 +30,7 @@ export async function ProductGrid({
               img={item.img}
               name={item.name[lang]}
               blurb={item.blurb[lang]}
-              price={formatPrice(item.priceUSD, tier)}
+              price={formatPrice(item.priceCents ?? 0)}
               cta={dict.productCard.cta}
               waGreeting={dict.productCard.waGreeting}
               priceLabel={dict.productCard.priceLabel}

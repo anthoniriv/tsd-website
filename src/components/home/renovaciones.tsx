@@ -4,10 +4,7 @@ import { getLocaleData } from "@/lib/i18n.server";
 import { buttonVariants } from "@/components/ui/button";
 import { SmartImage } from "@/components/ui/smart-image";
 import { JaltestLogo } from "@/components/product/jaltest-logo";
-import { JALTEST_LINES } from "@/lib/products";
-
-// Líneas por id para posicionarlas en los vértices del hexágono.
-const byId = Object.fromEntries(JALTEST_LINES.map((l) => [l.id, l]));
+import { getJaltestLines } from "@/lib/catalog";
 
 // Posición de cada logo sobre un vértice del hexágono (coordenadas % del contenedor).
 const NODES = [
@@ -20,7 +17,10 @@ const NODES = [
 
 /** Bloque "Renueva o añade más cobertura" con imagen + red hexagonal de logos Jaltest. */
 export async function Renovaciones() {
-  const { dict } = await getLocaleData();
+  const { dict, tier } = await getLocaleData();
+  const lines = await getJaltestLines(tier);
+  const byId = Object.fromEntries(lines.map((l) => [l.id, l]));
+
   return (
     <section className="py-20 sm:py-24">
       <div className="mx-auto max-w-5xl px-6">
@@ -86,6 +86,7 @@ export async function Renovaciones() {
             {/* logos en los vértices */}
             {NODES.map(({ id, pos }) => {
               const line = byId[id];
+              if (!line) return null;
               return (
                 <div
                   key={id}
@@ -117,7 +118,7 @@ export async function Renovaciones() {
 
           {/* logos apilados (mobile) */}
           <div className="grid grid-cols-2 place-items-center gap-x-10 gap-y-8 md:hidden">
-            {JALTEST_LINES.slice(0, 2).map((line) => (
+            {lines.slice(0, 2).map((line) => (
               <JaltestLogo key={line.id} src={line.logo} alt={`Jaltest ${line.variant}`} size="sm" />
             ))}
             <div className="col-span-2 flex items-center gap-3">
@@ -128,16 +129,18 @@ export async function Renovaciones() {
                 + {dict.renovaciones.plusCoverage}
               </span>
             </div>
-            {JALTEST_LINES.slice(2, 4).map((line) => (
+            {lines.slice(2, 4).map((line) => (
               <JaltestLogo key={line.id} src={line.logo} alt={`Jaltest ${line.variant}`} size="sm" />
             ))}
-            <div className="col-span-2">
-              <JaltestLogo
-                src={JALTEST_LINES[4].logo}
-                alt={`Jaltest ${JALTEST_LINES[4].variant}`}
-                size="sm"
-              />
-            </div>
+            {lines[4] && (
+              <div className="col-span-2">
+                <JaltestLogo
+                  src={lines[4].logo}
+                  alt={`Jaltest ${lines[4].variant}`}
+                  size="sm"
+                />
+              </div>
+            )}
           </div>
         </div>
 
