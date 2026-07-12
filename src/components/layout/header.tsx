@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, Search, User, X } from "lucide-react";
+import { CartSheet } from "@/components/cart/cart-sheet";
 import { cn } from "@/lib/utils";
 import { NAV } from "@/lib/site";
 import type { Dict, LocaleCode } from "@/lib/i18n";
@@ -20,25 +21,35 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-function SearchBar({ dict, className }: { dict: Dict; className?: string }) {
-  const comingSoon = useComingSoon();
-  const feature = dict.comingSoon.features.search;
+/** Busca en el catálogo: navega a /tienda?q=… (GET, así la búsqueda es enlazable). */
+function SearchBar({
+  dict,
+  className,
+  onNavigate,
+}: {
+  dict: Dict;
+  className?: string;
+  onNavigate?: () => void;
+}) {
+  const router = useRouter();
+
   return (
     <form
       role="search"
       onSubmit={(e) => {
         e.preventDefault();
-        comingSoon({ feature });
+        const q = new FormData(e.currentTarget).get("q")?.toString().trim() ?? "";
+        onNavigate?.();
+        router.push(q ? `/tienda?q=${encodeURIComponent(q)}` : "/tienda");
       }}
       className={cn("relative w-full", className)}
     >
       <Input
         type="search"
+        name="q"
         placeholder={dict.header.searchPlaceholder}
         className="h-10 pr-11"
         aria-label={dict.header.search}
-        readOnly
-        onClick={() => comingSoon({ feature })}
       />
       <button
         type="submit"
@@ -89,15 +100,7 @@ export function Header({ locale, dict }: { locale: LocaleCode; dict: Dict }) {
           >
             <User className="h-5 w-5" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={dict.header.cart}
-            className="text-brand"
-            onClick={() => comingSoon({ feature: dict.comingSoon.features.cart })}
-          >
-            <ShoppingCart className="h-5 w-5" />
-          </Button>
+          <CartSheet dict={dict.cart} />
           {/* botón menú mobile */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger

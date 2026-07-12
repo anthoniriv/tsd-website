@@ -4,6 +4,7 @@
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ComingSoonProvider } from "@/components/ui/coming-soon";
+import { CartProvider } from "@/components/cart/cart-provider";
 import { getLocaleData } from "@/lib/i18n.server";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -11,9 +12,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <ComingSoonProvider dict={dict.comingSoon}>
-      <Header locale={code} dict={dict} />
-      <main className="flex-1">{children}</main>
-      <Footer dict={dict} />
+      <CartProvider>
+        <Header locale={code} dict={dict} />
+        <main className="flex-1">{children}</main>
+        <Footer dict={dict} />
+      </CartProvider>
     </ComingSoonProvider>
   );
 }

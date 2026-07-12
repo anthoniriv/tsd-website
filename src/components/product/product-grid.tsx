@@ -27,13 +27,20 @@ export async function ProductGrid({
           {items.map((item) => (
             <ProductCard
               key={item.id}
+              id={item.id}
+              slug={item.slug ?? ""}
               img={item.img}
               name={item.name[lang]}
               blurb={item.blurb[lang]}
               price={formatPrice(item.priceCents ?? 0)}
+              stock={item.stock ?? 0}
               cta={dict.productCard.cta}
+              added={dict.productCard.added}
+              outOfStock={dict.productCard.outOfStock}
+              waCta={dict.productCard.waCta}
               waGreeting={dict.productCard.waGreeting}
               priceLabel={dict.productCard.priceLabel}
+              addedToast={dict.cart.addedToast}
             />
           ))}
         </div>
