@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { banners, productPrices, products } from "@/db/schema";
+import { banners, orders, productPrices, products } from "@/db/schema";
 import { login, logout, requireRole } from "@/lib/auth";
 
 export type ActionState = { error?: string; ok?: boolean };
@@ -167,6 +167,39 @@ export async function deleteProductAction(formData: FormData) {
 
   revalidatePublic();
   revalidatePath("/admin/productos");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pedidos
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ORDER_STATUS = [
+  "pending",
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+] as const;
+
+export async function updateOrderStatusAction(
+  id: string,
+  status: (typeof ORDER_STATUS)[number],
+): Promise<ActionState> {
+  await requireRole("editor");
+
+  const parsed = z
+    .object({ id: z.uuid(), status: z.enum(ORDER_STATUS) })
+    .safeParse({ id, status });
+  if (!parsed.success) return { error: "Estado inválido." };
+
+  await db
+    .update(orders)
+    .set({ status: parsed.data.status, updatedAt: new Date() })
+    .where(eq(orders.id, parsed.data.id));
+
+  revalidatePath("/admin/pedidos");
+  return { ok: true };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { submitContact } from "@/app/(site)/contacto/actions";
 import { CONTACT } from "@/lib/site";
 import type { Dict } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -38,9 +39,13 @@ export function ContactForm({ dict }: { dict: Dict["contact"] }) {
     if (Object.keys(errs).length) return;
 
     setSending(true);
-    // TODO ecommerce: enviar a Server Action / API de email. Hoy: stub.
-    await new Promise((r) => setTimeout(r, 700));
+    const res = await submitContact(data);
     setSending(false);
+
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
     form.reset();
     toast.success(dict.toastSuccess);
   }
