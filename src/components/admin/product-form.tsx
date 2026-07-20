@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { SmartImage } from "@/components/ui/smart-image";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { cn } from "@/lib/utils";
 
 const initial: ActionState = {};
@@ -111,19 +111,9 @@ export function ProductForm({ product, prices }: Props) {
       </Section>
 
       <Section title="Imagen">
-        <Field label="Ruta de la imagen" hint="p. ej. /images/laptop.png" full>
-          <Input name="img" value={img} onChange={(e) => setImg(e.target.value)} required />
-        </Field>
-        {img && (
-          <div className="col-span-full">
-            <SmartImage
-              src={img}
-              alt="Vista previa"
-              fit="contain"
-              wrapperClassName="h-40 w-40 rounded-xl border border-border bg-white"
-            />
-          </div>
-        )}
+        <div className="col-span-full">
+          <ImageUploadField name="img" value={img} onChange={setImg} required />
+        </div>
       </Section>
 
       <Section title="Precios (USD)">

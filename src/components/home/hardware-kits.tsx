@@ -18,7 +18,7 @@ export async function HardwareKits() {
 
         <div className="mx-auto grid max-w-md grid-cols-2 gap-4 sm:grid-cols-3 md:hidden">
           {HARDWARE_KITS.map((k) => (
-            <HexTile key={k.key} label={labels[k.key]} img={k.img} />
+            <HexTile key={k.key} label={labels[k.key]} img={k.img} href={k.href} />
           ))}
         </div>
 
@@ -26,7 +26,11 @@ export async function HardwareKits() {
         <div className="hidden flex-col items-center md:flex">
           <div className="flex justify-center gap-3">
             <div className="w-40">
-              <HexTile label={labels[HARDWARE_KITS[0].key]} img={HARDWARE_KITS[0].img} />
+              <HexTile
+                label={labels[HARDWARE_KITS[0].key]}
+                img={HARDWARE_KITS[0].img}
+                href={HARDWARE_KITS[0].href}
+              />
             </div>
             <div className="w-40">
               <HexTile label="" />
@@ -35,7 +39,11 @@ export async function HardwareKits() {
               <HexTile label="" />
             </div>
             <div className="w-40">
-              <HexTile label={labels[HARDWARE_KITS[1].key]} img={HARDWARE_KITS[1].img} />
+              <HexTile
+                label={labels[HARDWARE_KITS[1].key]}
+                img={HARDWARE_KITS[1].img}
+                href={HARDWARE_KITS[1].href}
+              />
             </div>
           </div>
           <div className="-mt-10 flex justify-center gap-3">
@@ -45,7 +53,11 @@ export async function HardwareKits() {
               <HexTile label="" />
             </div>
             <div className="w-40">
-              <HexTile label={labels[HARDWARE_KITS[2].key]} img={HARDWARE_KITS[2].img} />
+              <HexTile
+                label={labels[HARDWARE_KITS[2].key]}
+                img={HARDWARE_KITS[2].img}
+                href={HARDWARE_KITS[2].href}
+              />
             </div>
             <div className="w-40">
               <HexTile label="" />

@@ -61,9 +61,9 @@ export const COVERAGE_KITS = [
 ] as const;
 
 export const HARDWARE_KITS = [
-  { key: "tabletsLaptops", img: "/images/laptop.png" },
-  { key: "adaptersCables", img: "/images/cable-b.png" },
-  { key: "cableFinder", img: "/images/finder-b.png" },
+  { key: "tabletsLaptops", img: "/images/laptop.png", href: "/tienda?cat=laptop" },
+  { key: "adaptersCables", img: "/images/cable-b.png", href: "/tienda?cat=cable" },
+  { key: "cableFinder", img: "/images/finder-b.png", href: "/tienda?cat=finder" },
 ] as const;
 
 /** Helper: resuelve un campo localizado al idioma dado. */

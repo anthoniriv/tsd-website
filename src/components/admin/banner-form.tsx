@@ -6,7 +6,7 @@ import type { Banner } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SmartImage } from "@/components/ui/smart-image";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 
 const initial: ActionState = {};
 
@@ -24,24 +24,15 @@ export function BannerForm({ banner }: { banner?: Banner }) {
       <input type="hidden" name="key" value={banner?.key ?? "home-hero"} />
 
       <div className="space-y-1.5">
-        <Label htmlFor="img">Imagen</Label>
-        <Input
-          id="img"
+        <Label>Imagen</Label>
+        <ImageUploadField
           name="img"
           value={img}
-          onChange={(e) => setImg(e.target.value)}
-          placeholder="/images/hero.jpg"
+          onChange={setImg}
+          previewClassName="aspect-video w-full max-w-md"
           required
         />
       </div>
-
-      {img && (
-        <SmartImage
-          src={img}
-          alt="Vista previa del banner"
-          wrapperClassName="aspect-video w-full max-w-md rounded-xl border border-border"
-        />
-      )}
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-1.5">

@@ -5,9 +5,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
+import { ORDER_STATUSES } from "@/lib/admin-labels";
 import {
   adminUsers,
   banners,
@@ -183,23 +184,14 @@ export async function deleteProductAction(formData: FormData) {
 // Pedidos
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ORDER_STATUS = [
-  "pending",
-  "paid",
-  "processing",
-  "shipped",
-  "delivered",
-  "cancelled",
-] as const;
-
 export async function updateOrderStatusAction(
   id: string,
-  status: (typeof ORDER_STATUS)[number],
+  status: (typeof ORDER_STATUSES)[number],
 ): Promise<ActionState> {
   await requireRole("editor");
 
   const parsed = z
-    .object({ id: z.uuid(), status: z.enum(ORDER_STATUS) })
+    .object({ id: z.uuid(), status: z.enum(ORDER_STATUSES) })
     .safeParse({ id, status });
   if (!parsed.success) return { error: "Estado inválido." };
 
@@ -429,4 +421,97 @@ export async function deleteBannerAction(formData: FormData) {
 
   revalidatePublic();
   revalidatePath("/admin/banners");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Acciones masivas (multi-selección)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Valida y normaliza una lista de ids; devuelve error legible si viene vacía o mal. */
+function parseIds(ids: string[]): { ids: string[] } | { error: string } {
+  const parsed = z.array(z.uuid()).min(1).safeParse(ids);
+  if (!parsed.success) return { error: "Selección inválida." };
+  return { ids: parsed.data };
+}
+
+export async function bulkDeleteProductsAction(ids: string[]): Promise<ActionState> {
+  await requireRole("admin");
+  const r = parseIds(ids);
+  if ("error" in r) return r;
+
+  await db.delete(products).where(inArray(products.id, r.ids));
+
+  revalidatePublic();
+  revalidatePath("/admin/productos");
+  return { ok: true };
+}
+
+export async function bulkUpdateOrderStatusAction(
+  ids: string[],
+  status: (typeof ORDER_STATUSES)[number],
+): Promise<ActionState> {
+  await requireRole("editor");
+
+  const parsed = z
+    .object({ ids: z.array(z.uuid()).min(1), status: z.enum(ORDER_STATUSES) })
+    .safeParse({ ids, status });
+  if (!parsed.success) return { error: "Datos inválidos." };
+
+  // Estado previo por pedido: solo se avisa por email a los que cambian de verdad.
+  const rows = await db
+    .select({ id: orders.id, status: orders.status })
+    .from(orders)
+    .where(inArray(orders.id, parsed.data.ids));
+
+  await db
+    .update(orders)
+    .set({ status: parsed.data.status, updatedAt: new Date() })
+    .where(inArray(orders.id, parsed.data.ids));
+
+  const changed = rows.filter((o) => o.status !== parsed.data.status).map((o) => o.id);
+  for (const id of changed) {
+    const order = await getOrderWithItems(id);
+    if (order) await sendOrderStatusUpdate(order);
+  }
+
+  revalidatePath("/admin/pedidos");
+  return { ok: true };
+}
+
+export async function bulkDeleteBannersAction(ids: string[]): Promise<ActionState> {
+  await requireRole("admin");
+  const r = parseIds(ids);
+  if ("error" in r) return r;
+
+  await db.delete(banners).where(inArray(banners.id, r.ids));
+
+  revalidatePublic();
+  revalidatePath("/admin/banners");
+  return { ok: true };
+}
+
+export async function bulkDeleteCouponsAction(ids: string[]): Promise<ActionState> {
+  await requireRole("admin");
+  const r = parseIds(ids);
+  if ("error" in r) return r;
+
+  await db.delete(coupons).where(inArray(coupons.id, r.ids));
+
+  revalidatePath("/admin/cupones");
+  return { ok: true };
+}
+
+export async function bulkDeleteUsersAction(ids: string[]): Promise<ActionState> {
+  const me = await requireRole("owner");
+  const r = parseIds(ids);
+  if ("error" in r) return r;
+
+  // Nunca borrarse a uno mismo, aunque venga en la selección.
+  const targets = r.ids.filter((id) => id !== me.id);
+  if (targets.length === 0) return { error: "No puedes eliminar tu propio usuario." };
+
+  await db.delete(adminUsers).where(inArray(adminUsers.id, targets));
+
+  revalidatePath("/admin/usuarios");
+  return { ok: true };
 }

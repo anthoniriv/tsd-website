@@ -28,7 +28,8 @@ rtk proxy npm run db:studio    # inspeccionar la BD
 
 Env necesarias (`.env.local`, vía `vercel env pull`): `DATABASE_URL` (Neon),
 `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `NEXT_PUBLIC_SITE_URL`,
-`ORDER_NOTIFY_EMAIL`. Para el seed: `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD`.
+`ORDER_NOTIFY_EMAIL`, `BLOB_READ_WRITE_TOKEN` (Vercel Blob, subida de imágenes del panel).
+Para el seed: `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD`.
 
 **Rutas**. Público: `/` · `/producto` (institucional, las 5 líneas Jaltest) · `/tienda`
 (catálogo con búsqueda/filtros) · `/tienda/[slug]` · `/checkout` · `/pedido/[token]`
@@ -213,6 +214,8 @@ Comentarios y copy en español; nombres de código en inglés.
 - Las **5 líneas Jaltest no son creables desde el panel**: su layout en `/producto` está
   atado a los 5 ids (`VISUALS` en `product-hero.tsx`). Editar textos/precios/imágenes sí;
   añadir una sexta línea exige tocar el diseño.
-- Imágenes: el panel pide una **ruta** (`/images/…`); falta subida de archivos (Vercel Blob).
+- Imágenes: el panel sube archivos a **Vercel Blob** (`ImageUploadField` → `/api/admin/upload`
+  con `handleUpload`, botón + spinner de progreso); el input acepta también una ruta manual
+  (`/images/…`) como fallback. Requiere `BLOB_READ_WRITE_TOKEN`.
 - Sin impuestos ni costes de envío: el total es el subtotal.
 - Footer/redes/policies con `href="#"` placeholder.

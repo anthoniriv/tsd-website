@@ -2,8 +2,7 @@ import { asc } from "drizzle-orm";
 import { db } from "@/db";
 import { adminUsers } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { deleteUserAction } from "@/app/admin/actions";
-import { DeleteButton } from "@/components/admin/delete-button";
+import { UsersTable } from "@/components/admin/users-table";
 import { NewUserForm } from "@/components/admin/new-user-form";
 
 export default async function UsuariosPage() {
@@ -20,47 +19,7 @@ export default async function UsuariosPage() {
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
-        <div className="overflow-x-auto rounded-2xl border border-border bg-white">
-          <table className="w-full text-sm">
-            <thead className="border-b border-border bg-bg-soft text-left text-xs uppercase tracking-wide text-text-secondary">
-              <tr>
-                <th className="px-4 py-3 font-bold">Usuario</th>
-                <th className="px-4 py-3 font-bold">Rol</th>
-                {isOwner && <th className="px-4 py-3" />}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {rows.map((u) => (
-                <tr key={u.id}>
-                  <td className="px-4 py-3">
-                    <p className="font-semibold text-text-main">
-                      {u.name}
-                      {u.id === me.id && (
-                        <span className="ml-2 text-xs font-normal text-text-muted">(tú)</span>
-                      )}
-                    </p>
-                    <p className="text-xs text-text-muted">{u.email}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="rounded-full bg-brand/10 px-2 py-0.5 text-xs font-bold uppercase text-brand-dark">
-                      {u.role}
-                    </span>
-                  </td>
-                  {isOwner && (
-                    <td className="px-4 py-3 text-right">
-                      {u.id !== me.id && (
-                        <form action={deleteUserAction}>
-                          <input type="hidden" name="id" value={u.id} />
-                          <DeleteButton confirmText={`¿Quitar el acceso de ${u.name}?`} />
-                        </form>
-                      )}
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <UsersTable rows={rows} meId={me.id} isOwner={isOwner} />
 
         {isOwner ? (
           <NewUserForm />
