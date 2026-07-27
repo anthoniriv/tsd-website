@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Check, CreditCard, Package, Truck } from "lucide-react";
 import { getLocaleData } from "@/lib/i18n.server";
 import { getOrderByToken } from "@/lib/orders";
+import { getShippingSettings } from "@/lib/settings";
 import { formatPrice } from "@/lib/products";
 import type { Address, Order } from "@/db/schema";
 import { CONTACT, SITE } from "@/lib/site";
@@ -73,6 +74,9 @@ export default async function PedidoPage({
 
   const order = await getOrderByToken(token);
   if (!order) notFound();
+
+  // El ETA es informativo (config global actual); el costo es el snapshot del pedido.
+  const shippingEta = (await getShippingSettings()).shippingEta?.[lang] ?? null;
 
   const paid = order.status !== "pending" && order.status !== "cancelled";
   const reached = REACHED[order.status];
@@ -228,6 +232,19 @@ export default async function PedidoPage({
                   −{formatPrice(order.discountCents)}
                 </span>
               </div>
+            )}
+
+            <div className="flex justify-between">
+              <span className="text-text-secondary">{d.shipping}</span>
+              <span className="font-semibold tabular-nums">
+                {order.shippingCents > 0 ? formatPrice(order.shippingCents) : d.freeShipping}
+              </span>
+            </div>
+
+            {shippingEta && (
+              <p className="text-xs text-text-muted">
+                {d.estimatedDelivery}: {shippingEta}
+              </p>
             )}
 
             <div className="flex items-center justify-between border-t border-border pt-2">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLocaleData } from "@/lib/i18n.server";
+import { getShippingSettings } from "@/lib/settings";
 import { CheckoutSteps } from "@/components/cart/checkout-steps";
 import { CheckoutForm } from "@/components/cart/checkout-form";
 
@@ -9,7 +10,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CheckoutPage() {
-  const { dict } = await getLocaleData();
+  const { dict, lang } = await getLocaleData();
+  const shipping = await getShippingSettings();
 
   return (
     <>
@@ -21,7 +23,12 @@ export default async function CheckoutPage() {
       />
 
       <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-        <CheckoutForm dict={dict.checkout} cartDict={dict.cartPage} />
+        <CheckoutForm
+          dict={dict.checkout}
+          cartDict={dict.cartPage}
+          shippingCents={shipping.shippingCents}
+          shippingEta={shipping.shippingEta?.[lang] ?? null}
+        />
       </div>
     </>
   );

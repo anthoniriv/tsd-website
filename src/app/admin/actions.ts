@@ -11,6 +11,7 @@ import { db } from "@/db";
 import { ORDER_STATUSES } from "@/lib/admin-labels";
 import {
   adminUsers,
+  appSettings,
   banners,
   contactRequests,
   coupons,
@@ -18,9 +19,15 @@ import {
   productPrices,
   products,
 } from "@/db/schema";
+import { SETTINGS_ID } from "@/lib/settings";
 import { hashPassword, login, logout, requireRole } from "@/lib/auth";
-import { sendOrderStatusUpdate } from "@/lib/email";
+import {
+  sendOrderConfirmation,
+  sendOrderNotification,
+  sendOrderStatusUpdate,
+} from "@/lib/email";
 import { getOrderWithItems } from "@/lib/orders";
+import type { OrderEmail } from "@/db/schema";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -217,6 +224,34 @@ export async function updateOrderStatusAction(
   return { ok: true };
 }
 
+/** Reintenta manualmente un correo del pedido. Cada intento queda registrado en `order_emails`. */
+export async function resendOrderEmailAction(
+  id: string,
+  kind: OrderEmail["kind"],
+): Promise<ActionState> {
+  await requireRole("editor");
+
+  const parsed = z
+    .object({ id: z.uuid(), kind: z.enum(["confirmation", "status_update", "notification"]) })
+    .safeParse({ id, kind });
+  if (!parsed.success) return { error: "Correo inválido." };
+
+  const order = await getOrderWithItems(parsed.data.id);
+  if (!order) return { error: "Pedido no encontrado." };
+
+  // Reusa las mismas funciones de envío que el webhook/estado → registran la fila de log.
+  const result =
+    parsed.data.kind === "confirmation"
+      ? await sendOrderConfirmation(order)
+      : parsed.data.kind === "status_update"
+        ? await sendOrderStatusUpdate(order)
+        : await sendOrderNotification(order);
+
+  revalidatePath(`/admin/pedidos/${parsed.data.id}`);
+  if (result && !result.ok) return { error: result.error ?? "No se pudo enviar el correo." };
+  return { ok: true };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Cupones
 // ─────────────────────────────────────────────────────────────────────────────
@@ -358,6 +393,81 @@ export async function deleteUserAction(formData: FormData) {
 
   await db.delete(adminUsers).where(eq(adminUsers.id, id));
   revalidatePath("/admin/usuarios");
+}
+
+/** Cambia el rol de un usuario al vuelo (dropdown en la tabla de usuarios). */
+export async function updateUserRoleAction(
+  id: string,
+  role: (typeof ROLES)[number],
+): Promise<ActionState> {
+  const me = await requireRole("owner");
+
+  const parsed = z
+    .object({ id: z.uuid(), role: z.enum(ROLES) })
+    .safeParse({ id, role });
+  if (!parsed.success) return { error: "Rol inválido." };
+
+  // Nadie edita su propio rol: evita que un owner se degrade sin querer.
+  if (parsed.data.id === me.id) return { error: "No puedes cambiar tu propio rol." };
+
+  // No dejar la tienda sin ningún owner: si este era el último, se bloquea la degradación.
+  if (parsed.data.role !== "owner") {
+    const [target] = await db
+      .select({ role: adminUsers.role })
+      .from(adminUsers)
+      .where(eq(adminUsers.id, parsed.data.id))
+      .limit(1);
+    if (target?.role === "owner") {
+      const owners = await db
+        .select({ id: adminUsers.id })
+        .from(adminUsers)
+        .where(eq(adminUsers.role, "owner"));
+      if (owners.length <= 1) return { error: "Debe quedar al menos un propietario." };
+    }
+  }
+
+  await db.update(adminUsers).set({ role: parsed.data.role }).where(eq(adminUsers.id, parsed.data.id));
+  revalidatePath("/admin/usuarios");
+  return { ok: true };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ajustes globales (envío)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function updateShippingSettingsAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireRole("admin");
+
+  const parsed = z
+    .object({
+      // El admin ingresa dólares; se guardan centavos.
+      shippingAmount: z.coerce.number().min(0, "El costo no puede ser negativo."),
+      etaEs: z.string().trim().optional(),
+      etaEn: z.string().trim().optional(),
+    })
+    .safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  const d = parsed.data;
+
+  const shippingCents = Math.round(d.shippingAmount * 100);
+  const shippingEta =
+    d.etaEs || d.etaEn ? { es: d.etaEs ?? "", en: d.etaEn ?? "" } : null;
+
+  await db
+    .insert(appSettings)
+    .values({ id: SETTINGS_ID, shippingCents, shippingEta, updatedAt: new Date() })
+    .onConflictDoUpdate({
+      target: appSettings.id,
+      set: { shippingCents, shippingEta, updatedAt: new Date() },
+    });
+
+  // El costo/ETA aparecen en checkout y seguimiento (rutas públicas dinámicas).
+  revalidatePublic();
+  revalidatePath("/admin/ajustes");
+  return { ok: true };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

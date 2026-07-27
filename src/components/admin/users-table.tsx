@@ -3,7 +3,9 @@
 import { bulkDeleteUsersAction, deleteUserAction } from "@/app/admin/actions";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { DataTable, type Column } from "@/components/admin/data-table";
+import { UserRoleSelect } from "@/components/admin/user-role-select";
 import type { AdminUser } from "@/db/schema";
+import { ADMIN_ROLE_LABEL } from "@/lib/admin-labels";
 
 type Props = { rows: AdminUser[]; meId: string; isOwner: boolean };
 
@@ -25,11 +27,16 @@ export function UsersTable({ rows, meId, isOwner }: Props) {
     },
     {
       header: "Rol",
-      cell: (u) => (
-        <span className="rounded-full bg-brand/10 px-2 py-0.5 text-xs font-bold uppercase text-brand-dark">
-          {u.role}
-        </span>
-      ),
+      // Owner puede editar el rol de otros al vuelo; el propio rol y las vistas de no-owner
+      // quedan como badge de solo lectura (evita auto-degradarse / escalada de privilegios).
+      cell: (u) =>
+        isOwner && u.id !== meId ? (
+          <UserRoleSelect id={u.id} role={u.role} />
+        ) : (
+          <span className="rounded-full bg-brand/10 px-2 py-0.5 text-xs font-bold uppercase text-brand-dark">
+            {ADMIN_ROLE_LABEL[u.role]}
+          </span>
+        ),
     },
   ];
 

@@ -4,10 +4,19 @@
 import "server-only";
 import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { orderItems, orders, products, type Order, type OrderItem } from "@/db/schema";
+import {
+  orderEmails,
+  orderItems,
+  orders,
+  products,
+  type Order,
+  type OrderEmail,
+  type OrderItem,
+} from "@/db/schema";
 import type { LocaleCode, PriceTier } from "@/lib/i18n";
 import { priceMapFor } from "@/lib/pricing";
 import { consumeCoupon, validateCoupon } from "@/lib/coupons";
+import { getShippingSettings } from "@/lib/settings";
 
 export type DraftLine = { id: string; qty: number };
 
@@ -89,6 +98,10 @@ export async function createPendingOrder(input: {
     couponCode = res.coupon.code;
   }
 
+  // Costo de envío global (config del panel). Snapshot en el pedido: si luego cambia,
+  // este pedido conserva lo que se cobró.
+  const { shippingCents } = await getShippingSettings();
+
   const [order] = await db
     .insert(orders)
     .values({
@@ -104,8 +117,9 @@ export async function createPendingOrder(input: {
       subtotalCents,
       discountCents,
       couponCode,
-      // Sin impuestos ni coste de envío por ahora.
-      totalCents: subtotalCents - discountCents,
+      shippingCents,
+      // Sin impuestos. El envío se suma; el descuento se resta (nunca por debajo de 0).
+      totalCents: Math.max(subtotalCents - discountCents, 0) + shippingCents,
       status: "pending",
     })
     .returning();
@@ -176,4 +190,13 @@ export async function getOrderByToken(token: string): Promise<OrderWithItems | n
 
 export async function listOrders(limit = 50) {
   return db.select().from(orders).orderBy(desc(orders.createdAt)).limit(limit);
+}
+
+/** Historial de correos enviados (o fallidos) de un pedido, más reciente primero. */
+export async function listOrderEmails(orderId: string): Promise<OrderEmail[]> {
+  return db
+    .select()
+    .from(orderEmails)
+    .where(eq(orderEmails.orderId, orderId))
+    .orderBy(desc(orderEmails.createdAt));
 }

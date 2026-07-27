@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:generate": "node --env-file=.env.local node_modules/.bin/drizzle-kit generate",
     "db:migrate": "node --env-file=.env.local node_modules/.bin/drizzle-kit migrate",
     "db:push": "node --env-file=.env.local node_modules/.bin/drizzle-kit push",
@@ -21,6 +23,7 @@
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "country-region-data": "^4.1.0",
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
@@ -46,6 +49,7 @@
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   }
 }

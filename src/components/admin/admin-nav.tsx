@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Image, Inbox, LayoutDashboard, Package, ShoppingBag, Tag, Users } from "lucide-react";
+import {
+  Image,
+  Inbox,
+  LayoutDashboard,
+  Package,
+  Settings,
+  ShoppingBag,
+  Tag,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -13,6 +22,7 @@ const LINKS = [
   { href: "/admin/cupones", label: "Cupones", icon: Tag },
   { href: "/admin/contacto", label: "Solicitudes", icon: Inbox },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users },
+  { href: "/admin/ajustes", label: "Ajustes", icon: Settings },
 ];
 
 export function AdminNav() {

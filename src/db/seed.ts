@@ -97,6 +97,16 @@ async function main() {
     { key: "home-hero", img: "/images/hero2.jpg", sort: 1, active: true },
   ]);
 
+  console.log("Sembrando ajustes globales por defecto…");
+  await db
+    .insert(schema.appSettings)
+    .values({
+      id: "global",
+      shippingCents: 0,
+      shippingEta: { es: "3–5 días hábiles", en: "3–5 business days" },
+    })
+    .onConflictDoNothing();
+
   const email = process.env.ADMIN_SEED_EMAIL;
   const password = process.env.ADMIN_SEED_PASSWORD;
   if (email && password) {

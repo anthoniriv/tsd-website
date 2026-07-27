@@ -2,11 +2,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { getOrderWithItems } from "@/lib/orders";
+import { getOrderWithItems, listOrderEmails } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
-import type { Address } from "@/db/schema";
-import { ORDER_STATUS_LABEL, ORDER_STATUS_STYLE } from "@/lib/admin-labels";
+import type { Address, OrderEmail } from "@/db/schema";
+import {
+  ORDER_EMAIL_KIND_LABEL,
+  ORDER_EMAIL_STATUS_LABEL,
+  ORDER_EMAIL_STATUS_STYLE,
+  ORDER_STATUS_LABEL,
+  ORDER_STATUS_STYLE,
+} from "@/lib/admin-labels";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
+import { ResendEmailButton } from "@/components/admin/resend-email-button";
 import { SmartImage } from "@/components/ui/smart-image";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -52,6 +59,10 @@ export default async function AdminOrderDetailPage({
 
   const order = await getOrderWithItems(id);
   if (!order) notFound();
+
+  const emails = await listOrderEmails(order.id);
+  // Correos que se pueden reintentar desde aquí. El aviso interno solo si hay destinatario config.
+  const RETRYABLE: OrderEmail["kind"][] = ["confirmation", "status_update", "notification"];
 
   const date = order.createdAt.toLocaleDateString("es-ES", {
     day: "numeric",
@@ -148,6 +159,55 @@ export default async function AdminOrderDetailPage({
           )}
         </div>
 
+        <div className="border-b border-border px-7 py-6">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-text-muted">Correos</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-text-secondary">Reenviar:</span>
+              {RETRYABLE.map((kind) => (
+                <ResendEmailButton key={kind} orderId={order.id} kind={kind} />
+              ))}
+            </div>
+          </div>
+
+          {emails.length === 0 ? (
+            <p className="text-sm text-text-muted">
+              Aún no se ha registrado ningún envío para este pedido.
+            </p>
+          ) : (
+            <ul className="divide-y divide-border rounded-xl border border-border">
+              {emails.map((e) => (
+                <li key={e.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-sm">
+                  <span className="font-semibold text-text-main">
+                    {ORDER_EMAIL_KIND_LABEL[e.kind]}
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                      ORDER_EMAIL_STATUS_STYLE[e.status],
+                    )}
+                  >
+                    {ORDER_EMAIL_STATUS_LABEL[e.status]}
+                  </span>
+                  {e.recipient && <span className="text-text-secondary">{e.recipient}</span>}
+                  <span className="ml-auto tabular-nums text-xs text-text-muted">
+                    {e.createdAt.toLocaleString("es-ES", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                  {e.status === "failed" && e.error && (
+                    <span className="w-full text-xs text-jt-mhe">{e.error}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <div className="px-7 py-6">
           <table className="w-full text-sm">
             <thead>
@@ -208,6 +268,13 @@ export default async function AdminOrderDetailPage({
                 </span>
               </div>
             )}
+
+            <div className="flex justify-between">
+              <span className="text-text-secondary">Envío</span>
+              <span className="font-semibold tabular-nums">
+                {order.shippingCents > 0 ? formatPrice(order.shippingCents) : "Gratis"}
+              </span>
+            </div>
 
             <div className="flex items-center justify-between border-t border-border pt-2">
               <span className="font-bold text-text-main">Total</span>

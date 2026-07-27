@@ -15,6 +15,13 @@
       "when": 1783838406314,
       "tag": "0001_glorious_emma_frost",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784857958361,
+      "tag": "0002_omniscient_mojo",
+      "breakpoints": true
     }
   ]
 }

@@ -9,7 +9,8 @@
 
 import "server-only";
 import { Resend } from "resend";
-import type { Order } from "@/db/schema";
+import { db } from "@/db";
+import { orderEmails, type Order, type OrderEmail } from "@/db/schema";
 
 type OrderStatus = Order["status"];
 import type { OrderWithItems } from "@/lib/orders";
@@ -108,6 +109,10 @@ function itemsTable(order: OrderWithItems, lang: Lang): string {
             )
           : ""
       }
+      ${totalRow(
+        t.shipping,
+        order.shippingCents > 0 ? formatPrice(order.shippingCents) : t.freeShipping,
+      )}
       ${totalRow(t.total, formatPrice(order.totalCents), { big: true, color: BRAND.brandDark })}
     </table>`;
 }
@@ -173,7 +178,7 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
     console.error(`[email] no se pudo adjuntar la boleta de ${order.orderNumber}:`, err);
   }
 
-  await send({
+  const result = await send({
     to: order.email,
     subject: t.confirmSubject(order.orderNumber),
     html: emailLayout({
@@ -183,6 +188,7 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
     }),
     attachments,
   });
+  return logOrderEmail(order.id, "confirmation", order.email, result);
 }
 
 /** Aviso de cambio de estado (pagado, procesando, enviado, entregado, cancelado). */
@@ -200,11 +206,12 @@ export async function sendOrderStatusUpdate(order: OrderWithItems) {
     ${paragraph(`<span style="font-size:13px;color:${BRAND.muted}">${t.help}</span>`)}
   `;
 
-  await send({
+  const result = await send({
     to: order.email,
     subject: s.subject(order.orderNumber),
     html: emailLayout({ title: s.heading, preheader: s.body, content }),
   });
+  return logOrderEmail(order.id, "status_update", order.email, result);
 }
 
 function statusLabel(status: OrderStatus, lang: Lang): string {
@@ -254,7 +261,7 @@ export async function sendOrderNotification(order: OrderWithItems) {
     ${button("Gestionar en el panel", `${siteUrl()}/admin/pedidos`)}
   `;
 
-  await send({
+  const result = await send({
     to,
     subject: `🛒 Nuevo pedido ${order.orderNumber} — ${formatPrice(order.totalCents)}`,
     html: emailLayout({
@@ -263,6 +270,7 @@ export async function sendOrderNotification(order: OrderWithItems) {
       content,
     }),
   });
+  return logOrderEmail(order.id, "notification", to, result);
 }
 
 export async function sendContactNotification(input: {
@@ -350,24 +358,53 @@ function escapeHtml(s: string): string {
  * Sin comprobarlo, un envío rechazado (dominio sin verificar, destinatario no permitido
  * en modo desarrollo) pasaría totalmente desapercibido.
  */
+type SendResult = { ok: boolean; error?: string };
+
 async function send(msg: {
   to: string;
   subject: string;
   html: string;
   attachments?: { filename: string; content: string }[];
-}) {
+}): Promise<SendResult> {
   if (!resend) {
     console.warn(`[email] sin RESEND_API_KEY — no enviado: "${msg.subject}" → ${msg.to}`);
-    return;
+    return { ok: false, error: "RESEND_API_KEY no configurada." };
   }
   try {
     const { data, error } = await resend.emails.send({ from: FROM, ...msg });
     if (error) {
       console.error(`[email] rechazado "${msg.subject}" → ${msg.to}:`, error.message);
-      return;
+      return { ok: false, error: error.message };
     }
     console.info(`[email] enviado "${msg.subject}" → ${msg.to} (${data?.id})`);
+    return { ok: true };
   } catch (err) {
     console.error(`[email] fallo de red al enviar "${msg.subject}" a ${msg.to}:`, err);
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
+}
+
+/**
+ * Registra en `order_emails` el resultado de un envío. Cada intento (incluidos los
+ * reintentos desde el panel) es una fila nueva → historial completo por pedido.
+ * Nunca lanza: un fallo al registrar no debe tumbar el flujo de compra.
+ */
+async function logOrderEmail(
+  orderId: string,
+  kind: OrderEmail["kind"],
+  recipient: string,
+  result: SendResult,
+): Promise<SendResult> {
+  try {
+    await db.insert(orderEmails).values({
+      orderId,
+      kind,
+      recipient,
+      status: result.ok ? "sent" : "failed",
+      error: result.error ?? null,
+    });
+  } catch (err) {
+    console.error(`[email] no se pudo registrar el envío (${kind}) del pedido ${orderId}:`, err);
+  }
+  return result;
 }

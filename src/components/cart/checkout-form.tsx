@@ -14,13 +14,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SmartImage } from "@/components/ui/smart-image";
+import { CountryStateFields } from "@/components/cart/country-state-fields";
 
 export function CheckoutForm({
   dict,
   cartDict,
+  shippingCents,
+  shippingEta,
 }: {
   dict: Dict["checkout"];
   cartDict: Dict["cartPage"];
+  shippingCents: number;
+  shippingEta: string | null;
 }) {
   const { lines, count, ready, couponCode } = useCart();
   const params = useSearchParams();
@@ -58,7 +63,7 @@ export function CheckoutForm({
 
   const qtyOf = (id: string) => lines.find((l) => l.id === id)?.qty ?? 0;
   const subtotal = items.reduce((sum, i) => sum + i.priceCents * qtyOf(i.id), 0);
-  const total = Math.max(0, subtotal - discountCents);
+  const total = Math.max(0, subtotal - discountCents) + shippingCents;
 
   // Carrito vacío: no hay nada que pagar, de vuelta al paso 1.
   useEffect(() => {
@@ -186,6 +191,19 @@ export function CheckoutForm({
               </span>
             </div>
           )}
+
+          <div className="flex justify-between">
+            <span className="text-text-secondary">{dict.shippingCost}</span>
+            <span className="font-bold tabular-nums">
+              {shippingCents > 0 ? formatPrice(shippingCents) : dict.freeShipping}
+            </span>
+          </div>
+
+          {shippingEta && (
+            <p className="text-xs text-text-muted">
+              {dict.estimatedDelivery}: {shippingEta}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-between border-t border-border pt-4">
@@ -239,15 +257,15 @@ function AddressFields({
       <Field label={dict.city}>
         <Input name={`${prefix}_city`} autoComplete={`${autoPrefix} address-level2`} />
       </Field>
-      <Field label={dict.state}>
-        <Input name={`${prefix}_state`} autoComplete={`${autoPrefix} address-level1`} />
-      </Field>
       <Field label={dict.postalCode}>
         <Input name={`${prefix}_postalCode`} autoComplete={`${autoPrefix} postal-code`} />
       </Field>
-      <Field label={dict.country}>
-        <Input name={`${prefix}_country`} autoComplete={`${autoPrefix} country-name`} defaultValue="USA" />
-      </Field>
+      <CountryStateFields
+        prefix={prefix}
+        autoPrefix={autoPrefix}
+        countryLabel={dict.country}
+        stateLabel={dict.state}
+      />
     </>
   );
 }

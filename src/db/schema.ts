@@ -48,6 +48,13 @@ export const orderStatus = pgEnum("order_status", [
 ]);
 export const adminRole = pgEnum("admin_role", ["owner", "admin", "editor"]);
 export const couponKind = pgEnum("coupon_kind", ["percent", "fixed"]);
+/** Tipo de correo transaccional que se registra en `order_emails`. */
+export const orderEmailKind = pgEnum("order_email_kind", [
+  "confirmation",
+  "status_update",
+  "notification",
+]);
+export const orderEmailStatus = pgEnum("order_email_status", ["sent", "failed"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cupones
@@ -178,6 +185,8 @@ export const orders = pgTable(
      *  después, el pedido conserva lo que realmente se descontó. */
     discountCents: integer("discount_cents").notNull().default(0),
     couponCode: text("coupon_code"),
+    /** Costo de envío cobrado, snapshot de la config global al momento de comprar. */
+    shippingCents: integer("shipping_cents").notNull().default(0),
     totalCents: integer("total_cents").notNull(),
     currency: text("currency").notNull().default("USD"),
 
@@ -215,6 +224,45 @@ export const orderItems = pgTable(
   },
   (t) => [index("order_items_order_idx").on(t.orderId)],
 );
+
+/**
+ * Log de correos transaccionales de un pedido. Cada intento de envío (incluido un
+ * reintento manual desde el admin) es una fila nueva → historial completo.
+ */
+export const orderEmails = pgTable(
+  "order_emails",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    kind: orderEmailKind("kind").notNull(),
+    status: orderEmailStatus("status").notNull(),
+    /** Destinatario efectivo (comprador o dirección interna de aviso). */
+    recipient: text("recipient"),
+    /** Mensaje de error de Resend cuando `status = failed`. */
+    error: text("error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("order_emails_order_idx").on(t.orderId, t.createdAt)],
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ajustes globales de la tienda (fila única)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Configuración global editable desde el admin. Se usa como singleton: existe una
+ * sola fila (`id = "global"`) que el seed crea y el panel actualiza.
+ */
+export const appSettings = pgTable("app_settings", {
+  id: text("id").primaryKey().default("global"),
+  /** Costo de envío en centavos que se suma al total y se cobra vía Stripe. */
+  shippingCents: integer("shipping_cents").notNull().default(0),
+  /** Tiempo estimado de entrega, localizado (ej. "3–5 días hábiles"). */
+  shippingEta: jsonb("shipping_eta").$type<Loc<string>>(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Bandeja de contacto
@@ -279,6 +327,11 @@ export const productPricesRelations = relations(productPrices, ({ one }) => ({
 
 export const ordersRelations = relations(orders, ({ many }) => ({
   items: many(orderItems),
+  emails: many(orderEmails),
+}));
+
+export const orderEmailsRelations = relations(orderEmails, ({ one }) => ({
+  order: one(orders, { fields: [orderEmails.orderId], references: [orders.id] }),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -304,6 +357,8 @@ export type ProductPrice = typeof productPrices.$inferSelect;
 export type Banner = typeof banners.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type OrderItem = typeof orderItems.$inferSelect;
+export type OrderEmail = typeof orderEmails.$inferSelect;
+export type AppSettings = typeof appSettings.$inferSelect;
 export type ContactRequest = typeof contactRequests.$inferSelect;
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type Session = typeof sessions.$inferSelect;

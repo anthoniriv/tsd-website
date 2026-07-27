@@ -1,4 +1,4 @@
-import type { Order, Product } from "@/db/schema";
+import type { AdminUser, Order, OrderEmail, Product } from "@/db/schema";
 
 /**
  * Fuente única de etiquetas y estilos para el panel admin (solo español).
@@ -34,6 +34,31 @@ export const ORDER_STATUS_STYLE: Record<Order["status"], string> = {
   shipped: "bg-brand/15 text-brand-dark",
   delivered: "bg-jt-agv/20 text-[#4d7710]",
   cancelled: "bg-jt-mhe/10 text-jt-mhe",
+};
+
+/** Orden canónico de roles del panel (mayor → menor privilegio). */
+export const ADMIN_ROLES = ["owner", "admin", "editor"] as const satisfies readonly AdminUser["role"][];
+
+export const ADMIN_ROLE_LABEL: Record<AdminUser["role"], string> = {
+  owner: "Propietario",
+  admin: "Administrador",
+  editor: "Editor",
+};
+
+export const ORDER_EMAIL_KIND_LABEL: Record<OrderEmail["kind"], string> = {
+  confirmation: "Confirmación de compra",
+  status_update: "Cambio de estado",
+  notification: "Aviso interno",
+};
+
+export const ORDER_EMAIL_STATUS_LABEL: Record<OrderEmail["status"], string> = {
+  sent: "Enviado",
+  failed: "Falló",
+};
+
+export const ORDER_EMAIL_STATUS_STYLE: Record<OrderEmail["status"], string> = {
+  sent: "bg-jt-agv/15 text-[#5f8f14]",
+  failed: "bg-jt-mhe/10 text-jt-mhe",
 };
 
 export const PRODUCT_STATUS_LABEL: Record<Product["status"], string> = {

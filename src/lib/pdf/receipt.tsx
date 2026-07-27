@@ -153,6 +153,8 @@ const COPY = {
     total: "Total",
     subtotal: "Subtotal",
     discount: "Descuento",
+    shipping: "Envío",
+    freeShipping: "Gratis",
     thanks: "Gracias por tu compra.",
     status: {
       pending: "Pendiente de pago",
@@ -178,6 +180,8 @@ const COPY = {
     total: "Total",
     subtotal: "Subtotal",
     discount: "Discount",
+    shipping: "Shipping",
+    freeShipping: "Free",
     thanks: "Thank you for your purchase.",
     status: {
       pending: "Awaiting payment",
@@ -318,6 +322,13 @@ function Receipt({ order }: { order: OrderWithItems }) {
                 </Text>
               </View>
             )}
+
+            <View style={s.totalLine}>
+              <Text style={s.cell}>{t.shipping}</Text>
+              <Text style={s.cellBold}>
+                {order.shippingCents > 0 ? formatPrice(order.shippingCents) : t.freeShipping}
+              </Text>
+            </View>
 
             <View style={s.grand}>
               <Text style={s.grandLabel}>{t.total}</Text>

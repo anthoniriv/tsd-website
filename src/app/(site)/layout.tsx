@@ -5,10 +5,13 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ComingSoonProvider } from "@/components/ui/coming-soon";
 import { CartProvider } from "@/components/cart/cart-provider";
+import { WhatsAppFab } from "@/components/site/whatsapp-fab";
 import { getLocaleData } from "@/lib/i18n.server";
+import { resolveLocale } from "@/lib/i18n";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const { code, dict } = await getLocaleData();
+  const es = resolveLocale(code).lang === "es";
 
   return (
     <ComingSoonProvider dict={dict.comingSoon}>
@@ -16,6 +19,14 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <Header locale={code} dict={dict} />
         <main className="flex-1">{children}</main>
         <Footer dict={dict} />
+        <WhatsAppFab
+          label={es ? "Escríbenos" : "Chat with us"}
+          greeting={
+            es
+              ? "Hola, tengo una consulta sobre los equipos Jaltest."
+              : "Hi, I have a question about your Jaltest equipment."
+          }
+        />
       </CartProvider>
     </ComingSoonProvider>
   );
