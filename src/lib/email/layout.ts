@@ -90,8 +90,8 @@ export function emailLayout({
           <tr>
             <td style="padding:28px 32px 0">
               <a href="${url}" style="text-decoration:none">
-                <span style="font-family:${FONT};font-size:26px;font-weight:900;letter-spacing:-.02em;color:${BRAND.text}">TDS</span>
-                <span style="font-family:${FONT};font-size:11px;font-weight:700;color:${BRAND.muted};letter-spacing:.08em;text-transform:uppercase;padding-left:8px">${SITE.fullName}</span>
+                <!-- Imagen alojada en el sitio: si el cliente bloquea imágenes queda el alt. -->
+                <img src="${url}/images/logo-tds-black.png" alt="${SITE.name} — ${SITE.fullName}" width="170" height="66" style="display:block;border:0;width:170px;height:auto;font-family:${FONT};font-size:16px;font-weight:800;color:${BRAND.text}">
               </a>
             </td>
           </tr>

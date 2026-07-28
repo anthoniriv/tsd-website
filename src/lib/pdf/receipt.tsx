@@ -8,6 +8,7 @@
 import "server-only";
 import {
   Document,
+  Image,
   Page,
   StyleSheet,
   Text,
@@ -17,6 +18,7 @@ import {
 import type { Order } from "@/db/schema";
 import type { OrderWithItems } from "@/lib/orders";
 import { resolveLocale } from "@/lib/i18n";
+import { LOGO_TDS_BLACK } from "@/lib/pdf/logo";
 import { formatPrice } from "@/lib/products";
 import { CONTACT, SITE } from "@/lib/site";
 
@@ -46,9 +48,9 @@ const s = StyleSheet.create({
     borderBottomColor: C.border,
     borderBottomStyle: "dashed",
   },
-  logo: { fontSize: 22, fontWeight: 900, color: C.text, letterSpacing: -0.5 },
-  company: { fontSize: 8, color: C.muted, marginTop: 3, textTransform: "uppercase" },
-  address: { fontSize: 8, color: C.muted, marginTop: 6, lineHeight: 1.5 },
+  // El PNG mide 900×350 (≈2.57:1); fijamos el ancho y dejamos que la altura salga sola.
+  logo: { width: 150 },
+  address: { fontSize: 8, color: C.muted, marginTop: 10, lineHeight: 1.5 },
 
   docTitle: {
     fontSize: 9,
@@ -226,8 +228,7 @@ function Receipt({ order }: { order: OrderWithItems }) {
 
         <View style={s.header}>
           <View>
-            <Text style={s.logo}>TDS</Text>
-            <Text style={s.company}>{SITE.fullName}</Text>
+            <Image style={s.logo} src={LOGO_TDS_BLACK} />
             <Text style={s.address}>
               {CONTACT.company}
               {"\n"}
