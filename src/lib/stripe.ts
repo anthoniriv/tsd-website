@@ -15,8 +15,18 @@ export function getStripe(): Stripe {
   return client;
 }
 
-/** URL pública del sitio, para los redirects de Stripe. */
+/**
+ * URL pública del sitio: redirects de Stripe, links de los correos, imágenes.
+ *
+ * En un preview NO sirve ni la variable fija ni el dominio de producción — el
+ * deployment vive en una URL nueva cada vez, y usar cualquier otra mandaría al
+ * usuario fuera del preview que está probando. `VERCEL_URL` es esa URL efímera.
+ */
 export function siteUrl(): string {
+  if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
   return (
     process.env.NEXT_PUBLIC_SITE_URL ??
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
