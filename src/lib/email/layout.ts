@@ -2,11 +2,21 @@
 //
 // Reglas del medio (no son estilísticas, son técnicas): los clientes de correo —Outlook,
 // Gmail, Apple Mail— no soportan flexbox, grid, CSS externo ni clases. Todo va en TABLAS
-// con estilos EN LÍNEA y ancho fijo (600 px). El logo es texto, no imagen: así no depende
-// de que el cliente permita cargar remotas.
+// con estilos EN LÍNEA y ancho fijo (600 px). Toda imagen lleva `alt` con estilo, porque
+// muchos clientes las bloquean por defecto.
 
 import { CONTACT, SITE } from "@/lib/site";
 import { siteUrl } from "@/lib/stripe";
+
+/**
+ * El logo se sirve desde R2, no desde el propio sitio: en local `siteUrl()` es
+ * localhost y en un preview la URL está detrás del SSO de Vercel — en ambos casos
+ * el buzón del destinatario ve una imagen rota. El bucket es público siempre.
+ */
+function logoUrl(): string {
+  const base = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
+  return base ? `${base}/brand/logo-tds-black.png` : `${siteUrl()}/images/logo-tds-black.png`;
+}
 
 export const BRAND = {
   brand: "#06C5FE",
@@ -91,7 +101,7 @@ export function emailLayout({
             <td style="padding:28px 32px 0">
               <a href="${url}" style="text-decoration:none">
                 <!-- Imagen alojada en el sitio: si el cliente bloquea imágenes queda el alt. -->
-                <img src="${url}/images/logo-tds-black.png" alt="${SITE.name} — ${SITE.fullName}" width="170" height="66" style="display:block;border:0;width:170px;height:auto;font-family:${FONT};font-size:16px;font-weight:800;color:${BRAND.text}">
+                <img src="${logoUrl()}" alt="${SITE.name} — ${SITE.fullName}" width="170" height="66" style="display:block;border:0;width:170px;height:auto;font-family:${FONT};font-size:16px;font-weight:800;color:${BRAND.text}">
               </a>
             </td>
           </tr>
