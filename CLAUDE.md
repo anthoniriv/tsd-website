@@ -28,8 +28,12 @@ rtk proxy npm run db:studio    # inspeccionar la BD
 
 Env necesarias (`.env.local`, vía `vercel env pull`): `DATABASE_URL` (Neon),
 `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `NEXT_PUBLIC_SITE_URL`,
-`ORDER_NOTIFY_EMAIL`, `BLOB_READ_WRITE_TOKEN` (Vercel Blob, subida de imágenes del panel).
-Para el seed: `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD`.
+`ORDER_NOTIFY_EMAIL`, `ORDER_FROM_EMAIL`, y las cinco de Cloudflare R2 (subida de imágenes
+del panel): `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`,
+`R2_PUBLIC_URL`. Para el seed: `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD`.
+
+⚠️ `vercel env pull` **sobrescribe** `DATABASE_URL` con el de producción. En local se usa
+una rama de Neon aparte (`ep-dry-waterfall`); prod es `ep-raspy-forest`.
 
 **Rutas**. Público: `/` · `/producto` (institucional, las 5 líneas Jaltest) · `/tienda`
 (catálogo con búsqueda/filtros) · `/tienda/[slug]` · `/checkout` · `/pedido/[token]`
@@ -214,8 +218,9 @@ Comentarios y copy en español; nombres de código en inglés.
 - Las **5 líneas Jaltest no son creables desde el panel**: su layout en `/producto` está
   atado a los 5 ids (`VISUALS` en `product-hero.tsx`). Editar textos/precios/imágenes sí;
   añadir una sexta línea exige tocar el diseño.
-- Imágenes: el panel sube archivos a **Vercel Blob** (`ImageUploadField` → `/api/admin/upload`
-  con `handleUpload`, botón + spinner de progreso); el input acepta también una ruta manual
-  (`/images/…`) como fallback. Requiere `BLOB_READ_WRITE_TOKEN`.
+- Imágenes: el panel sube archivos a **Cloudflare R2** (`lib/r2.ts` firma con `aws4fetch`;
+  `/api/admin/upload` devuelve URL prefirmada y el navegador hace el PUT directo al bucket,
+  con progreso vía XHR). El input acepta también una ruta manual (`/images/…`) como fallback.
+  El bucket necesita **CORS con `PUT`** desde el origen y acceso público de lectura.
 - Sin impuestos ni costes de envío: el total es el subtotal.
-- Footer/redes/policies con `href="#"` placeholder.
+- Footer/policies con `href="#"` placeholder (las redes ya apuntan a FB/IG reales).
