@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CONTACT } from "@/lib/site";
 
-/** Mapa de Google (embed, sin API key) centrado en Doral FL. Lazy con skeleton. */
+/** Mapa de Google (embed, sin API key) centrado en Los Angeles, CA. Lazy con skeleton. */
 export function LocationMap({ title }: { title: string }) {
   const [loaded, setLoaded] = useState(false);
   return (

@@ -67,7 +67,7 @@ const es = {
   trust: [
     { title: "Revendedor oficial", desc: "Jaltest / Cojali USA" },
     { title: "Cobertura multimarca", desc: "Comercial, off-highway, agrícola, marino y MHE" },
-    { title: "Soporte local", desc: "Asistencia técnica desde Doral, FL" },
+    { title: "Soporte local", desc: "Asistencia técnica desde Los Angeles, CA" },
     { title: "Renovaciones", desc: "Renueva o amplía tu cobertura" },
   ],
   coverage: {
@@ -121,7 +121,7 @@ const es = {
     },
   },
   home: {
-    srHeading: "TDS — Diagnóstico Jaltest para tu flota, con soporte local en Doral",
+    srHeading: "TDS — Diagnóstico Jaltest para tu flota, con soporte local en Los Ángeles",
     carouselLabel: "Destacados TDS",
     slides: [
       "Soluciones de diagnóstico Jaltest para flotas",
@@ -227,7 +227,7 @@ const es = {
     askAdvisor: "¿Dudas? Consulta con un asesor",
     related: "También te puede interesar",
     trust: {
-      shipping: "Envío desde Doral, FL",
+      shipping: "Envío desde Los Angeles, CA",
       shippingHint: "Despacho en 24–48 h hábiles",
       secure: "Pago 100% seguro",
       secureHint: "Procesado por Stripe",
@@ -347,9 +347,9 @@ const es = {
   },
   contact: {
     heroTitle: "Contáctenos",
-    heroSubtitle: "Estamos en Doral, FL. Cuéntanos qué equipo o cobertura necesitas y te asesoramos.",
+    heroSubtitle: "Estamos en Los Angeles, CA. Cuéntanos qué equipo o cobertura necesitas y te asesoramos.",
     heroAlt: "Oficinas de Tech Diagnostic Solutions",
-    mapTitlePrefix: "Mapa", // + company — Doral, Florida
+    mapTitlePrefix: "Mapa", // + company — Los Ángeles, California
     formHeading: "Queremos conocer más de ti",
     name: "Nombre y Apellido",
     email: "Email",
@@ -378,7 +378,7 @@ const es = {
     productoDescription:
       "Catálogo Jaltest: CV, OHW, AGV, Marine y MHE, laptops y tablets rugged, cables y adaptadores.",
     contactoTitle: "Contáctenos",
-    contactoDescription: "Ponte en contacto con Tech Diagnostic Solutions — Doral, Florida.",
+    contactoDescription: "Ponte en contacto con Tech Diagnostic Solutions — Los Ángeles, California.",
   },
 };
 
@@ -407,7 +407,7 @@ const en: Dict = {
   trust: [
     { title: "Authorized reseller", desc: "Jaltest / Cojali USA" },
     { title: "Multi-brand coverage", desc: "Commercial, off-highway, agricultural, marine and MHE" },
-    { title: "Local support", desc: "Technical assistance from Doral, FL" },
+    { title: "Local support", desc: "Technical assistance from Los Angeles, CA" },
     { title: "Renewals", desc: "Renew or expand your coverage" },
   ],
   coverage: {
@@ -461,7 +461,7 @@ const en: Dict = {
     },
   },
   home: {
-    srHeading: "TDS — Jaltest diagnostics for your fleet, with local support in Doral",
+    srHeading: "TDS — Jaltest diagnostics for your fleet, with local support in Los Angeles",
     carouselLabel: "TDS highlights",
     slides: [
       "Jaltest diagnostic solutions for fleets",
@@ -567,7 +567,7 @@ const en: Dict = {
     askAdvisor: "Questions? Talk to an advisor",
     related: "You may also like",
     trust: {
-      shipping: "Ships from Doral, FL",
+      shipping: "Ships from Los Angeles, CA",
       shippingHint: "Dispatched in 24–48 business hours",
       secure: "100% secure payment",
       secureHint: "Processed by Stripe",
@@ -687,7 +687,7 @@ const en: Dict = {
   },
   contact: {
     heroTitle: "Contact Us",
-    heroSubtitle: "We're in Doral, FL. Tell us what equipment or coverage you need and we'll advise you.",
+    heroSubtitle: "We're in Los Angeles, CA. Tell us what equipment or coverage you need and we'll advise you.",
     heroAlt: "Tech Diagnostic Solutions offices",
     mapTitlePrefix: "Map",
     formHeading: "We'd like to know more about you",
@@ -718,7 +718,7 @@ const en: Dict = {
     productoDescription:
       "Jaltest catalog: CV, OHW, AGV, Marine and MHE, rugged laptops and tablets, cables and adapters.",
     contactoTitle: "Contact Us",
-    contactoDescription: "Get in touch with Tech Diagnostic Solutions — Doral, Florida.",
+    contactoDescription: "Get in touch with Tech Diagnostic Solutions — Los Angeles, California.",
   },
 };
 

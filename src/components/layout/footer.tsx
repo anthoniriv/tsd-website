@@ -40,7 +40,7 @@ export function Footer({ dict }: { dict: Dict }) {
       <div className="bg-neutral-900 text-neutral-200">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-3 text-sm leading-relaxed">
-            <Logo className="[&_span]:text-white" />
+            <Logo variant="white" />
             <p className="max-w-xs text-neutral-300">{dict.meta.siteDescription}</p>
           </div>
 
@@ -85,6 +85,8 @@ export function Footer({ dict }: { dict: Dict }) {
                   <li key={s.label}>
                     <Link
                       href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       aria-label={`${dict.footer.followOn} ${s.label}`}
                       className="grid h-9 w-9 place-items-center rounded-full bg-white/10 transition-colors hover:bg-brand"
                     >

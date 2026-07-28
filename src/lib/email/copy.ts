@@ -44,7 +44,7 @@ const es = {
     shipped: {
       subject: (n: string) => `Tu pedido ${n} va en camino`,
       heading: "¡Tu pedido va en camino!",
-      body: "Tu pedido salió de nuestro almacén en Doral, FL. Pronto lo tendrás contigo.",
+      body: "Tu pedido salió de nuestro almacén en Los Angeles, CA. Pronto lo tendrás contigo.",
     },
     delivered: {
       subject: (n: string) => `Pedido ${n} entregado`,
@@ -101,7 +101,7 @@ const en: typeof es = {
     shipped: {
       subject: (n: string) => `Your order ${n} is on its way`,
       heading: "Your order is on its way!",
-      body: "Your order has left our warehouse in Doral, FL. It'll be with you soon.",
+      body: "Your order has left our warehouse in Los Angeles, CA. It'll be with you soon.",
     },
     delivered: {
       subject: (n: string) => `Order ${n} delivered`,

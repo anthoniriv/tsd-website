@@ -16,12 +16,12 @@ export const NAV = [
 ] as const;
 
 export const CONTACT = {
-  company: "Cojali USA Inc.",
-  address: "2070 NW 79th Avenue",
-  city: "Doral, Florida 33122, USA",
-  // Embed de Google Maps centrado en Doral FL (no requiere API key).
+  company: "Tech Diagnostic Solutions",
+  address: "1724 North Avenue 53",
+  city: "Los Angeles, California, USA",
+  // Embed de Google Maps centrado en la dirección de LA (no requiere API key).
   mapEmbed:
-    "https://www.google.com/maps?q=2070+NW+79th+Avenue,+Doral,+FL+33122&output=embed",
+    "https://www.google.com/maps?q=1724+North+Avenue+53,+Los+Angeles,+CA&output=embed",
   supportTitle: "SERVICIO DE ASISTENCIA TÉCNICA PERSONAL",
   phone: "+0 000 000 0000",
   tollFree: "+0 000 000 0000",
@@ -30,11 +30,16 @@ export const CONTACT = {
 } as const;
 
 export const SOCIALS = [
-  { label: "Facebook", href: "#", icon: "facebook" },
-  { label: "Instagram", href: "#", icon: "instagram" },
-  { label: "YouTube", href: "#", icon: "youtube" },
-  { label: "LinkedIn", href: "#", icon: "linkedin" },
-  { label: "X", href: "#", icon: "x" },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61572396180890",
+    icon: "facebook",
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/techdiagnosticsolutions",
+    icon: "instagram",
+  },
 ] as const;
 
 // `key` referencia dict.footer.policies; el label visible sale del diccionario.

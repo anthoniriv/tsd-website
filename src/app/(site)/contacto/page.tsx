@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactoPage() {
   const { dict } = await getLocaleData();
   const c = dict.contact;
-  const mapTitle = `${c.mapTitlePrefix} ${CONTACT.company} — Doral, Florida`;
+  const mapTitle = `${c.mapTitlePrefix} ${CONTACT.company} — Los Ángeles, California`;
 
   return (
     <>
