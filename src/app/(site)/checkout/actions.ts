@@ -1,9 +1,11 @@
 "use server";
 
+import { after } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
+import { sendOrderReceived } from "@/lib/email";
 import { getLocaleData } from "@/lib/i18n.server";
 import { createPendingOrder, OrderError, type DraftLine } from "@/lib/orders";
 import { getStripe, siteUrl } from "@/lib/stripe";
@@ -132,5 +134,18 @@ export async function startCheckout(
     .where(eq(orders.id, order.id));
 
   if (!session.url) return { error: "No se pudo iniciar el pago. Intenta de nuevo." };
+
+  // Acuse de recibo fuera del camino crítico: el comprador debe irse a pagar ya, y
+  // un Resend lento —o caído— no puede retrasar ni romper el redirect. `after()`
+  // lo ejecuta cuando la respuesta ya salió. Si falla, queda logueado en
+  // `order_emails` como cualquier otro envío y se puede reintentar desde el panel.
+  after(async () => {
+    try {
+      await sendOrderReceived(order);
+    } catch (err) {
+      console.error(`[email] acuse de recibo de ${order.orderNumber}:`, err);
+    }
+  });
+
   return { url: session.url };
 }

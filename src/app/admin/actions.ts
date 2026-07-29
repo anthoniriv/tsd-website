@@ -24,6 +24,7 @@ import { hashPassword, login, logout, requireRole } from "@/lib/auth";
 import {
   sendOrderConfirmation,
   sendOrderNotification,
+  sendOrderReceived,
   sendOrderStatusUpdate,
 } from "@/lib/email";
 import { getOrderWithItems } from "@/lib/orders";
@@ -232,7 +233,10 @@ export async function resendOrderEmailAction(
   await requireRole("editor");
 
   const parsed = z
-    .object({ id: z.uuid(), kind: z.enum(["confirmation", "status_update", "notification"]) })
+    .object({
+      id: z.uuid(),
+      kind: z.enum(["received", "confirmation", "status_update", "notification"]),
+    })
     .safeParse({ id, kind });
   if (!parsed.success) return { error: "Correo inválido." };
 
@@ -240,12 +244,13 @@ export async function resendOrderEmailAction(
   if (!order) return { error: "Pedido no encontrado." };
 
   // Reusa las mismas funciones de envío que el webhook/estado → registran la fila de log.
-  const result =
-    parsed.data.kind === "confirmation"
-      ? await sendOrderConfirmation(order)
-      : parsed.data.kind === "status_update"
-        ? await sendOrderStatusUpdate(order)
-        : await sendOrderNotification(order);
+  const senders = {
+    received: sendOrderReceived,
+    confirmation: sendOrderConfirmation,
+    status_update: sendOrderStatusUpdate,
+    notification: sendOrderNotification,
+  } as const;
+  const result = await senders[parsed.data.kind](order);
 
   revalidatePath(`/admin/pedidos/${parsed.data.id}`);
   if (result && !result.ok) return { error: result.error ?? "No se pudo enviar el correo." };

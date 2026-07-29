@@ -50,6 +50,8 @@ export const adminRole = pgEnum("admin_role", ["owner", "admin", "editor"]);
 export const couponKind = pgEnum("coupon_kind", ["percent", "fixed"]);
 /** Tipo de correo transaccional que se registra en `order_emails`. */
 export const orderEmailKind = pgEnum("order_email_kind", [
+  // Al crear el pedido, antes de pagar: "lo registramos, estamos validando el pago".
+  "received",
   "confirmation",
   "status_update",
   "notification",

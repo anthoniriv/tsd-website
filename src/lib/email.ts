@@ -146,6 +146,38 @@ function orderMeta(order: Order, lang: Lang, statusLabel: string): string {
 // Al comprador
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Acuse de recibo, antes de pagar. Se manda al crear el pedido, cuando el
+ * comprador todavía está en la pasarela de Stripe: sin esto, un pago que tarda o
+ * que falla lo deja sin ninguna señal de que su pedido existe.
+ *
+ * No lleva la boleta adjunta a propósito — todavía no hay compra que documentar.
+ */
+export async function sendOrderReceived(order: OrderWithItems) {
+  const lang = langOf(order);
+  const t = emailCopy(lang);
+
+  const content = `
+    ${heading(t.receivedHeading)}
+    ${paragraph(`${t.greeting(order.name)} ${t.receivedBody}`)}
+    ${orderMeta(order, lang, statusLabel(order.status, lang))}
+    ${itemsTable(order, lang)}
+    ${button(t.trackOrder, trackUrl(order))}
+    ${paragraph(`<span style="font-size:13px;color:${BRAND.muted}">${t.receivedHint}</span>`)}
+  `;
+
+  const result = await send({
+    to: order.email,
+    subject: t.receivedSubject(order.orderNumber),
+    html: emailLayout({
+      title: t.receivedSubject(order.orderNumber),
+      preheader: `${t.total}: ${formatPrice(order.totalCents)}`,
+      content,
+    }),
+  });
+  return logOrderEmail(order.id, "received", order.email, result);
+}
+
 /** Confirmación de compra: el correo más importante. Lleva el link de seguimiento. */
 export async function sendOrderConfirmation(order: OrderWithItems) {
   const lang = langOf(order);

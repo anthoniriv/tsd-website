@@ -46,6 +46,7 @@ export const ADMIN_ROLE_LABEL: Record<AdminUser["role"], string> = {
 };
 
 export const ORDER_EMAIL_KIND_LABEL: Record<OrderEmail["kind"], string> = {
+  received: "Pedido registrado",
   confirmation: "Confirmación de compra",
   status_update: "Cambio de estado",
   notification: "Aviso interno",

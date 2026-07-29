@@ -62,7 +62,12 @@ export default async function AdminOrderDetailPage({
 
   const emails = await listOrderEmails(order.id);
   // Correos que se pueden reintentar desde aquí. El aviso interno solo si hay destinatario config.
-  const RETRYABLE: OrderEmail["kind"][] = ["confirmation", "status_update", "notification"];
+  const RETRYABLE: OrderEmail["kind"][] = [
+    "received",
+    "confirmation",
+    "status_update",
+    "notification",
+  ];
 
   const date = order.createdAt.toLocaleDateString("es-ES", {
     day: "numeric",

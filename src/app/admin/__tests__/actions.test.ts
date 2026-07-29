@@ -18,6 +18,7 @@ vi.mock("@/lib/auth", () => ({
   logout: vi.fn(),
 }));
 vi.mock("@/lib/email", () => ({
+  sendOrderReceived: vi.fn(),
   sendOrderConfirmation: vi.fn(),
   sendOrderStatusUpdate: vi.fn(),
   sendOrderNotification: vi.fn(),
@@ -31,7 +32,12 @@ import {
 } from "@/app/admin/actions";
 import { requireRole } from "@/lib/auth";
 import { getOrderWithItems } from "@/lib/orders";
-import { sendOrderConfirmation, sendOrderNotification, sendOrderStatusUpdate } from "@/lib/email";
+import {
+  sendOrderConfirmation,
+  sendOrderNotification,
+  sendOrderReceived,
+  sendOrderStatusUpdate,
+} from "@/lib/email";
 
 // UUID v4 válidos (nibble de versión 4 y variante 8) — z.uuid() los exige.
 const ME = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -115,6 +121,14 @@ describe("resendOrderEmailAction — enrutado", () => {
     vi.mocked(sendOrderNotification).mockResolvedValue({ ok: true } as never);
     await resendOrderEmailAction(OTHER, "notification");
     expect(sendOrderNotification).toHaveBeenCalledOnce();
+  });
+
+  it("reenvía el acuse de recibo para kind 'received'", async () => {
+    vi.mocked(getOrderWithItems).mockResolvedValue(ORDER);
+    vi.mocked(sendOrderReceived).mockResolvedValue({ ok: true } as never);
+    await resendOrderEmailAction(OTHER, "received");
+    expect(sendOrderReceived).toHaveBeenCalledOnce();
+    expect(sendOrderConfirmation).not.toHaveBeenCalled();
   });
 
   it("devuelve error si el pedido no existe", async () => {

@@ -22,6 +22,13 @@
       "when": 1784857958361,
       "tag": "0002_omniscient_mojo",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785285652814,
+      "tag": "0003_sweet_shatterstar",
+      "breakpoints": true
     }
   ]
 }

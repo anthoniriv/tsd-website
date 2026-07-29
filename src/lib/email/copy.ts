@@ -25,6 +25,13 @@ const es = {
     "Guarda este enlace: es tu acceso al seguimiento del pedido, no necesitas crear una cuenta.",
   help: "¿Alguna duda? Escríbenos y te ayudamos.",
 
+  receivedSubject: (n: string) => `Recibimos tu pedido ${n} · TDS`,
+  receivedHeading: "Pedido registrado",
+  receivedBody:
+    "Registramos tu pedido y estamos validando el pago. En cuanto se confirme te enviamos la boleta y empezamos a prepararlo.",
+  receivedHint:
+    "Si el pago no llega a completarse, el pedido se queda en espera y no se cobra nada.",
+
   confirmSubject: (n: string) => `Pedido ${n} confirmado · TDS`,
   confirmHeading: "¡Gracias por tu compra!",
   confirmBody:
@@ -82,6 +89,13 @@ const en: typeof es = {
   trackHint:
     "Save this link: it's your access to order tracking — no account needed.",
   help: "Questions? Write to us and we'll help.",
+
+  receivedSubject: (n: string) => `We got your order ${n} · TDS`,
+  receivedHeading: "Order registered",
+  receivedBody:
+    "We've registered your order and we're validating the payment. As soon as it clears we'll send you the receipt and start preparing it.",
+  receivedHint:
+    "If the payment doesn't go through, the order stays on hold and you won't be charged.",
 
   confirmSubject: (n: string) => `Order ${n} confirmed · TDS`,
   confirmHeading: "Thank you for your purchase!",
