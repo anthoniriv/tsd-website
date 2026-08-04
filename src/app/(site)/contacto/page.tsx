@@ -10,10 +10,34 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: dict.meta.contactoTitle, description: dict.meta.contactoDescription };
 }
 
-export default async function ContactoPage() {
+/** Variantes que pueden llegar en `?linea=` desde los CTA de /producto. */
+const LINE_LABEL: Record<string, string> = {
+  cv: "CV",
+  ohw: "OHW",
+  agv: "AGV",
+  marine: "Marine",
+  mhe: "MHE",
+};
+
+export default async function ContactoPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { dict } = await getLocaleData();
   const c = dict.contact;
   const mapTitle = `${c.mapTitlePrefix} ${CONTACT.company} — Los Ángeles, California`;
+
+  // "Agendar una demo" llega como /contacto?asunto=demo&linea=cv
+  const params = await searchParams;
+  const linea = typeof params.linea === "string" ? LINE_LABEL[params.linea] : undefined;
+  const isDemo = params.asunto === "demo";
+  const prefill = isDemo
+    ? {
+        subject: [c.demoSubject, linea].filter(Boolean).join(" "),
+        message: c.demoMessage.replace("{linea}", linea ?? "").replace(" .", "."),
+      }
+    : undefined;
 
   return (
     <>
@@ -43,7 +67,7 @@ export default async function ContactoPage() {
       <section className="py-16 sm:py-20">
         <div className="mx-auto grid max-w-5xl gap-10 px-6 md:grid-cols-2">
           <LocationMap title={mapTitle} />
-          <ContactForm dict={c} />
+          <ContactForm dict={c} prefill={prefill} />
         </div>
       </section>
     </>

@@ -54,6 +54,7 @@ export const getJaltestLines = cache(async (tier: PriceTier): Promise<JaltestLin
 
   return rows.map((r) => ({
     id: r.accentKey as AccentKey,
+    productId: r.id,
     brand: "Jaltest" as const,
     variant: r.variant ?? "",
     segment: r.segment ?? "",

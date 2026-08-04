@@ -22,48 +22,13 @@ export async function HardwareKits() {
           ))}
         </div>
 
-        {/* desktop: honeycomb (4 arriba + 3 abajo offset, fotos en las esquinas y centro) */}
-        <div className="hidden flex-col items-center md:flex">
-          <div className="flex justify-center gap-3">
-            <div className="w-40">
-              <HexTile
-                label={labels[HARDWARE_KITS[0].key]}
-                img={HARDWARE_KITS[0].img}
-                href={HARDWARE_KITS[0].href}
-              />
+        {/* desktop: los 3 hexágonos en una fila (sin rellenos decorativos) */}
+        <div className="hidden justify-center gap-3 md:flex">
+          {HARDWARE_KITS.map((k) => (
+            <div key={k.key} className="w-40">
+              <HexTile label={labels[k.key]} img={k.img} href={k.href} />
             </div>
-            <div className="w-40">
-              <HexTile label="" />
-            </div>
-            <div className="w-40">
-              <HexTile label="" />
-            </div>
-            <div className="w-40">
-              <HexTile
-                label={labels[HARDWARE_KITS[1].key]}
-                img={HARDWARE_KITS[1].img}
-                href={HARDWARE_KITS[1].href}
-              />
-            </div>
-          </div>
-          <div className="-mt-10 flex justify-center gap-3">
-            {/* offset medio hex: los 3 de abajo encajan en los valles */}
-            <div className="w-20" />
-            <div className="w-40">
-              <HexTile label="" />
-            </div>
-            <div className="w-40">
-              <HexTile
-                label={labels[HARDWARE_KITS[2].key]}
-                img={HARDWARE_KITS[2].img}
-                href={HARDWARE_KITS[2].href}
-              />
-            </div>
-            <div className="w-40">
-              <HexTile label="" />
-            </div>
-            <div className="w-20" />
-          </div>
+          ))}
         </div>
       </div>
     </section>

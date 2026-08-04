@@ -175,7 +175,7 @@ export default async function ProductoPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden bg-white pt-16 sm:pt-20">
+      <section id="renovar" className="scroll-mt-36 overflow-hidden bg-white pt-16 sm:pt-20">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="text-center text-[clamp(29px,3.7vw,38px)] font-black uppercase leading-tight tracking-normal text-[#666]">
             {p.renew.heading}

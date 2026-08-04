@@ -25,7 +25,13 @@ export async function CoverageKits() {
         {/* mobile: grid */}
         <div className="mx-auto grid max-w-md grid-cols-2 gap-4 sm:grid-cols-3 md:hidden">
           {COVERAGE_KITS.map((k) => (
-            <HexTile key={k.key} label={labels[k.key]} img={k.img} />
+            <HexTile
+              key={k.key}
+              label={labels[k.key]}
+              img={k.img}
+              href={k.href}
+              accent={k.accent}
+            />
           ))}
         </div>
 
@@ -34,7 +40,7 @@ export async function CoverageKits() {
           <div className="flex justify-center gap-3">
             {top.map((k) => (
               <div key={k.key} className="w-48">
-                <HexTile label={labels[k.key]} img={k.img} />
+                <HexTile label={labels[k.key]} img={k.img} href={k.href} accent={k.accent} />
               </div>
             ))}
           </div>
@@ -42,14 +48,24 @@ export async function CoverageKits() {
             {/* offset medio hex: los de abajo encajan en los valles */}
             <div className="w-24" />
             <div className="w-48">
-              <HexTile label={labels[bottom[0].key]} img={bottom[0].img} />
+              <HexTile
+                label={labels[bottom[0].key]}
+                img={bottom[0].img}
+                href={bottom[0].href}
+                accent={bottom[0].accent}
+              />
             </div>
             {/* hex blanco central (vacío del centro) */}
             <div className="w-48">
               <Hexagon as="div" className="bg-white" />
             </div>
             <div className="w-48">
-              <HexTile label={labels[bottom[1].key]} img={bottom[1].img} />
+              <HexTile
+                label={labels[bottom[1].key]}
+                img={bottom[1].img}
+                href={bottom[1].href}
+                accent={bottom[1].accent}
+              />
             </div>
             <div className="w-24" />
           </div>

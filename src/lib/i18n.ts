@@ -65,39 +65,44 @@ const es = {
     gotIt: "Entendido",
   },
   trust: [
-    { title: "Revendedor oficial", desc: "Jaltest / Cojali USA" },
-    { title: "Cobertura multimarca", desc: "Comercial, off-highway, agrícola, marino y MHE" },
-    { title: "Soporte local", desc: "Asistencia técnica desde Los Angeles, CA" },
-    { title: "Renovaciones", desc: "Renueva o amplía tu cobertura" },
+    { title: "Distribuidor Autorizado", desc: "Cojali USA" },
+    {
+      title: "Cobertura multimarca y multisistema",
+      desc: "Funciones nivel propietario con asistencia e información técnica incluida.",
+    },
+    { title: "Soporte local", desc: "Soporte técnico desde fábrica en tu idioma." },
+    {
+      title: "Equipo de cómputo para trabajo rudo",
+      desc: "Equipos resistentes, confiables y listos para los entornos más exigentes.",
+    },
   ],
   coverage: {
     title: "Kits de cobertura",
     titleAccent: "TDS",
-    subtitle: "Cobertura multimarca lista para tu taller, por segmento.",
+    subtitle: "Cobertura Multimarca/Multisistema",
     labels: {
-      onHighway: "On-Highway",
-      offHighway: "Off-Highway",
-      materialHandling: "Manejo de Materiales",
-      marine: "Marine",
-      agriculture: "Agriculture",
-      bundleKit: "Bundle Kit",
+      onHighway: "Vehículos comerciales",
+      offHighway: "Maquinaria pesada",
+      materialHandling: "Equipo de manejo de materiales",
+      marine: "Equipos y motores marinos",
+      agriculture: "Equipos y maquinaria agrícola",
+      bundleKit: "Solución integral",
     },
   },
   hardware: {
     title: "Laptops & Tablets para uso rudo",
     subtitle: "+ Adaptadores adicionales",
     labels: {
-      tabletsLaptops: "Tablets + Laptops",
-      adaptersCables: "Adapters + Cables",
-      cableFinder: "Cable Finder",
+      laptops: "Laptops",
+      tablets: "Tablets",
+      cables: "Cables adicionales",
     },
   },
   renovaciones: {
     title: "Renueva",
     titleAccent: "o añade más cobertura",
     watermark: "Renovaciones",
-    plusCoverage: "Cobertura",
-    cta: "Renovar o ampliar cobertura",
+    coverageAlt: "Cobertura Jaltest por tipo de equipo",
   },
   preFooter: {
     title: "¿Listo para equipar tu taller con Jaltest?",
@@ -177,7 +182,10 @@ const es = {
   },
   productHero: {
     price: "Price",
-    quotePrefix: "Cotizar Jaltest", // + variant
+    addToCart: "Añadir al carrito",
+    added: "Añadido",
+    outOfStock: "Agotado",
+    bookDemo: "Agendar una demo",
   },
   productCard: {
     cta: "Añadir al carrito",
@@ -363,6 +371,10 @@ const es = {
     sending: "Enviando…",
     footnotePre: "O escríbenos directamente a",
     toastSuccess: "¡Gracias! Te contactaremos pronto.",
+    // Prellenado al llegar desde "Agendar una demo" (?asunto=demo&linea=cv)
+    demoSubject: "Agendar demo de Jaltest", // + variante
+    demoMessage:
+      "Hola, me gustaría agendar una demo de Jaltest {linea}. Estos son mis horarios disponibles:",
     errors: {
       name: "Ingresa tu nombre y apellido.",
       email: "Ingresa tu email.",
@@ -405,15 +417,21 @@ const en: Dict = {
     gotIt: "Got it",
   },
   trust: [
-    { title: "Authorized reseller", desc: "Jaltest / Cojali USA" },
-    { title: "Multi-brand coverage", desc: "Commercial, off-highway, agricultural, marine and MHE" },
-    { title: "Local support", desc: "Technical assistance from Los Angeles, CA" },
-    { title: "Renewals", desc: "Renew or expand your coverage" },
+    { title: "Authorized Distributor", desc: "Cojali USA" },
+    {
+      title: "Multi-brand and multi-system coverage",
+      desc: "Owner-level functions with technical assistance and information included.",
+    },
+    { title: "Local support", desc: "Factory technical support in your language." },
+    {
+      title: "Rugged computing equipment",
+      desc: "Tough, reliable equipment ready for the most demanding environments.",
+    },
   ],
   coverage: {
     title: "Coverage kits",
     titleAccent: "TDS",
-    subtitle: "Multi-brand coverage ready for your shop, by segment.",
+    subtitle: "Multi-brand / Multi-system coverage",
     labels: {
       onHighway: "On-Highway",
       offHighway: "Off-Highway",
@@ -427,17 +445,16 @@ const en: Dict = {
     title: "Rugged Laptops & Tablets",
     subtitle: "+ Additional adapters",
     labels: {
-      tabletsLaptops: "Tablets + Laptops",
-      adaptersCables: "Adapters + Cables",
-      cableFinder: "Cable Finder",
+      laptops: "Laptops",
+      tablets: "Tablets",
+      cables: "Additional cables",
     },
   },
   renovaciones: {
     title: "Renew",
     titleAccent: "or add more coverage",
     watermark: "Renewals",
-    plusCoverage: "Coverage",
-    cta: "Renew or expand coverage",
+    coverageAlt: "Jaltest coverage by equipment type",
   },
   preFooter: {
     title: "Ready to equip your shop with Jaltest?",
@@ -517,7 +534,10 @@ const en: Dict = {
   },
   productHero: {
     price: "Price",
-    quotePrefix: "Get a quote — Jaltest",
+    addToCart: "Add to cart",
+    added: "Added",
+    outOfStock: "Out of stock",
+    bookDemo: "Book a demo",
   },
   productCard: {
     cta: "Add to cart",
@@ -703,6 +723,9 @@ const en: Dict = {
     sending: "Sending…",
     footnotePre: "Or write to us directly at",
     toastSuccess: "Thank you! We'll get in touch soon.",
+    demoSubject: "Book a Jaltest demo", // + variant
+    demoMessage:
+      "Hi, I'd like to book a demo of Jaltest {linea}. These are the times that work for me:",
     errors: {
       name: "Enter your full name.",
       email: "Enter your email.",

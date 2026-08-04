@@ -24,6 +24,8 @@ export function formatPrice(cents: number): string {
 
 export type JaltestLine = {
   id: AccentKey;
+  /** id de la fila en `products` — lo que guarda el carrito. */
+  productId?: string;
   brand: "Jaltest";
   variant: string; // CV, OHW, AGV…
   segment: string; // "Commercial Vehicles"
@@ -49,21 +51,57 @@ export type HardwareItem = {
   category: "laptop" | "cable" | "finder";
 };
 
+const R2 = "https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media";
+
 // Kits de cobertura (honeycomb del home). Son decorativos — sin precio ni compra —
 // así que siguen siendo constantes: no tiene sentido meterlos en BD.
+//
+// `accent` tiñe el borde del hexágono en hover; `href` lleva al bloque de la línea
+// correspondiente en /producto. "Solución integral" no es una línea: cubre todas,
+// así que su borde lleva un lado de cada color y su enlace va a la página entera.
 export const COVERAGE_KITS = [
-  { key: "onHighway", img: "/images/truck.png" },
-  { key: "offHighway", img: "/images/veh-ohw.png" },
-  { key: "materialHandling", img: "/images/kit.png" },
-  { key: "marine", img: "/images/veh-marine.png" },
-  { key: "agriculture", img: "/images/tractor.png" },
-  { key: "bundleKit", img: "/images/veh-cv.png" },
+  {
+    key: "onHighway",
+    img: `${R2}/cobertura-vehiculos-comerciales-99108d04.png`,
+    accent: "cv",
+    href: "/producto#cv",
+  },
+  {
+    key: "offHighway",
+    img: `${R2}/cobertura-maquinaria-pesada-aa1b683d.png`,
+    accent: "ohw",
+    href: "/producto#ohw",
+  },
+  {
+    key: "materialHandling",
+    img: `${R2}/cobertura-manejo-materiales-cd14c322.png`,
+    accent: "mhe",
+    href: "/producto#mhe",
+  },
+  { key: "marine", img: "/images/veh-marine.png", accent: "marine", href: "/producto#marine" },
+  {
+    key: "agriculture",
+    img: `${R2}/cobertura-agricola-c7d6e198.png`,
+    accent: "agv",
+    href: "/producto#agv",
+  },
+  {
+    key: "bundleKit",
+    img: `${R2}/cobertura-solucion-integral-83e3a8a8.png`,
+    accent: "bundle",
+    href: "/producto",
+  },
 ] as const;
 
+/** Collage de cobertura del bloque "Renueva o añade más cobertura" (home). */
+export const COVERAGE_COLLAGE_IMG = `${R2}/renovaciones-cobertura-jaltest-6fee44fb.png`;
+
+// Laptops y Tablets comparten la categoría `laptop` en BD: hoy el filtro de /tienda
+// no las separa. Si el cliente quiere filtros distintos hace falta una categoría nueva.
 export const HARDWARE_KITS = [
-  { key: "tabletsLaptops", img: "/images/laptop.png", href: "/tienda?cat=laptop" },
-  { key: "adaptersCables", img: "/images/cable-b.png", href: "/tienda?cat=cable" },
-  { key: "cableFinder", img: "/images/finder-b.png", href: "/tienda?cat=finder" },
+  { key: "laptops", img: "/images/laptop.png", href: "/tienda?cat=laptop" },
+  { key: "tablets", img: `${R2}/hardware-tablet-jaltest-26b9afab.png`, href: "/tienda?cat=laptop" },
+  { key: "cables", img: "/images/cable-b.png", href: "/tienda?cat=cable" },
 ] as const;
 
 /** Helper: resuelve un campo localizado al idioma dado. */

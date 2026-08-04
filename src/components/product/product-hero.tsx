@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ACCENT, formatPrice, type JaltestLine } from "@/lib/products";
 import { getLocaleData } from "@/lib/i18n.server";
 import { SmartImage } from "@/components/ui/smart-image";
 import { JaltestLogo } from "@/components/product/jaltest-logo";
+import { ProductHeroActions } from "@/components/product/product-hero-actions";
 
 const HEX = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
 
@@ -114,10 +114,13 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
   const { dict, lang } = await getLocaleData();
   const price = formatPrice(line.priceCents ?? 0);
   const description = line.description[lang];
-  const quoteLabel = `${dict.productHero.quotePrefix} ${line.variant}`;
+  const name = `${line.brand} ${line.variant}`;
+  const actionLabels = { ...dict.productHero, addedToast: dict.cart.addedToast };
+  // El formulario de contacto arranca con el asunto y la línea ya puestos.
+  const demoHref = `/contacto?asunto=demo&linea=${line.id}`;
 
   return (
-    <article className={cn("md:py-0", visual.pull)}>
+    <article id={line.id} className={cn("scroll-mt-36 md:py-0", visual.pull)}>
       {/* ───────── MOBILE: card por línea, sin fondo gris, acento = contraste ───────── */}
       <div className="px-5 py-4 md:hidden">
         <div
@@ -183,13 +186,15 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
                 </p>
               ))}
             </div>
-            <Link
-              href="/contacto"
-              className="mt-6 inline-flex h-[52px] w-full items-center justify-center rounded-full px-6 text-[1rem] font-extrabold uppercase leading-none text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: accent.color }}
-            >
-              {quoteLabel}
-            </Link>
+            <ProductHeroActions
+              className="mt-6"
+              productId={line.productId}
+              name={name}
+              stock={line.stock ?? 0}
+              accentColor={accent.color}
+              demoHref={demoHref}
+              labels={actionLabels}
+            />
           </div>
         </div>
       </div>
@@ -292,15 +297,15 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
               ))}
             </div>
             {/* CTA fluye justo después del texto (espaciado consistente) */}
-            <div className="mt-7 text-left md:text-center">
-              <Link
-                href="/contacto"
-                className="inline-flex h-[53px] w-full max-w-full items-center justify-center rounded-full px-[2.1rem] text-center text-[1.05rem] font-extrabold uppercase leading-none text-white transition-opacity hover:opacity-90 sm:w-auto sm:min-w-[264px]"
-                style={{ backgroundColor: accent.color }}
-              >
-                {quoteLabel}
-              </Link>
-            </div>
+            <ProductHeroActions
+              className="mt-7 md:justify-center"
+              productId={line.productId}
+              name={name}
+              stock={line.stock ?? 0}
+              accentColor={accent.color}
+              demoHref={demoHref}
+              labels={actionLabels}
+            />
           </div>
         </div>
       </div>

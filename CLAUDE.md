@@ -33,7 +33,10 @@ del panel): `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUC
 `R2_PUBLIC_URL`. Para el seed: `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD`.
 
 ⚠️ `vercel env pull` **sobrescribe** `DATABASE_URL` con el de producción. En local se usa
-una rama de Neon aparte (`ep-dry-waterfall`); prod es `ep-raspy-forest`.
+una rama de Neon aparte (`ep-shy-glade`, la misma que `PREVIEW_DATABASE_URL`); prod es
+`ep-raspy-forest`. Si Neon borra esa rama, todo (local y preview) revienta con
+`password authentication failed for user 'neondb_owner'` — no es la contraseña, es el
+endpoint muerto: hay que crear la rama de nuevo y reponer las dos variables.
 
 **Rutas**. Público: `/` · `/producto` (institucional, las 5 líneas Jaltest) · `/tienda`
 (catálogo con búsqueda/filtros) · `/tienda/[slug]` · `/checkout` · `/pedido/[token]`

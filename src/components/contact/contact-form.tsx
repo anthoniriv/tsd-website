@@ -12,7 +12,14 @@ import { toast } from "sonner";
 
 type Errors = Partial<Record<"nombre" | "email" | "asunto" | "mensaje", string>>;
 
-export function ContactForm({ dict }: { dict: Dict["contact"] }) {
+export function ContactForm({
+  dict,
+  prefill,
+}: {
+  dict: Dict["contact"];
+  /** Valores iniciales al llegar desde un CTA (p.ej. "Agendar una demo"). */
+  prefill?: { subject: string; message: string };
+}) {
   const [errors, setErrors] = useState<Errors>({});
   const [sending, setSending] = useState(false);
 
@@ -106,6 +113,7 @@ export function ContactForm({ dict }: { dict: Dict["contact"] }) {
           id="asunto"
           name="asunto"
           required
+          defaultValue={prefill?.subject}
           placeholder={dict.subjectPh}
           className={field("asunto")}
           aria-invalid={!!errors.asunto}
@@ -126,6 +134,7 @@ export function ContactForm({ dict }: { dict: Dict["contact"] }) {
           name="mensaje"
           rows={6}
           required
+          defaultValue={prefill?.message}
           placeholder={dict.messagePh}
           className={field("mensaje")}
           aria-invalid={!!errors.mensaje}

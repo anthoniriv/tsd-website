@@ -1,12 +1,12 @@
-import { BadgeCheck, Layers, MapPin, RefreshCw } from "lucide-react";
+import { BadgeCheck, Laptop, Layers, MapPin } from "lucide-react";
 import { getLocaleData } from "@/lib/i18n.server";
 
 /**
  * Strip de confianza: señales de credibilidad sin métricas inventadas.
- * Revendedor oficial · cobertura · soporte local · renovaciones.
+ * Distribuidor autorizado · cobertura · soporte local · equipo rugged.
  * Los iconos van por índice; los textos vienen del diccionario (dict.trust).
  */
-const ICONS = [BadgeCheck, Layers, MapPin, RefreshCw] as const;
+const ICONS = [BadgeCheck, Layers, MapPin, Laptop] as const;
 
 export async function TrustStrip() {
   const { dict } = await getLocaleData();
