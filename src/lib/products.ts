@@ -93,7 +93,10 @@ export const COVERAGE_KITS = [
   },
 ] as const;
 
-/** Collage de cobertura del bloque "Renueva o añade más cobertura" (home). */
+/**
+ * Collage de cobertura que mandó el cliente (técnico + equipos + hexágonos de
+ * línea). Subido a R2 y aún sin ubicación definitiva en la página.
+ */
 export const COVERAGE_COLLAGE_IMG = `${R2}/renovaciones-cobertura-jaltest-6fee44fb.png`;
 
 // Laptops y Tablets comparten la categoría `laptop` en BD: hoy el filtro de /tienda

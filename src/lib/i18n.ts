@@ -102,7 +102,7 @@ const es = {
     title: "Renueva",
     titleAccent: "o añade más cobertura",
     watermark: "Renovaciones",
-    coverageAlt: "Cobertura Jaltest por tipo de equipo",
+    plusCoverage: "Cobertura",
   },
   preFooter: {
     title: "¿Listo para equipar tu taller con Jaltest?",
@@ -454,7 +454,7 @@ const en: Dict = {
     title: "Renew",
     titleAccent: "or add more coverage",
     watermark: "Renewals",
-    coverageAlt: "Jaltest coverage by equipment type",
+    plusCoverage: "Coverage",
   },
   preFooter: {
     title: "Ready to equip your shop with Jaltest?",
