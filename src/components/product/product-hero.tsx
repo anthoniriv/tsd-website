@@ -1,308 +1,291 @@
+import {
+  Activity,
+  BookOpen,
+  CircuitBoard,
+  Cpu,
+  Download,
+  FileText,
+  Fuel,
+  Headset,
+  Laptop,
+  LineChart,
+  RefreshCw,
+  ScanSearch,
+  Settings,
+  ShieldCheck,
+  SlidersHorizontal,
+  Syringe,
+  TrendingUp,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ACCENT, formatPrice, type JaltestLine } from "@/lib/products";
+import { LINE_SPECS, type FeatureIcon } from "@/lib/product-specs";
 import { getLocaleData } from "@/lib/i18n.server";
 import { SmartImage } from "@/components/ui/smart-image";
 import { JaltestLogo } from "@/components/product/jaltest-logo";
 import { ProductHeroActions } from "@/components/product/product-hero-actions";
 
+/** Hexágono apuntando arriba-abajo (el del precio en la lámina). */
 const HEX = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
 
-/**
- * Unidades mixtas a propósito:
- * - FONDO (caja, alturas, top): `vw` → se mantiene full-bleed 100vw, alineación
- *   y forma originales (gris diagonal + triángulo de color).
- * - CONTENIDO horizontal y tamaños (left/right, w/h): `cqw` → proporcional a la
- *   capa contenedora max-w-6xl, así el arte (logo/kit/hex/vehículo) y el texto
- *   quedan dentro de los márgenes generales sin tocar el fondo.
- * Los `top` siguen en `vw` para que el contenido caiga sobre el fondo igual que antes.
- */
-const VISUALS: Record<
-  JaltestLine["id"],
-  {
-    height: string;
-    logo: string;
-    kit: string;
-    badge: string;
-    vehicle: string;
-    text: string;
-    accentShape?: "ohw" | "marine";
-    /** El plano gris sube por encima del bloque para tocar el acento previo */
-    grayRaised?: boolean;
-    /** Margen negativo superior para acercar el bloque al anterior */
-    pull?: string;
-  }
-> = {
-  cv: {
-    height: "md:min-h-[clamp(560px,58vw,840px)]",
-    logo: "md:left-[8cqw] md:top-[3vw] md:h-[clamp(96px,10cqw,165px)]",
-    kit: "md:left-[11cqw] md:top-[17vw] md:h-[clamp(92px,9cqw,140px)] md:w-[clamp(285px,28cqw,420px)]",
-    badge: "md:left-[39.5cqw] md:top-[10.6vw]",
-    vehicle: "md:right-[5cqw] md:top-[7vw] md:h-[clamp(210px,22cqw,340px)] md:w-[clamp(420px,44cqw,660px)]",
-    text: "md:top-[clamp(323px,32.5vw,510px)]",
-  },
-  ohw: {
-    height: "md:min-h-[clamp(640px,66vw,950px)]",
-    logo: "md:left-[8cqw] md:top-[4.5vw] md:h-[clamp(100px,10cqw,160px)]",
-    kit: "md:left-[8cqw] md:top-[20vw] md:h-[clamp(128px,13cqw,200px)] md:w-[clamp(325px,34cqw,500px)]",
-    badge: "md:left-[38.5cqw] md:top-[12.4vw]",
-    vehicle: "md:right-[3cqw] md:top-[4.8vw] md:h-[clamp(310px,31cqw,475px)] md:w-[clamp(510px,52cqw,790px)]",
-    text: "md:top-[clamp(360px,36.4vw,565px)]",
-    accentShape: "ohw",
-  },
-  agv: {
-    height: "md:min-h-[clamp(560px,58vw,840px)]",
-    logo: "md:left-[7cqw] md:top-[3.6vw] md:h-[clamp(105px,10.4cqw,162px)]",
-    kit: "md:left-[12cqw] md:top-[18.7vw] md:h-[clamp(100px,10cqw,145px)] md:w-[clamp(300px,31cqw,430px)]",
-    badge: "md:left-[40.5cqw] md:top-[9.3vw]",
-    vehicle: "md:right-[2.4cqw] md:top-[10.5vw] md:h-[clamp(210px,21cqw,305px)] md:w-[clamp(500px,51cqw,720px)]",
-    text: "md:top-[clamp(336px,33.5vw,505px)]",
-    grayRaised: true,
-  },
-  marine: {
-    height: "md:min-h-[clamp(630px,64vw,930px)]",
-    logo: "md:left-[9.5cqw] md:top-[2.8vw] md:h-[clamp(110px,11cqw,168px)]",
-    kit: "md:left-[11.5cqw] md:top-[16.6vw] md:h-[clamp(130px,13cqw,200px)] md:w-[clamp(326px,34cqw,500px)]",
-    badge: "md:left-[41cqw] md:top-[2.8vw]",
-    vehicle: "md:right-[3.4cqw] md:top-[7.6vw] md:h-[clamp(250px,25cqw,370px)] md:w-[clamp(505px,52cqw,780px)]",
-    text: "md:top-[clamp(322px,32vw,510px)]",
-    accentShape: "marine",
-  },
-  mhe: {
-    height: "md:min-h-[clamp(560px,58vw,840px)]",
-    logo: "md:left-[9.5cqw] md:top-[3.6vw] md:h-[clamp(110px,10.8cqw,165px)]",
-    kit: "md:left-[11.5cqw] md:top-[19.4vw] md:h-[clamp(112px,11cqw,165px)] md:w-[clamp(300px,31cqw,450px)]",
-    badge: "md:left-[41.2cqw] md:top-[5vw]",
-    vehicle: "md:right-[7cqw] md:top-[4.2vw] md:h-[clamp(300px,30cqw,450px)] md:w-[clamp(430px,44cqw,650px)]",
-    text: "md:top-[clamp(348px,35vw,540px)]",
-    grayRaised: true,
-    pull: "md:mt-[-5vw]",
-  },
+/** Corte diagonal del panel de foto, igual que en la lámina. */
+const PHOTO_CLIP = "polygon(22% 0, 100% 0, 100% 100%, 0 100%)";
+
+const FEATURE_ICONS: Record<FeatureIcon, LucideIcon> = {
+  dpf: CircuitBoard,
+  update: Download,
+  wiring: Activity,
+  injector: Syringe,
+  bidirectional: ShieldCheck,
+  manual: BookOpen,
+  params: SlidersHorizontal,
+  calibration: Settings,
+  fault: ScanSearch,
+  actuator: Fuel,
+  config: Wrench,
+  report: FileText,
+  realtime: LineChart,
 };
 
-/** Badge hexagonal de precio: relleno translúcido del color + borde celeste. */
-function PriceBadge({ color, price, label }: { color: string; price: string; label: string }) {
-  return (
-    <div
-      className="relative grid aspect-[1.1547/1] w-[136px] shrink-0 place-items-center text-white shadow-sm md:w-[clamp(136px,12.8cqw,190px)]"
-      style={{ clipPath: HEX, backgroundColor: "#67c8e8" }}
-    >
-      <div
-        className="absolute inset-[6px] flex flex-col items-center justify-center px-[18px] text-center"
-        style={{
-          clipPath: HEX,
-          backgroundColor: `color-mix(in srgb, ${color} 62%, transparent)`,
-        }}
-      >
-        <span className="text-[15px] font-extrabold leading-none md:text-[clamp(13px,1.2cqw,17px)]">{label}</span>
-        <span className="mt-1 text-[34px] font-extrabold leading-none tracking-normal tabular-nums md:text-[clamp(28px,2.88cqw,42px)]">
-          {price}
-        </span>
-      </div>
-    </div>
-  );
-}
+/** Iconos de las 4 pastillas de "qué incluye", en el orden del diccionario. */
+const INCLUDE_ICONS = [Cpu, Laptop, RefreshCw, Headset] as const;
+
+/** Iconos de la banda de cifras: las tres primeras por posición, la última fija. */
+const STAT_ICONS = [ShieldCheck, Cpu, RefreshCw, TrendingUp] as const;
 
 /**
- * Bloque comercial compacto por línea Jaltest (CV/OHW/AGV/Marine/MHE).
- * Fondo full-bleed (100vw) con gris diagonal + triángulo de acento; el contenido
- * (logo+kit izq, hexágono de precio centro, maquinaria der, descripción + CTA
- * debajo) vive en una capa max-w-6xl centrada → dentro de los márgenes generales.
+ * El amarillo de OHW y el verde de AGV no llegan a 4.5:1 sobre blanco, así que
+ * el titular usa una versión oscurecida y el texto sobre el color va en negro.
+ * El resto de líneas se queda con su acento y texto blanco.
+ */
+const READABLE: Record<JaltestLine["id"], { title: string; onAccent: string }> = {
+  cv: { title: "var(--color-jt-cv)", onAccent: "#ffffff" },
+  ohw: { title: "#a06f00", onAccent: "#1b1b1b" },
+  agv: { title: "#5c7d13", onAccent: "#1b1b1b" },
+  marine: { title: "var(--color-jt-marine)", onAccent: "#ffffff" },
+  mhe: { title: "var(--color-jt-mhe)", onAccent: "#ffffff" },
+};
+
+/**
+ * Bloque comercial de una línea Jaltest, reconstruido a partir de las láminas
+ * del cliente: titular + kit + foto del equipo, lo que incluye, funciones
+ * avanzadas, fabricantes compatibles, cifras y los dos CTA.
+ *
+ * El texto es real (traducible) y el precio sale de la BD por tier; solo son
+ * imágenes los recortes que no se pueden recrear: el grid de logos de marca,
+ * la foto del equipo y la del kit (`src/lib/product-specs.ts`).
  */
 export async function ProductHero({ line }: { line: JaltestLine }) {
   const accent = ACCENT[line.id];
-  const visual = VISUALS[line.id];
+  const ink = READABLE[line.id];
+  const spec = LINE_SPECS[line.id];
   const { dict, lang } = await getLocaleData();
+  const t = dict.productHero;
   const price = formatPrice(line.priceCents ?? 0);
-  const description = line.description[lang];
+  const [headTop, headBottom] = spec.headline[lang];
   const name = `${line.brand} ${line.variant}`;
-  const actionLabels = { ...dict.productHero, addedToast: dict.cart.addedToast };
-  // El formulario de contacto arranca con el asunto y la línea ya puestos.
+  const actionLabels = { ...t, addedToast: dict.cart.addedToast };
   const demoHref = `/contacto?asunto=demo&linea=${line.id}`;
 
   return (
-    <article id={line.id} className={cn("scroll-mt-36 md:py-0", visual.pull)}>
-      {/* ───────── MOBILE: card por línea, sin fondo gris, acento = contraste ───────── */}
-      <div className="px-5 py-4 md:hidden">
-        <div
-          className="overflow-hidden rounded-3xl border bg-white shadow-[0_10px_30px_-14px_rgba(16,42,67,0.25)]"
-          style={{ borderColor: `color-mix(in srgb, ${accent.color} 35%, #d9e2ec)` }}
-        >
-          {/* Header: barra de acento tintada + logo + precio */}
-          <div
-            className="flex items-center justify-between gap-3 border-l-[6px] px-5 py-4"
-            style={{
-              borderColor: accent.color,
-              backgroundColor: `color-mix(in srgb, ${accent.color} 10%, white)`,
-            }}
-          >
+    <article id={line.id} className="scroll-mt-36 border-b border-border/60 bg-white">
+      <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 sm:py-16">
+        {/* ───────── Cabecera: texto + kit, con la foto del equipo a la derecha ───────── */}
+        <div className="relative lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(380px,440px)] lg:gap-6">
+          <div>
             <JaltestLogo
               src={line.logo}
-              alt={`Jaltest ${line.variant}`}
+              alt={name}
               size="lg"
-              className="h-16 max-w-[62%]"
+              className="h-16 max-w-[280px] sm:h-20 sm:max-w-[320px]"
             />
-            <div
-              className="shrink-0 rounded-2xl px-4 py-2 text-center text-white"
-              style={{ backgroundColor: accent.color }}
-            >
-              <span className="block text-[11px] font-bold uppercase leading-none opacity-90">
-                {dict.productHero.price}
-              </span>
-              <span className="mt-1 block text-[22px] font-extrabold leading-none tabular-nums">
-                {price}
-              </span>
-            </div>
-          </div>
 
-          {/* Imagen: vehículo (o kit) sobre tinte suave del acento */}
-          <div
-            className="flex items-end justify-center gap-2 px-5 pt-5"
-            style={{ backgroundColor: `color-mix(in srgb, ${accent.color} 5%, white)` }}
-          >
-            <SmartImage
-              src={line.vehicleImg ?? line.kitImg}
-              alt={`Vehículo ${line.variant}`}
-              fit="contain"
-              loading="lazy"
-              wrapperClassName="h-40 w-full max-w-[380px] bg-transparent"
-            />
-          </div>
-          <div className="-mt-6 flex justify-center px-5">
-            <SmartImage
-              src={line.kitImg}
-              alt={`Kit ${line.brand} ${line.variant}`}
-              fit="contain"
-              loading="lazy"
-              wrapperClassName="h-20 w-full max-w-[240px] bg-transparent"
-            />
-          </div>
+            <h2 className="mt-6 text-[clamp(22px,3.2vw,34px)] font-black uppercase leading-[1.08] tracking-tight text-text-main">
+              {headTop}
+              <br />
+              <span style={{ color: ink.title }}>{headBottom}</span>
+            </h2>
 
-          {/* Descripción + CTA */}
-          <div className="px-5 pb-6 pt-4">
-            <div className="space-y-3">
-              {description.map((p, i) => (
-                <p key={i} className="text-[14px] font-semibold leading-[1.45] text-[#666]">
-                  {p}
-                </p>
+            <div className="mt-4 max-w-[46ch] space-y-3 text-[15px] leading-[1.55] text-text-secondary">
+              {spec.intro[lang].map((p) => (
+                <p key={p}>{p}</p>
               ))}
             </div>
-            <ProductHeroActions
-              className="mt-6"
-              productId={line.productId}
-              name={name}
-              stock={line.stock ?? 0}
-              accentColor={accent.color}
-              demoHref={demoHref}
-              labels={actionLabels}
+
+            {/* kit: protagónico, como pide el docx de retoques */}
+            <SmartImage
+              src={spec.kitImg}
+              alt={`Kit ${name}`}
+              fit="contain"
+              loading="eager"
+              wrapperClassName="mt-6 h-[clamp(150px,26vw,260px)] w-full bg-transparent"
             />
           </div>
-        </div>
-      </div>
 
-      {/* ───────── DESKTOP: layout original full-bleed (gris diagonal + triángulo) ───────── */}
-      {/* Caja full-bleed: el fondo vive aquí, 100vw, alineación original */}
-      <div
-        className={cn(
-          "relative mx-auto hidden w-screen max-w-none overflow-x-clip sm:px-10 md:left-1/2 md:ml-[-50vw] md:block md:px-0 md:py-0",
-          visual.height
-        )}
-      >
-        {/* Plano gris diagonal: paralelogramo de altura constante.
-            Sup-der en el tope (0%), sup-izq a 20%, inferior paralela. */}
-        {!visual.accentShape && (
-          <span
-            aria-hidden
-            className={cn(
-              "pointer-events-none absolute inset-x-0 -z-20 bg-[#efeee9]",
-              visual.grayRaised ? "top-[-15%] bottom-0" : "inset-y-0",
-              // compensa el pull del bloque para que el gris quede en su sitio
-              visual.pull && "md:translate-y-[5vw]"
+          {/* foto del equipo: banner en móvil, panel con corte diagonal en desktop */}
+          <div className="relative mt-8 lg:mt-0">
+            <div className="relative h-52 w-full overflow-hidden rounded-xl sm:h-72 lg:h-full lg:min-h-[460px] lg:rounded-none">
+              <span
+                className="absolute inset-0 hidden lg:block"
+                style={{ clipPath: PHOTO_CLIP }}
+              >
+                <SmartImage
+                  src={spec.vehicleImg}
+                  alt={`${line.variant} — ${spec.headline[lang][1]}`}
+                  wrapperClassName="absolute inset-0 h-full w-full"
+                />
+              </span>
+              <SmartImage
+                src={spec.vehicleImg}
+                alt={`${line.variant} — ${spec.headline[lang][1]}`}
+                wrapperClassName="absolute inset-0 h-full w-full lg:hidden"
+              />
+            </div>
+
+            {/* hexágono de precio: a caballo sobre el corte diagonal de la foto */}
+            <div className="absolute right-3 top-3 z-10 lg:-left-14 lg:right-auto lg:top-4">
+              <div
+                className="grid aspect-[1.1547/1] w-[116px] place-items-center shadow-lg sm:w-[140px] lg:w-[152px]"
+                style={{ clipPath: HEX, backgroundColor: accent.color, color: ink.onAccent }}
+              >
+                <div className="flex flex-col items-center leading-none">
+                  <span className="text-[10px] font-bold uppercase tracking-wide opacity-90 sm:text-[11px]">
+                    {t.from}
+                  </span>
+                  <span className="mt-1 text-[23px] font-black tabular-nums sm:text-[27px] lg:text-[30px]">
+                    {price}
+                  </span>
+                  <span className="mt-1 text-[10px] font-bold uppercase tracking-wide opacity-90 sm:text-[11px]">
+                    {t.currency}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* etiquetas sueltas (Marine y MHE) */}
+            {spec.badges && (
+              <div className="absolute bottom-3 right-3 flex flex-col items-end gap-2">
+                {spec.badges.map((badge) => (
+                  <span
+                    key={badge.en}
+                    className="rounded-md px-3 py-1 text-[11px] font-bold uppercase leading-tight tracking-wide shadow-sm"
+                    style={{ backgroundColor: accent.color, color: ink.onAccent }}
+                  >
+                    {badge[lang]}
+                  </span>
+                ))}
+              </div>
             )}
-            style={{
-              clipPath: visual.grayRaised
-                ? "polygon(0 30%, 100% 0, 100% 69.6%, 0 100%)"
-                : "polygon(0 20%, 100% 0, 100% 80%, 0 100%)",
-            }}
-          />
-        )}
-        {visual.accentShape === "ohw" && (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute right-0 top-[-15%] -z-10 hidden h-[104%] w-[36%] md:block"
-            style={{
-              backgroundColor: accent.color,
-              clipPath: "polygon(100% 0, 100% 100%, 0 50%)",
-            }}
-          />
-        )}
-        {visual.accentShape === "marine" && (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute right-0 top-[-30%] -z-10 hidden h-[119%] w-[40%] md:block"
-            style={{
-              backgroundColor: accent.color,
-              clipPath: "polygon(100% 0, 100% 100%, 0 50%)",
-            }}
-          />
-        )}
-
-        {/* Capa de contenido: centrada a max-w-6xl y @container (cqw) para que el
-            arte y el texto queden proporcionales y dentro de los márgenes. */}
-        <div className="relative z-10 md:absolute md:inset-y-0 md:left-1/2 md:w-full md:max-w-6xl md:-translate-x-1/2 md:[container-type:inline-size]">
-          <div className="flex flex-col gap-5 md:block">
-            <div className={cn("md:absolute", visual.logo)}>
-              <JaltestLogo
-                src={line.logo}
-                alt={`Jaltest ${line.variant}`}
-                size="lg"
-                className="h-20 max-w-full sm:h-[96px] md:h-full"
-              />
-            </div>
-
-            <div className={cn("md:absolute", visual.kit)}>
-              <SmartImage
-                src={line.kitImg}
-                alt={`Kit ${line.brand} ${line.variant}`}
-                fit="contain"
-                loading="eager"
-                wrapperClassName="h-28 w-full max-w-[360px] bg-transparent md:h-full md:max-w-none"
-              />
-            </div>
-
-            <div className={cn("md:absolute md:z-20", visual.badge)}>
-              <PriceBadge color={accent.color} price={price} label={dict.productHero.price} />
-            </div>
-
-            <div className={cn("md:absolute", visual.vehicle)}>
-              <SmartImage
-                src={line.vehicleImg ?? line.kitImg}
-                alt={`Vehículo ${line.variant}`}
-                fit="contain"
-                loading="eager"
-                wrapperClassName="h-48 w-full max-w-[620px] bg-transparent md:h-full md:max-w-none"
-              />
-            </div>
           </div>
 
-          {/* texto + CTA al ancho del contenedor (márgenes generales) */}
-          <div className={cn("relative z-10 mt-8 md:absolute md:inset-x-0 md:mt-0", visual.text)}>
-            <div className="space-y-4">
-              {description.map((p, i) => (
-                <p
-                  key={i}
-                  className="text-[clamp(14px,1.48vw,20px)] font-extrabold leading-[1.18] text-[#666]"
-                >
-                  {p}
-                </p>
-              ))}
-            </div>
-            {/* CTA fluye justo después del texto (espaciado consistente) */}
+        </div>
+
+        {/* ───────── Qué incluye ───────── */}
+        <ul className="mt-8 grid grid-cols-2 gap-4 rounded-xl border border-border bg-bg-soft/60 p-4 sm:gap-6 sm:p-5 md:grid-cols-4">
+          {t.includes.map((item, i) => {
+            const Icon = INCLUDE_ICONS[i];
+            return (
+              <li key={item.title} className="flex items-start gap-2.5">
+                <Icon className="mt-0.5 h-5 w-5 shrink-0" style={{ color: ink.title }} />
+                <span className="text-[13px] leading-tight">
+                  <span className="block font-bold text-text-main">{item.title}</span>
+                  <span className="block text-text-secondary">{item.desc}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* ───────── Funciones avanzadas · Fabricantes compatibles ───────── */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <section className="flex flex-col rounded-xl border border-border p-5">
+            <h3
+              className="-mx-5 -mt-5 mb-5 w-fit rounded-br-xl rounded-tl-xl px-5 py-2 text-[13px] font-black uppercase tracking-wide"
+              style={{ backgroundColor: accent.color, color: ink.onAccent }}
+            >
+              {t.advancedFunctions}
+            </h3>
+            <ul className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+              {spec.features.map((feature) => {
+                const Icon = FEATURE_ICONS[feature.icon];
+                return (
+                  <li key={feature.icon + feature.label.en} className="flex items-start gap-2.5">
+                    <Icon
+                      className="mt-0.5 h-[18px] w-[18px] shrink-0"
+                      style={{ color: accent.color }}
+                    />
+                    <span className="text-[13px] font-semibold leading-tight text-text-main">
+                      {feature.label[lang]}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-5 pt-1 text-[13px] font-bold" style={{ color: ink.title }}>
+              {t.andManyMore}
+            </p>
+          </section>
+
+          <section className="rounded-xl border border-border p-5">
+            <h3
+              className="-mx-5 -mt-5 mb-5 w-fit rounded-br-xl rounded-tl-xl px-5 py-2 text-[13px] font-black uppercase tracking-wide"
+              style={{ backgroundColor: accent.color, color: ink.onAccent }}
+            >
+              {spec.brandsTitle[lang]}
+            </h3>
+            {/* recorte de la lámina: los logos de fabricante no se pueden recrear en HTML */}
+            <SmartImage
+              src={spec.brandsImg}
+              alt={spec.brandsTitle[lang]}
+              fit="contain"
+              wrapperClassName="h-[clamp(150px,22vw,230px)] w-full bg-transparent"
+            />
+            <p className="mt-4 text-center text-[13px] font-bold uppercase tracking-wide text-text-secondary">
+              {spec.brandsFootnote[lang]}
+            </p>
+          </section>
+        </div>
+
+        {/* ───────── Cifras + CTA (el panel de "solicitar cotización" de la lámina) ───────── */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+          <ul
+            className="grid grid-cols-2 content-center gap-5 rounded-xl px-5 py-6 sm:grid-cols-4"
+            style={{ backgroundColor: accent.color, color: ink.onAccent }}
+          >
+            {spec.stats.map((stat, i) => {
+              const Icon = STAT_ICONS[i];
+              return (
+                <li key={stat.label.en} className="flex items-start gap-2.5">
+                  <Icon className="mt-0.5 h-5 w-5 shrink-0 opacity-90" />
+                  <span className="leading-tight">
+                    {stat.value !== "↗" && (
+                      <span className="block text-[19px] font-black tabular-nums">{stat.value}</span>
+                    )}
+                    <span className="block text-[11px] font-bold uppercase tracking-wide opacity-90">
+                      {stat.label[lang]}
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="flex flex-col justify-center gap-4 rounded-xl border border-border p-5">
+            <SmartImage
+              src="/images/logo-tds.png"
+              alt="Tech Diagnostic Solutions"
+              fit="contain"
+              wrapperClassName="mx-auto h-10 w-[180px] bg-transparent sm:mx-0"
+            />
             <ProductHeroActions
-              className="mt-7 md:justify-center"
               productId={line.productId}
               name={name}
               stock={line.stock ?? 0}
               accentColor={accent.color}
+              accentInk={ink.onAccent}
+              outlineColor={ink.title}
               demoHref={demoHref}
               labels={actionLabels}
             />

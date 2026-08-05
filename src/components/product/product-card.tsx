@@ -80,7 +80,9 @@ export function ProductCard({
             {name}
           </Link>
         </h3>
-        <p className="line-clamp-3 text-xs leading-snug text-muted-foreground">{blurb}</p>
+        {/* sin line-clamp: los blurbs son cortos (≤110 caracteres) y cortarlos a
+            media frase se veía mal en móvil; las cards de una fila se estiran igual */}
+        <p className="text-xs leading-snug text-muted-foreground">{blurb}</p>
 
         <div className="mt-auto space-y-2 pt-2">
           <div className="flex items-center justify-between gap-2">

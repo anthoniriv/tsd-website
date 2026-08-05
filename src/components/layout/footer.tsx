@@ -4,8 +4,14 @@ import type { Dict } from "@/lib/i18n";
 import { Logo } from "@/components/layout/logo";
 
 // Los teléfonos son placeholders (+0 000 000 0000); no mostramos datos falsos.
-const PHONE_PLACEHOLDER = "+0 000 000 0000";
-const hasRealPhone = CONTACT.phone !== PHONE_PLACEHOLDER;
+// `CONTACT` es `as const`, así que sin ensanchar a string TS trata las
+// comparaciones como imposibles y rompe el type check.
+const PHONE_PLACEHOLDER: string = "+0 000 000 0000";
+const phone: string = CONTACT.phone;
+const tollFree: string = CONTACT.tollFree;
+const hasRealPhone = phone !== PHONE_PLACEHOLDER;
+// Mientras haya un solo número no tiene sentido repetirlo como "línea gratuita".
+const hasTollFree = tollFree !== PHONE_PLACEHOLDER && tollFree !== phone;
 
 // lucide eliminó los logos de marca; usamos SVGs inline simples.
 function Svg({ className, d }: { className?: string; d: string }) {
@@ -59,9 +65,22 @@ export function Footer({ dict }: { dict: Dict }) {
             </h3>
             {hasRealPhone ? (
               <>
-                <p>{CONTACT.phone}</p>
-                <p className="mt-1">{dict.footer.callFree}</p>
-                <p>{CONTACT.tollFree}</p>
+                <p>
+                  <a href={`tel:${CONTACT.phone.replace(/\s/g, "")}`} className="hover:underline">
+                    {CONTACT.phone}
+                  </a>
+                </p>
+                {hasTollFree && (
+                  <>
+                    <p className="mt-1">{dict.footer.callFree}</p>
+                    <p>{CONTACT.tollFree}</p>
+                  </>
+                )}
+                <p className="mt-1">
+                  <a href={`mailto:${CONTACT.email}`} className="hover:underline">
+                    {CONTACT.email}
+                  </a>
+                </p>
               </>
             ) : (
               <p className="text-neutral-300">

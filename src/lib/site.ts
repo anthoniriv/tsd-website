@@ -23,10 +23,12 @@ export const CONTACT = {
   mapEmbed:
     "https://www.google.com/maps?q=1724+North+Avenue+53,+Los+Angeles,+CA&output=embed",
   supportTitle: "SERVICIO DE ASISTENCIA TÉCNICA PERSONAL",
-  phone: "+0 000 000 0000",
-  tollFree: "+0 000 000 0000",
+  // Por ahora un único número para todo: teléfono, línea gratuita y WhatsApp.
+  phone: "+507 6319 3440",
+  tollFree: "+507 6319 3440",
   // Número de WhatsApp en formato internacional sin '+' ni espacios.
-  whatsapp: "51993109998",
+  whatsapp: "50763193440",
+  email: "info@techdsolution.com",
 } as const;
 
 export const SOCIALS = [

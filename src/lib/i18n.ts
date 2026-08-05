@@ -182,10 +182,21 @@ const es = {
   },
   productHero: {
     price: "Price",
+    from: "Desde",
+    currency: "USD",
     addToCart: "Añadir al carrito",
     added: "Añadido",
     outOfStock: "Agotado",
     bookDemo: "Agendar una demo",
+    // Lo que incluye el kit (las 4 pastillas bajo el titular)
+    includes: [
+      { title: "Hardware", desc: "Interfaz Jaltest" },
+      { title: "Software", desc: "Cobertura líder" },
+      { title: "1 año", desc: "de licencia y actualizaciones" },
+      { title: "Soporte técnico", desc: "especializado" },
+    ],
+    advancedFunctions: "Funciones avanzadas",
+    andManyMore: "… y muchas más",
   },
   productCard: {
     cta: "Añadir al carrito",
@@ -534,10 +545,20 @@ const en: Dict = {
   },
   productHero: {
     price: "Price",
+    from: "From",
+    currency: "USD",
     addToCart: "Add to cart",
     added: "Added",
     outOfStock: "Out of stock",
     bookDemo: "Book a demo",
+    includes: [
+      { title: "Hardware", desc: "Jaltest interface" },
+      { title: "Software", desc: "Leading coverage" },
+      { title: "1 year", desc: "of license and updates" },
+      { title: "Technical support", desc: "specialized" },
+    ],
+    advancedFunctions: "Advanced functions",
+    andManyMore: "… and many more",
   },
   productCard: {
     cta: "Add to cart",

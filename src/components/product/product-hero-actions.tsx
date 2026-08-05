@@ -17,6 +17,8 @@ export function ProductHeroActions({
   name,
   stock,
   accentColor,
+  accentInk = "#ffffff",
+  outlineColor,
   demoHref,
   labels,
   className,
@@ -25,6 +27,10 @@ export function ProductHeroActions({
   name: string;
   stock: number;
   accentColor: string;
+  /** Texto legible sobre `accentColor` (los acentos claros piden negro). */
+  accentInk?: string;
+  /** Color del botón secundario; por defecto el propio acento. */
+  outlineColor?: string;
   demoHref: string;
   labels: {
     addToCart: string;
@@ -48,16 +54,19 @@ export function ProductHeroActions({
   };
 
   return (
-    <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center", className)}>
+    <div className={cn("flex flex-col items-center gap-3 sm:flex-row", className)}>
       <button
         type="button"
         onClick={addToCart}
         disabled={soldOut}
         className={cn(
-          "inline-flex h-[53px] w-full cursor-pointer items-center justify-center gap-2 rounded-full px-[2.1rem] text-[1.05rem] font-extrabold uppercase leading-none text-white transition-opacity hover:opacity-90 sm:w-auto sm:min-w-[264px]",
+          "inline-flex h-[52px] w-auto cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full px-7 text-[14px] font-extrabold uppercase leading-none transition-opacity hover:opacity-90 sm:w-full sm:flex-1 sm:px-6",
           soldOut && "cursor-not-allowed opacity-60"
         )}
-        style={{ backgroundColor: justAdded ? "var(--color-jt-agv)" : accentColor }}
+        style={{
+          backgroundColor: justAdded ? "var(--color-jt-agv)" : accentColor,
+          color: justAdded ? "#ffffff" : accentInk,
+        }}
       >
         {soldOut ? (
           labels.outOfStock
@@ -74,8 +83,8 @@ export function ProductHeroActions({
 
       <Link
         href={demoHref}
-        className="inline-flex h-[53px] w-full items-center justify-center gap-2 rounded-full border-2 bg-white px-[2.1rem] text-[1.05rem] font-extrabold uppercase leading-none transition-colors hover:bg-black/[0.03] sm:w-auto"
-        style={{ borderColor: accentColor, color: accentColor }}
+        className="inline-flex h-[52px] w-auto items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 bg-white px-7 text-[14px] font-extrabold uppercase leading-none transition-colors hover:bg-black/[0.03] sm:w-full sm:flex-1 sm:px-6"
+        style={{ borderColor: outlineColor ?? accentColor, color: outlineColor ?? accentColor }}
       >
         <CalendarClock className="h-5 w-5" />
         {labels.bookDemo}

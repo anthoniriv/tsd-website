@@ -156,7 +156,11 @@ export function ContactForm({
       </Button>
 
       <p className="text-xs text-muted-foreground">
-        {dict.footnotePre} {CONTACT.company}, {CONTACT.city}.
+        {dict.footnotePre}{" "}
+        <a href={`mailto:${CONTACT.email}`} className="text-brand hover:underline">
+          {CONTACT.email}
+        </a>
+        .
       </p>
     </form>
   );
