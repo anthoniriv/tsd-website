@@ -47,8 +47,8 @@ export function Header({ locale, dict }: { locale: LocaleCode; dict: Dict }) {
     >
       {/* fila superior: logo + search + acciones */}
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3.5">
-        {/* +10% sobre el tamaño base (44/48px), a petición del cliente */}
-        <Logo imgClassName="h-[3.025rem] sm:h-[3.3rem]" />
+        {/* Ampliado hasta que se lee el claim "Tech Diagnostic Solutions" del logo */}
+        <Logo imgClassName="h-[3.75rem] sm:h-[4.25rem]" />
         <SearchBar dict={dict} className="hidden flex-1 md:block" />
         <div className="ml-auto flex items-center gap-1.5">
           <LocaleSwitcher current={locale} className="hidden sm:flex" />
