@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTACT, POLICIES, SOCIALS } from "@/lib/site";
+import { CONTACT, CONTACT_US_OFFICE, POLICIES, SOCIALS } from "@/lib/site";
 import type { Dict } from "@/lib/i18n";
 import { Logo } from "@/components/layout/logo";
 
@@ -57,9 +57,12 @@ export function Footer({ dict }: { dict: Dict }) {
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">
               {dict.footer.contactWith} {CONTACT.company}
             </h3>
-            <p>{CONTACT.company}</p>
+            <p className="font-semibold text-white">{CONTACT.company}</p>
+            {/* Panamá es la oficina principal; LA queda como segunda sede */}
             <p>{CONTACT.address}</p>
             <p>{CONTACT.city}</p>
+            <p className="mt-3">{CONTACT_US_OFFICE.address}</p>
+            <p>{CONTACT_US_OFFICE.city}</p>
           </div>
 
           <div className="text-sm leading-relaxed">

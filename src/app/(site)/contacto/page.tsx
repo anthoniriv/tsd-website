@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CONTACT } from "@/lib/site";
+import { CONTACT, CONTACT_US_OFFICE } from "@/lib/site";
 import { getLocaleData } from "@/lib/i18n.server";
 import { SmartImage } from "@/components/ui/smart-image";
 import { ContactForm } from "@/components/contact/contact-form";
@@ -26,7 +26,7 @@ export default async function ContactoPage({
 }) {
   const { dict } = await getLocaleData();
   const c = dict.contact;
-  const mapTitle = `${c.mapTitlePrefix} ${CONTACT.company} — Los Ángeles, California`;
+  const mapTitle = `${c.mapTitlePrefix} ${CONTACT.company} — ${CONTACT.city}`;
 
   // "Agendar una demo" llega como /contacto?asunto=demo&linea=cv
   const params = await searchParams;
@@ -66,7 +66,18 @@ export default async function ContactoPage({
 
       <section className="py-16 sm:py-20">
         <div className="mx-auto grid max-w-5xl gap-10 px-6 md:grid-cols-2">
-          <LocationMap title={mapTitle} />
+          <div className="space-y-5">
+            <LocationMap title={mapTitle} />
+            {/* Las dos sedes: Panamá primero, que es la principal */}
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {[CONTACT, CONTACT_US_OFFICE].map((office) => (
+                <li key={office.city} className="text-sm leading-relaxed">
+                  <p className="font-bold text-text-main">{office.city}</p>
+                  <p className="text-text-secondary">{office.address}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
           <ContactForm dict={c} prefill={prefill} />
         </div>
       </section>

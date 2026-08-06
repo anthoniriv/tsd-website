@@ -151,7 +151,7 @@ const es = {
     },
   },
   home: {
-    srHeading: "TDS — Diagnóstico Jaltest para tu flota, con soporte local en Los Ángeles",
+    srHeading: "TDS — Diagnóstico Jaltest para tu flota, con soporte desde Panamá y Los Ángeles",
     carouselLabel: "Destacados TDS",
     slides: [
       "Soluciones de diagnóstico Jaltest para flotas",
@@ -161,11 +161,13 @@ const es = {
   producto: {
     srHeading: "Catálogo Jaltest: kits CV, OHW, AGV, Marine y MHE, hardware rugged y accesorios",
     panasonic: {
-      kicker: "Tablet y Laptop.",
+      kicker: "Catálogo de tablets y laptops",
       brand: "Panasonic",
+      brand2: "Getac",
       p1: "Las laptops y tablets rugged están diseñadas para soportar las condiciones más exigentes de trabajo en talleres, flotas, construcción, minería y operaciones de campo. Resistentes al polvo, agua, vibraciones, golpes y temperaturas extremas, ofrecen el rendimiento y la confiabilidad necesarios para trabajar donde una computadora convencional no sobreviviría.",
       p2: "En Tech Diagnostic Solutions no solo te ayudamos a adquirir el equipo adecuado, también te brindamos asesoría especializada para identificar la mejor opción según tu operación, presupuesto y necesidades. Trabajamos con marcas reconocidas como Panasonic Toughbook, Getac y Dell Rugged.",
-      imgAlt: "Técnico usando laptop rugged",
+      imgAlt: "Laptop rugged Panasonic Toughbook",
+      imgAlt2: "Tablet rugged Getac",
     },
     grids: {
       tabletTitle: "Tablet",
@@ -272,7 +274,7 @@ const es = {
     related: "También te puede interesar",
     learnMore: "Conoce más de este producto",
     trust: {
-      shipping: "Envío desde Los Angeles, CA",
+      shipping: "Envío desde Panamá",
       shippingHint: "Despacho en 24–48 h hábiles",
       secure: "Pago 100% seguro",
       secureHint: "Procesado por Stripe",
@@ -394,7 +396,7 @@ const es = {
   },
   contact: {
     heroTitle: "Contáctenos",
-    heroSubtitle: "Estamos en Los Angeles, CA. Cuéntanos qué equipo o cobertura necesitas y te asesoramos.",
+    heroSubtitle: "Estamos en Ciudad de Panamá y en Los Ángeles, CA. Cuéntanos qué equipo o cobertura necesitas y te asesoramos.",
     heroAlt: "Oficinas de Tech Diagnostic Solutions",
     mapTitlePrefix: "Mapa", // + company — Los Ángeles, California
     formHeading: "Queremos conocer más de ti",
@@ -424,12 +426,12 @@ const es = {
   },
   meta: {
     siteDescription:
-      "Soluciones de diagnóstico profesional Jaltest para vehículos comerciales, off-highway, agrícolas, marinos y manejo de materiales.",
+      "Soluciones de diagnóstico profesional para vehículos comerciales, off-highway, agrícolas, marinos y manejo de materiales.",
     productoTitle: "Producto",
     productoDescription:
       "Catálogo Jaltest: CV, OHW, AGV, Marine y MHE, laptops y tablets rugged, cables y adaptadores.",
     contactoTitle: "Contáctenos",
-    contactoDescription: "Ponte en contacto con Tech Diagnostic Solutions — Los Ángeles, California.",
+    contactoDescription: "Ponte en contacto con Tech Diagnostic Solutions — Ciudad de Panamá y Los Ángeles.",
   },
 };
 
@@ -536,7 +538,7 @@ const en: Dict = {
     },
   },
   home: {
-    srHeading: "TDS — Jaltest diagnostics for your fleet, with local support in Los Angeles",
+    srHeading: "TDS — Jaltest diagnostics for your fleet, with support from Panama and Los Angeles",
     carouselLabel: "TDS highlights",
     slides: [
       "Jaltest diagnostic solutions for fleets",
@@ -546,11 +548,13 @@ const en: Dict = {
   producto: {
     srHeading: "Jaltest catalog: CV, OHW, AGV, Marine and MHE kits, rugged hardware and accessories",
     panasonic: {
-      kicker: "Tablet & Laptop.",
+      kicker: "Tablet and laptop catalog",
       brand: "Panasonic",
+      brand2: "Getac",
       p1: "Rugged laptops and tablets are built to withstand the most demanding working conditions in shops, fleets, construction, mining and field operations. Resistant to dust, water, vibration, drops and extreme temperatures, they deliver the performance and reliability you need to work where a conventional computer wouldn't survive.",
       p2: "At Tech Diagnostic Solutions we not only help you get the right equipment, we also provide specialized guidance to identify the best option for your operation, budget and needs. We work with trusted brands such as Panasonic Toughbook, Getac and Dell Rugged.",
-      imgAlt: "Technician using a rugged laptop",
+      imgAlt: "Panasonic Toughbook rugged laptop",
+      imgAlt2: "Getac rugged tablet",
     },
     grids: {
       tabletTitle: "Tablet",
@@ -656,7 +660,7 @@ const en: Dict = {
     related: "You may also like",
     learnMore: "Learn more about this product",
     trust: {
-      shipping: "Ships from Los Angeles, CA",
+      shipping: "Ships from Panama",
       shippingHint: "Dispatched in 24–48 business hours",
       secure: "100% secure payment",
       secureHint: "Processed by Stripe",
@@ -778,7 +782,7 @@ const en: Dict = {
   },
   contact: {
     heroTitle: "Contact Us",
-    heroSubtitle: "We're in Los Angeles, CA. Tell us what equipment or coverage you need and we'll advise you.",
+    heroSubtitle: "We're in Panama City and Los Angeles, CA. Tell us what equipment or coverage you need and we'll advise you.",
     heroAlt: "Tech Diagnostic Solutions offices",
     mapTitlePrefix: "Map",
     formHeading: "We'd like to know more about you",
@@ -807,12 +811,12 @@ const en: Dict = {
   },
   meta: {
     siteDescription:
-      "Professional Jaltest diagnostic solutions for commercial, off-highway, agricultural, marine and material-handling vehicles.",
+      "Professional diagnostic solutions for commercial, off-highway, agricultural, marine and material-handling vehicles.",
     productoTitle: "Product",
     productoDescription:
       "Jaltest catalog: CV, OHW, AGV, Marine and MHE, rugged laptops and tablets, cables and adapters.",
     contactoTitle: "Contact Us",
-    contactoDescription: "Get in touch with Tech Diagnostic Solutions — Los Angeles, California.",
+    contactoDescription: "Get in touch with Tech Diagnostic Solutions — Panama City and Los Angeles.",
   },
 };
 

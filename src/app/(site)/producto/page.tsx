@@ -96,11 +96,10 @@ export default async function ProductoPage() {
   // "Ver más". El catálogo completo vive en /tienda.
   const MAX_PER_SECTION = 8;
 
-  const [lines, laptops, cables, finders] = await Promise.all([
+  const [lines, laptops, cables] = await Promise.all([
     getJaltestLines(tier),
     getHardware("laptop", tier, MAX_PER_SECTION),
     getHardware("cable", tier, MAX_PER_SECTION),
-    getHardware("finder", tier, MAX_PER_SECTION),
   ]);
 
   const renewHex = (id: JaltestLine["id"]) => {
@@ -122,24 +121,35 @@ export default async function ProductoPage() {
       {/* Panasonic / hardware rugged (dentro del wrapper: hereda la base blanca
           continua y deja ver el sangrado del gris de MHE como su fondo) */}
       <section className="relative overflow-x-clip pt-10 pb-16 sm:pt-12 sm:pb-20">
-        <div className="mx-auto grid w-full items-center gap-10 px-6 md:grid-cols-[minmax(420px,0.92fr)_minmax(320px,0.62fr)] md:px-[8vw]">
+        <div className="mx-auto grid w-full items-center gap-6 px-6 md:grid-cols-[minmax(420px,1fr)_minmax(300px,0.5fr)] md:gap-8 md:px-[6vw]">
           <div className="max-w-[680px]">
             <p className="text-[24px] font-black uppercase leading-none tracking-normal text-[#666]">
               {p.panasonic.kicker}
             </p>
-            <p className="mt-1 text-[clamp(56px,8vw,86px)] font-black leading-[0.9] tracking-normal text-black">
-              {p.panasonic.brand}
+            {/* Las dos marcas con las que trabaja TDS. Los logos oficiales
+                sustituirán al texto cuando el cliente los mande. */}
+            <p className="mt-1 flex flex-wrap items-baseline gap-x-5 text-[clamp(40px,5.6vw,64px)] font-black leading-[0.95] tracking-normal text-black">
+              <span>{p.panasonic.brand}</span>
+              <span>{p.panasonic.brand2}</span>
             </p>
-            <div className="mt-7 space-y-6 text-[15px] font-medium leading-[1.6] text-[#666]">
+            <div className="mt-5 space-y-4 text-[15px] font-medium leading-[1.6] text-[#666]">
               <p>{p.panasonic.p1}</p>
               <p>{p.panasonic.p2}</p>
             </div>
           </div>
-          <div className="mx-auto w-full max-w-[350px]">
+          {/* Una laptop y una tablet en vez de la foto de la técnica */}
+          <div className="mx-auto grid w-full max-w-[380px] grid-cols-2 items-center gap-4">
             <SmartImage
-              src="/images/renovaciones.png"
+              src="/images/laptop.png"
               alt={p.panasonic.imgAlt}
-              wrapperClassName="aspect-square w-full rounded-full"
+              fit="contain"
+              wrapperClassName="aspect-square w-full bg-transparent"
+            />
+            <SmartImage
+              src="https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media/hardware-tablet-jaltest-26b9afab.png"
+              alt={p.panasonic.imgAlt2}
+              fit="contain"
+              wrapperClassName="aspect-square w-full bg-transparent"
             />
           </div>
         </div>
@@ -159,7 +169,7 @@ export default async function ProductoPage() {
         items={cables}
         category="cable"
       />
-      <ProductGrid title={p.grids.finderTitle} items={finders} category="finder" />
+      {/* Cable Finder fuera de /producto por decisión del cliente; sigue en /tienda */}
 
       {/* Salida al catálogo completo: la página de producto es institucional, la compra
           vive en /tienda */}

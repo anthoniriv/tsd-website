@@ -4,7 +4,7 @@ export const SITE = {
   name: "TDS",
   fullName: "Tech Diagnostic Solutions",
   description:
-    "Soluciones de diagnóstico profesional Jaltest para vehículos comerciales, off-highway, agrícolas, marinos y manejo de materiales.",
+    "Soluciones de diagnóstico profesional para vehículos comerciales, off-highway, agrícolas, marinos y manejo de materiales.",
 } as const;
 
 // `key` referencia dict.nav; el label visible sale del diccionario.
@@ -17,11 +17,12 @@ export const NAV = [
 
 export const CONTACT = {
   company: "Tech Diagnostic Solutions",
-  address: "1724 North Avenue 53",
-  city: "Los Angeles, California, USA",
-  // Embed de Google Maps centrado en la dirección de LA (no requiere API key).
+  // Oficina principal (la que manda en footer, contacto y mapa).
+  address: "Betania, Los Ángeles, Calle 63, Casa 27",
+  city: "Ciudad de Panamá, Panamá",
+  // Embed de Google Maps (no requiere API key).
   mapEmbed:
-    "https://www.google.com/maps?q=1724+North+Avenue+53,+Los+Angeles,+CA&output=embed",
+    "https://www.google.com/maps?q=Betania,+Los+Angeles,+Calle+63,+Casa+27,+Ciudad+de+Panama,+Panama&output=embed",
   supportTitle: "SERVICIO DE ASISTENCIA TÉCNICA PERSONAL",
   // Por ahora un único número para todo: teléfono, línea gratuita y WhatsApp.
   phone: "+507 6319 3440",
@@ -29,6 +30,12 @@ export const CONTACT = {
   // Número de WhatsApp en formato internacional sin '+' ni espacios.
   whatsapp: "50763193440",
   email: "info@techdsolution.com",
+} as const;
+
+/** Segunda oficina. Se lista después de la principal, sin mapa propio. */
+export const CONTACT_US_OFFICE = {
+  address: "1724 North Avenue 53",
+  city: "Los Angeles, California, USA",
 } as const;
 
 export const SOCIALS = [
