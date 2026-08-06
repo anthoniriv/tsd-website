@@ -6,7 +6,7 @@
 //
 // Dinero: siempre `*_cents` (integer, USD). Nunca float.
 
-import type { Lang, LocaleCode, PriceTier } from "@/lib/i18n";
+import type { Lang, PriceTier } from "@/lib/i18n";
 import type { AccentKey } from "@/lib/products";
 import { relations, sql } from "drizzle-orm";
 import {
@@ -182,7 +182,7 @@ export const orders = pgTable(
     /** null = se facturó a la dirección de envío. */
     billing: jsonb("billing").$type<Address>(),
 
-    locale: text("locale").$type<LocaleCode>().notNull(),
+    locale: text("locale").$type<Lang>().notNull(), // filas antiguas traen "en-US"/"en-LATAM"
     tier: priceTier("tier").notNull(), // tier con el que se cotizó el pedido
 
     subtotalCents: integer("subtotal_cents").notNull(),
@@ -281,7 +281,7 @@ export const contactRequests = pgTable(
     email: text("email").notNull(),
     subject: text("subject").notNull(),
     message: text("message").notNull(),
-    locale: text("locale").$type<LocaleCode>().notNull(),
+    locale: text("locale").$type<Lang>().notNull(), // filas antiguas traen "en-US"/"en-LATAM"
     read: boolean("read").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

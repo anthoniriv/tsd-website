@@ -59,7 +59,7 @@ export async function startCheckout(
     return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
   }
   const d = parsed.data as Record<string, string | undefined>;
-  const { code, tier } = await getLocaleData();
+  const { lang, tier } = await getLocaleData();
 
   const shipping = pickAddress(d, "ship");
   const billingSame = d.billingSame === "on";
@@ -72,7 +72,7 @@ export async function startCheckout(
       shipping,
       billing: billingSame ? shipping : pickAddress(d, "bill"),
       couponCode: couponCode ?? undefined,
-      locale: code,
+      locale: lang,
       tier,
     });
   } catch (err) {

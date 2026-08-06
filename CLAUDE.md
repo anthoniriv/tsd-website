@@ -197,13 +197,20 @@ Mantener este ritmo al añadir secciones para conservar el "aire".
 
 ## Idioma
 
-**3 locales sobre 2 idiomas de contenido y 2 tiers de precio** (todo USD):
-`en-US` (en / tier `us`) · `en-LATAM` (en / tier `world`) · `es` (es / tier `world`).
-Comercialmente solo existen dos mercados —USA/Canadá y el resto— pero el idioma es
-otra cosa: por eso hay 3 banderas y 2 precios. `latam` y `es` siguen en el enum de
-Postgres porque los pedidos guardan el tier con el que se cotizaron. El locale se
-guarda en la cookie `tds_locale` (no httpOnly, la escribe el `LocaleSwitcher`) y se lee
-con `getLocaleData()` en RSC.
+**País e idioma son ejes separados** (todo USD):
+
+- **País** → tarifa. Se elige de una lista de 243 países (`src/lib/countries.ts`,
+  nombres vía `Intl.DisplayNames`, sin traducciones que mantener). `US`/`CA` →
+  tier `us`; cualquier otro → `world`. Cookie `tds_country`.
+- **Idioma** → contenido `es` | `en`. Cookie `tds_lang`. Independiente del país:
+  alguien en México puede navegar en inglés y sigue pagando tarifa `world`.
+
+En la primera visita el `RegionGate` (modal, `components/layout/region-gate.tsx`)
+pide país —preseleccionado con `x-vercel-ip-country`— y propone el idioma del
+país, que el usuario puede cambiar. Guarda ambas cookies + una marca en
+localStorage. `?region=1` reabre el modal (lo usa el chip de país del header).
+La cookie vieja `tds_locale` solo se lee para deducir el idioma de visitantes
+antiguos. `getLocaleData()` (RSC) devuelve `{ lang, country, tier, dict }`.
 
 Dos capas separadas: el **chrome de UI** vive en el diccionario `src/lib/i18n.ts`
 (añadir una clave a `es` rompe el build si falta en `en` — es deliberado); el **contenido

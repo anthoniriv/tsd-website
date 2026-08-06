@@ -19,14 +19,14 @@ export async function submitContact(formData: FormData): Promise<{ error?: strin
   if (!parsed.success) return { error: "Datos inválidos." };
 
   const { nombre, email, asunto, mensaje } = parsed.data;
-  const { code, lang } = await getLocaleData();
+  const { lang } = await getLocaleData();
 
   await db.insert(contactRequests).values({
     name: nombre,
     email,
     subject: asunto,
     message: mensaje,
-    locale: code,
+    locale: lang,
   });
 
   // Aviso a TDS + acuse de recibo al visitante (en su idioma). En paralelo: ninguno

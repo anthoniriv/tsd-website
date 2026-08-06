@@ -6,23 +6,27 @@ import { Footer } from "@/components/layout/footer";
 import { ComingSoonProvider } from "@/components/ui/coming-soon";
 import { CartProvider } from "@/components/cart/cart-provider";
 import { WhatsAppFab } from "@/components/site/whatsapp-fab";
-import { LocaleGate } from "@/components/layout/locale-gate";
-import { getLocaleData, hasChosenLocale } from "@/lib/i18n.server";
-import { suggestedLocale } from "@/lib/geo";
-import { resolveLocale } from "@/lib/i18n";
+import { RegionGate } from "@/components/layout/region-gate";
+import { getLocaleData, hasChosenCountry } from "@/lib/i18n.server";
+import { detectCountry } from "@/lib/geo";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const { code, dict } = await getLocaleData();
-  const es = resolveLocale(code).lang === "es";
+  const { lang, country, dict } = await getLocaleData();
+  const es = lang === "es";
 
-  // Primera visita: pedimos región antes de que vea precios de otro mercado.
-  const [chosen, suggested] = await Promise.all([hasChosenLocale(), suggestedLocale()]);
+  // Primera visita: pedimos país antes de que vea precios de otro mercado.
+  const [chosen, detected] = await Promise.all([hasChosenCountry(), detectCountry()]);
 
   return (
     <ComingSoonProvider dict={dict.comingSoon}>
       <CartProvider>
-        <LocaleGate suggested={suggested} chosen={chosen} dict={dict.localeGate} />
-        <Header locale={code} dict={dict} />
+        <RegionGate
+          suggestedCountry={country ?? detected}
+          currentLang={lang}
+          chosen={chosen}
+          dict={dict.localeGate}
+        />
+        <Header lang={lang} country={country} dict={dict} />
         <main className="flex-1">{children}</main>
         <Footer dict={dict} />
         <WhatsAppFab

@@ -1,43 +1,46 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// i18n TDS — 3 locales (bandera en header) sobre 2 idiomas de contenido y solo
-// 2 tiers de precio. Todo USD.
+// i18n TDS — dos ejes independientes:
 //
-//   🇺🇸 en-US      → contenido inglés  · precio tier "us"     (USA / Canadá)
-//   🌎 en-LATAM   → contenido inglés  · precio tier "world"  (resto del mundo)
-//   🇪🇸 es         → contenido español · precio tier "world"  (resto del mundo)
+//   PAÍS   → decide la TARIFA. `US`/`CA` → tier "us"; cualquier otro → "world".
+//            Se elige de una lista de 243 países (`lib/countries.ts`).
+//   IDIOMA → decide el CONTENIDO. `es` | `en`, a elección del visitante.
 //
-// Comercialmente solo existen dos mercados: USA/Canadá y el resto del mundo. El
-// idioma sigue siendo cosa aparte — por eso hay 3 banderas y 2 precios.
+// Van separados a propósito: alguien en México puede navegar en inglés y sigue
+// pagando la tarifa "resto del mundo". Antes eran un solo selector de 3 locales
+// y por eso el idioma arrastraba el precio.
 //
 // Este archivo es PURO (sin next/headers) → lo importan client y server. La
-// lectura del locale actual (cookie) vive en `i18n.server.ts`.
+// lectura de las cookies vive en `i18n.server.ts`.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type Lang = "en" | "es";
 export type PriceTier = "us" | "world";
-export type LocaleCode = "en-US" | "en-LATAM" | "es";
 
+export const LANG_COOKIE = "tds_lang";
+export const COUNTRY_COOKIE = "tds_country";
+/** Cookie del modelo anterior (en-US / en-LATAM / es). Solo se lee, para migrar. */
 export const LOCALE_COOKIE = "tds_locale";
-export const DEFAULT_LOCALE: LocaleCode = "es";
 
-export type LocaleDef = {
-  code: LocaleCode;
-  lang: Lang;
-  tier: PriceTier;
-  flag: string; // emoji (🌎 para LATAM, no existe bandera propia)
-  label: string; // texto del selector
-  short: string; // etiqueta compacta
-};
+export const DEFAULT_LANG: Lang = "es";
 
-// Orden en el que aparecen las 3 banderas del header.
-export const LOCALES: LocaleDef[] = [
-  { code: "en-US", lang: "en", tier: "us", flag: "🇺🇸", label: "English (USA)", short: "US" },
-  { code: "en-LATAM", lang: "en", tier: "world", flag: "🌎", label: "English (Rest of world)", short: "INTL" },
-  { code: "es", lang: "es", tier: "world", flag: "🇪🇸", label: "Español", short: "ES" },
+export const LANGS: { code: Lang; label: string; short: string }[] = [
+  { code: "es", label: "Español", short: "ES" },
+  { code: "en", label: "English", short: "EN" },
 ];
 
-export function resolveLocale(code: string | undefined | null): LocaleDef {
-  return LOCALES.find((l) => l.code === code) ?? LOCALES.find((l) => l.code === DEFAULT_LOCALE)!;
+export function resolveLang(value: string | undefined | null): Lang {
+  if (value === "es" || value === "en") return value;
+  // Cookies del modelo viejo: "en-US" / "en-LATAM" → en, "es" → es.
+  if (value?.startsWith("en")) return "en";
+  return DEFAULT_LANG;
+}
+
+/**
+ * Idioma de un pedido/consulta ya guardados. La columna `locale` almacena hoy
+ * el idioma ("es"/"en") pero hay filas antiguas con "en-US"/"en-LATAM".
+ */
+export function resolveLocale(code: string | undefined | null): { lang: Lang } {
+  return { lang: resolveLang(code) };
 }
 
 // Azúcar para datos localizados (descripciones, nombres de catálogo).
@@ -61,12 +64,15 @@ const es = {
     language: "Idioma",
   },
   localeGate: {
-    title: "Elige tu región",
-    body: "El idioma y los precios dependen de tu región. Puedes cambiarla cuando quieras desde las banderas del encabezado.",
-    suggested: "Sugerido por tu ubicación",
-    priceUs: "Precios para USA y Canadá",
-    priceWorld: "Precios para el resto del mundo",
+    title: "¿Desde dónde nos visitas?",
+    body: "Tu país define los precios y el envío. El idioma lo eliges aparte y puedes cambiarlo cuando quieras.",
+    countryLabel: "País",
+    countryPlaceholder: "Selecciona tu país",
+    langLabel: "Idioma",
+    priceUs: "Precios y envío para USA y Canadá",
+    priceWorld: "Precios y envío internacional",
     confirm: "Continuar",
+    change: "Cambiar país",
   },
   comingSoon: {
     features: { search: "La búsqueda de productos", account: "Tu cuenta", cart: "El carrito de compras" },
@@ -436,12 +442,15 @@ const en: Dict = {
     language: "Language",
   },
   localeGate: {
-    title: "Choose your region",
-    body: "Language and pricing depend on your region. You can change it any time from the flags in the header.",
-    suggested: "Suggested by your location",
-    priceUs: "Pricing for USA and Canada",
-    priceWorld: "Pricing for the rest of the world",
+    title: "Where are you visiting from?",
+    body: "Your country sets pricing and shipping. Language is a separate choice and you can change it any time.",
+    countryLabel: "Country",
+    countryPlaceholder: "Select your country",
+    langLabel: "Language",
+    priceUs: "Pricing and shipping for USA and Canada",
+    priceWorld: "International pricing and shipping",
     confirm: "Continue",
+    change: "Change country",
   },
   comingSoon: {
     features: { search: "Product search", account: "Your account", cart: "The shopping cart" },

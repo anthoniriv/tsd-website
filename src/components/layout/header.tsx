@@ -7,7 +7,7 @@ import { Menu, User, X } from "lucide-react";
 import { CartSheet } from "@/components/cart/cart-sheet";
 import { cn } from "@/lib/utils";
 import { NAV } from "@/lib/site";
-import type { Dict, LocaleCode } from "@/lib/i18n";
+import type { Dict, Lang } from "@/lib/i18n";
 import { Logo } from "@/components/layout/logo";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { SearchBar } from "@/components/layout/search-bar";
@@ -22,7 +22,15 @@ import {
 } from "@/components/ui/sheet";
 
 
-export function Header({ locale, dict }: { locale: LocaleCode; dict: Dict }) {
+export function Header({
+  lang,
+  country,
+  dict,
+}: {
+  lang: Lang;
+  country: string | null;
+  dict: Dict;
+}) {
   const pathname = usePathname();
   const comingSoon = useComingSoon();
   const [scrolled, setScrolled] = useState(false);
@@ -51,7 +59,12 @@ export function Header({ locale, dict }: { locale: LocaleCode; dict: Dict }) {
         <Logo imgClassName="h-[3.75rem] sm:h-[4.25rem]" />
         <SearchBar dict={dict} className="hidden flex-1 md:block" />
         <div className="ml-auto flex items-center gap-1.5">
-          <LocaleSwitcher current={locale} className="hidden sm:flex" />
+          <LocaleSwitcher
+            lang={lang}
+            country={country}
+            changeLabel={dict.localeGate.change}
+            className="hidden sm:flex"
+          />
           <Button
             variant="ghost"
             size="icon"
@@ -97,7 +110,11 @@ export function Header({ locale, dict }: { locale: LocaleCode; dict: Dict }) {
               </nav>
               <div className="space-y-4 px-4 pt-4">
                 <div className="flex justify-center">
-                  <LocaleSwitcher current={locale} />
+                  <LocaleSwitcher
+                    lang={lang}
+                    country={country}
+                    changeLabel={dict.localeGate.change}
+                  />
                 </div>
                 <SearchBar dict={dict} />
                 <Link

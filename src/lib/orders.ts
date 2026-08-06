@@ -13,7 +13,7 @@ import {
   type OrderEmail,
   type OrderItem,
 } from "@/db/schema";
-import type { LocaleCode, PriceTier } from "@/lib/i18n";
+import type { Lang, PriceTier } from "@/lib/i18n";
 import { priceMapFor } from "@/lib/pricing";
 import { consumeCoupon, validateCoupon } from "@/lib/coupons";
 import { getShippingSettings } from "@/lib/settings";
@@ -40,7 +40,7 @@ export async function createPendingOrder(input: {
   shipping?: Order["shipping"];
   billing?: Order["billing"];
   couponCode?: string;
-  locale: LocaleCode;
+  locale: Lang;
   tier: PriceTier;
 }): Promise<OrderWithItems> {
   const clean = input.lines.filter((l) => l.qty > 0);
