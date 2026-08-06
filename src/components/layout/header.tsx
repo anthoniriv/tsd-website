@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, User, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { CartSheet } from "@/components/cart/cart-sheet";
 import { cn } from "@/lib/utils";
 import { NAV } from "@/lib/site";
@@ -11,8 +11,7 @@ import type { Dict, Lang } from "@/lib/i18n";
 import { Logo } from "@/components/layout/logo";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { SearchBar } from "@/components/layout/search-bar";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useComingSoon } from "@/components/ui/coming-soon";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -32,7 +31,6 @@ export function Header({
   dict: Dict;
 }) {
   const pathname = usePathname();
-  const comingSoon = useComingSoon();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -65,15 +63,7 @@ export function Header({
             changeLabel={dict.localeGate.change}
             className="hidden sm:flex"
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={dict.header.account}
-            className="text-brand"
-            onClick={() => comingSoon({ feature: dict.comingSoon.features.account })}
-          >
-            <User className="h-5 w-5" />
-          </Button>
+          {/* Sin icono de cuenta: la compra es como invitado, no hay usuarios */}
           <CartSheet dict={dict.cart} />
           {/* botón menú mobile */}
           <Sheet open={open} onOpenChange={setOpen}>

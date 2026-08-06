@@ -70,6 +70,31 @@ export function countryName(code: string, lang: Lang): string {
   }
 }
 
+/** Continentes, en el orden en que se muestran en el selector. */
+export const CONTINENTS = ["americas", "europe", "asia", "africa", "oceania"] as const;
+
+export type Continent = (typeof CONTINENTS)[number];
+
+/** Cada país en su continente. Cubre los 243 códigos, sin solapes. */
+const BY_CONTINENT: Record<Continent, readonly string[]> = {
+  americas: ["AG","AI","AR","AW","BB","BL","BM","BO","BQ","BR","BS","BZ","CA","CL","CO","CR","CU","CW","DM","DO","EC","FK","GD","GF","GL","GP","GT","GY","HN","HT","JM","KN","KY","LC","MF","MQ","MS","MX","NI","PA","PE","PM","PR","PY","SR","SV","SX","TC","TT","US","UY","VC","VE","VG","VI"],
+  europe: ["AD","AL","AT","AX","BA","BE","BG","BY","CH","CY","CZ","DE","DK","EE","ES","FI","FO","FR","GB","GG","GI","GR","HR","HU","IE","IM","IS","IT","JE","LI","LT","LU","LV","MC","MD","ME","MK","MT","NL","NO","PL","PT","RO","RS","RU","SE","SI","SJ","SK","SM","UA","VA","XK"],
+  asia: ["AE","AF","AM","AZ","BD","BH","BN","BT","CN","GE","HK","ID","IL","IN","IQ","IR","JO","JP","KG","KH","KP","KR","KW","KZ","LA","LB","LK","MM","MN","MO","MV","MY","NP","OM","PH","PK","PS","QA","SA","SG","SY","TH","TJ","TL","TM","TR","TW","UZ","VN","YE"],
+  africa: ["AO","BF","BI","BJ","BW","CD","CF","CG","CI","CM","CV","DJ","DZ","EG","EH","ER","ET","GA","GH","GM","GN","GQ","GW","KE","KM","LR","LS","LY","MA","MG","ML","MR","MU","MW","MZ","NA","NE","NG","RE","RW","SC","SD","SH","SL","SN","SO","SS","ST","SZ","TD","TG","TN","TZ","UG","YT","ZA","ZM","ZW"],
+  oceania: ["AS","AU","CC","CK","CX","FJ","FM","GU","KI","MH","MP","NC","NF","NR","NU","NZ","PF","PG","PN","PW","SB","TK","TO","TV","VU","WF","WS"],
+};
+
+/** Países de un continente, ordenados por nombre en el idioma activo. */
+export function countriesByContinent(
+  continent: Continent,
+  lang: Lang,
+): { code: string; name: string; flag: string }[] {
+  const collator = new Intl.Collator(lang);
+  return BY_CONTINENT[continent]
+    .map((code) => ({ code, name: countryName(code, lang), flag: flagEmoji(code) }))
+    .sort((a, b) => collator.compare(a.name, b.name));
+}
+
 /** Lista ordenada alfabéticamente por nombre en el idioma activo. */
 export function countryOptions(lang: Lang): { code: CountryCode; name: string }[] {
   const collator = new Intl.Collator(lang);

@@ -73,6 +73,13 @@ const es = {
     priceWorld: "Precios y envío internacional",
     confirm: "Continuar",
     change: "Cambiar país",
+    continents: {
+      americas: "América",
+      europe: "Europa",
+      asia: "Asia",
+      africa: "África",
+      oceania: "Oceanía",
+    },
   },
   comingSoon: {
     features: { search: "La búsqueda de productos", account: "Tu cuenta", cart: "El carrito de compras" },
@@ -451,6 +458,13 @@ const en: Dict = {
     priceWorld: "International pricing and shipping",
     confirm: "Continue",
     change: "Change country",
+    continents: {
+      americas: "Americas",
+      europe: "Europe",
+      asia: "Asia",
+      africa: "Africa",
+      oceania: "Oceania",
+    },
   },
   comingSoon: {
     features: { search: "Product search", account: "Your account", cart: "The shopping cart" },

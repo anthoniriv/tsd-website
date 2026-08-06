@@ -11,8 +11,8 @@ import {
   type Lang,
 } from "@/lib/i18n";
 import {
-  countryOptions,
-  flagEmoji,
+  CONTINENTS,
+  countriesByContinent,
   langForCountry,
   tierForCountry,
 } from "@/lib/countries";
@@ -56,8 +56,11 @@ export function RegionGate({
   const confirmed = useRef(false);
   const langTouched = useRef(false);
 
-  // Los nombres se resuelven con Intl en el idioma activo del modal.
-  const options = useMemo(() => countryOptions(lang), [lang]);
+  // Nombres vía Intl en el idioma del modal, agrupados por continente.
+  const groups = useMemo(
+    () => CONTINENTS.map((c) => ({ continent: c, items: countriesByContinent(c, lang) })),
+    [lang],
+  );
 
   useEffect(() => {
     const forced = new URLSearchParams(window.location.search).has("region");
@@ -135,29 +138,23 @@ export function RegionGate({
               {dict.countryLabel}
             </span>
             <div className="relative">
-              {country && (
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg leading-none"
-                >
-                  {flagEmoji(country)}
-                </span>
-              )}
+              {/* La bandera va dentro de cada <option>, no como adorno aparte */}
               <select
                 value={country}
                 onChange={(e) => pickCountry(e.target.value)}
-                className={cn(
-                  "h-11 w-full cursor-pointer appearance-none rounded-lg border-2 border-border bg-white pr-9 text-sm font-semibold text-text-main outline-none transition-colors focus:border-brand",
-                  country ? "pl-11" : "pl-3"
-                )}
+                className="h-11 w-full cursor-pointer appearance-none rounded-lg border-2 border-border bg-white pl-3 pr-9 text-sm font-semibold text-text-main outline-none transition-colors focus:border-brand"
               >
                 <option value="" disabled>
                   {dict.countryPlaceholder}
                 </option>
-                {options.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name}
-                  </option>
+                {groups.map((group) => (
+                  <optgroup key={group.continent} label={dict.continents[group.continent]}>
+                    {group.items.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.flag} {c.name}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
               <span
