@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, Headset, ShieldCheck, Truck } from "lucide-react";
+import { ArrowRight, ChevronRight, Headset, ShieldCheck, Truck } from "lucide-react";
 import { getLocaleData } from "@/lib/i18n.server";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/products";
@@ -46,6 +46,18 @@ export default async function ProductoDetallePage({
   const paragraphs = product.description?.[lang] ?? [];
   const soldOut = product.stock <= 0;
   const lowStock = !soldOut && product.stock <= 3;
+
+  // "Conoce más de este producto": lleva al bloque institucional de /producto.
+  // Las 5 líneas Jaltest tienen anchor propio (#cv, #ohw…); el hardware va al
+  // grid de su categoría.
+  const learnMoreHref =
+    product.kind === "jaltest"
+      ? product.accentKey
+        ? `/producto#${product.accentKey}`
+        : "/producto"
+      : product.category
+        ? `/producto#hardware-${product.category}`
+        : "/producto";
 
   const trust = [
     { icon: Truck, title: dict.product.trust.shipping, hint: dict.product.trust.shippingHint },
@@ -133,6 +145,14 @@ export default async function ProductoDetallePage({
               img={product.img}
             />
           </div>
+
+          <Link
+            href={learnMoreHref}
+            className="group mt-5 inline-flex items-center gap-2 text-sm font-bold text-brand hover:text-brand-dark"
+          >
+            {dict.product.learnMore}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
 
           <ul className="mt-8 space-y-3 border-t border-border pt-6">
             {trust.map(({ icon: Icon, title, hint }) => (

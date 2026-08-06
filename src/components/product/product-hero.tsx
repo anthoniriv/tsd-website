@@ -88,10 +88,12 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
   const name = `${line.brand} ${line.variant}`;
   const actionLabels = { ...t, addedToast: dict.cart.addedToast };
   const demoHref = `/contacto?asunto=demo&linea=${line.id}`;
+  // La foto del panel derecho se puede cambiar desde el panel; si no hay, la de la lámina.
+  const vehicleImg = line.vehicleImg || spec.vehicleImg;
 
   return (
     <article id={line.id} className="scroll-mt-36 border-b border-border/60 bg-white">
-      <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 sm:py-16">
+      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-10">
         {/* ───────── Cabecera: texto + kit, con la foto del equipo a la derecha ───────── */}
         <div className="relative lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(380px,440px)] lg:gap-6">
           <div>
@@ -99,16 +101,16 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
               src={line.logo}
               alt={name}
               size="lg"
-              className="h-16 max-w-[280px] sm:h-20 sm:max-w-[320px]"
+              className="h-14 max-w-[250px] sm:h-16 sm:max-w-[280px]"
             />
 
-            <h2 className="mt-6 text-[clamp(22px,3.2vw,34px)] font-black uppercase leading-[1.08] tracking-tight text-text-main">
+            <h2 className="mt-5 text-[clamp(21px,2.8vw,30px)] font-black uppercase leading-[1.08] tracking-tight text-text-main">
               {headTop}
               <br />
               <span style={{ color: ink.title }}>{headBottom}</span>
             </h2>
 
-            <div className="mt-4 max-w-[46ch] space-y-3 text-[15px] leading-[1.55] text-text-secondary">
+            <div className="mt-3 max-w-[46ch] space-y-2 text-[14px] leading-[1.5] text-text-secondary">
               {spec.intro[lang].map((p) => (
                 <p key={p}>{p}</p>
               ))}
@@ -120,44 +122,79 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
               alt={`Kit ${name}`}
               fit="contain"
               loading="eager"
-              wrapperClassName="mt-6 h-[clamp(150px,26vw,260px)] w-full bg-transparent"
+              wrapperClassName="mt-3 h-[clamp(120px,15vw,170px)] w-full bg-transparent"
             />
           </div>
 
-          {/* foto del equipo: banner en móvil, panel con corte diagonal en desktop */}
-          <div className="relative mt-8 lg:mt-0">
-            <div className="relative h-52 w-full overflow-hidden rounded-xl sm:h-72 lg:h-full lg:min-h-[460px] lg:rounded-none">
-              <span
-                className="absolute inset-0 hidden lg:block"
-                style={{ clipPath: PHOTO_CLIP }}
-              >
+          {/* foto del equipo: banner en móvil, panel con corte diagonal en desktop.
+              Si la línea trae galería (patrón AGV), la foto grande cede alto a las
+              3 mini etiquetadas de abajo. */}
+          <div className="relative mt-8 flex flex-col gap-2 lg:mt-0 lg:min-h-[370px]">
+            <div
+              className={cn(
+                "relative w-full overflow-hidden rounded-xl lg:rounded-none",
+                spec.gallery ? "h-40 sm:h-52 lg:flex-[3]" : "h-52 sm:h-72 lg:flex-1"
+              )}
+            >
+              <span className="absolute inset-0 hidden lg:block" style={{ clipPath: PHOTO_CLIP }}>
                 <SmartImage
-                  src={spec.vehicleImg}
+                  src={vehicleImg}
                   alt={`${line.variant} — ${spec.headline[lang][1]}`}
                   wrapperClassName="absolute inset-0 h-full w-full"
                 />
               </span>
               <SmartImage
-                src={spec.vehicleImg}
+                src={vehicleImg}
                 alt={`${line.variant} — ${spec.headline[lang][1]}`}
                 wrapperClassName="absolute inset-0 h-full w-full lg:hidden"
               />
+              {spec.vehicleLabel && (
+                <span
+                  className="absolute bottom-2 right-2 rounded px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide shadow-sm"
+                  style={{ backgroundColor: accent.color, color: ink.onAccent }}
+                >
+                  {spec.vehicleLabel[lang]}
+                </span>
+              )}
             </div>
+
+            {spec.gallery && (
+              <ul className="grid grid-cols-3 gap-2 lg:flex-[2]">
+                {spec.gallery.map((shot) => (
+                  <li
+                    key={shot.img}
+                    className="relative h-24 overflow-hidden rounded-lg sm:h-28 lg:h-full"
+                  >
+                    <SmartImage
+                      src={shot.img}
+                      alt={shot.label[lang]}
+                      wrapperClassName="absolute inset-0 h-full w-full"
+                    />
+                    <span
+                      className="absolute inset-x-0 bottom-0 px-1 py-1 text-center text-[10px] font-bold uppercase leading-tight tracking-wide"
+                      style={{ backgroundColor: accent.color, color: ink.onAccent }}
+                    >
+                      {shot.label[lang]}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {/* hexágono de precio: a caballo sobre el corte diagonal de la foto */}
             <div className="absolute right-3 top-3 z-10 lg:-left-14 lg:right-auto lg:top-4">
               <div
-                className="grid aspect-[1.1547/1] w-[116px] place-items-center shadow-lg sm:w-[140px] lg:w-[152px]"
+                className="grid aspect-[1.1547/1] w-[110px] place-items-center shadow-lg sm:w-[132px] lg:w-[142px]"
                 style={{ clipPath: HEX, backgroundColor: accent.color, color: ink.onAccent }}
               >
                 <div className="flex flex-col items-center leading-none">
-                  <span className="text-[10px] font-bold uppercase tracking-wide opacity-90 sm:text-[11px]">
+                  <span className="text-[10px] font-bold uppercase tracking-wide opacity-90">
                     {t.from}
                   </span>
-                  <span className="mt-1 text-[23px] font-black tabular-nums sm:text-[27px] lg:text-[30px]">
+                  <span className="mt-1 text-[22px] font-black tabular-nums sm:text-[25px] lg:text-[28px]">
                     {price}
                   </span>
-                  <span className="mt-1 text-[10px] font-bold uppercase tracking-wide opacity-90 sm:text-[11px]">
+                  <span className="mt-1 text-[10px] font-bold uppercase tracking-wide opacity-90">
                     {t.currency}
                   </span>
                 </div>
@@ -166,7 +203,7 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
 
             {/* etiquetas sueltas (Marine y MHE) */}
             {spec.badges && (
-              <div className="absolute bottom-3 right-3 flex flex-col items-end gap-2">
+              <div className="absolute right-3 top-[52%] flex flex-col items-end gap-2">
                 {spec.badges.map((badge) => (
                   <span
                     key={badge.en}
@@ -183,7 +220,7 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
         </div>
 
         {/* ───────── Qué incluye ───────── */}
-        <ul className="mt-8 grid grid-cols-2 gap-4 rounded-xl border border-border bg-bg-soft/60 p-4 sm:gap-6 sm:p-5 md:grid-cols-4">
+        <ul className="mt-5 grid grid-cols-2 gap-3 rounded-xl border border-border bg-bg-soft/60 p-3.5 sm:gap-5 sm:p-4 md:grid-cols-4">
           {t.includes.map((item, i) => {
             const Icon = INCLUDE_ICONS[i];
             return (
@@ -199,15 +236,15 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
         </ul>
 
         {/* ───────── Funciones avanzadas · Fabricantes compatibles ───────── */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <section className="flex flex-col rounded-xl border border-border p-5">
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <section className="flex flex-col rounded-xl border border-border p-4">
             <h3
-              className="-mx-5 -mt-5 mb-5 w-fit rounded-br-xl rounded-tl-xl px-5 py-2 text-[13px] font-black uppercase tracking-wide"
+              className="-mx-4 -mt-4 mb-4 w-fit rounded-br-xl rounded-tl-xl px-5 py-2 text-[13px] font-black uppercase tracking-wide"
               style={{ backgroundColor: accent.color, color: ink.onAccent }}
             >
               {t.advancedFunctions}
             </h3>
-            <ul className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+            <ul className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
               {spec.features.map((feature) => {
                 const Icon = FEATURE_ICONS[feature.icon];
                 return (
@@ -223,14 +260,14 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
                 );
               })}
             </ul>
-            <p className="mt-5 pt-1 text-[13px] font-bold" style={{ color: ink.title }}>
+            <p className="mt-4 pt-1 text-[13px] font-bold" style={{ color: ink.title }}>
               {t.andManyMore}
             </p>
           </section>
 
-          <section className="rounded-xl border border-border p-5">
+          <section className="rounded-xl border border-border p-4">
             <h3
-              className="-mx-5 -mt-5 mb-5 w-fit rounded-br-xl rounded-tl-xl px-5 py-2 text-[13px] font-black uppercase tracking-wide"
+              className="-mx-4 -mt-4 mb-4 w-fit rounded-br-xl rounded-tl-xl px-5 py-2 text-[13px] font-black uppercase tracking-wide"
               style={{ backgroundColor: accent.color, color: ink.onAccent }}
             >
               {spec.brandsTitle[lang]}
@@ -240,16 +277,16 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
               src={spec.brandsImg}
               alt={spec.brandsTitle[lang]}
               fit="contain"
-              wrapperClassName="h-[clamp(150px,22vw,230px)] w-full bg-transparent"
+              wrapperClassName="h-[clamp(110px,13vw,145px)] w-full bg-transparent"
             />
-            <p className="mt-4 text-center text-[13px] font-bold uppercase tracking-wide text-text-secondary">
+            <p className="mt-3 text-center text-[13px] font-bold uppercase tracking-wide text-text-secondary">
               {spec.brandsFootnote[lang]}
             </p>
           </section>
         </div>
 
         {/* ───────── Cifras + CTA (el panel de "solicitar cotización" de la lámina) ───────── */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
           <ul
             className="grid grid-cols-2 content-center gap-5 rounded-xl px-5 py-6 sm:grid-cols-4"
             style={{ backgroundColor: accent.color, color: ink.onAccent }}

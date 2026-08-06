@@ -48,6 +48,9 @@ export function Footer({ dict }: { dict: Dict }) {
           <div className="space-y-3 text-sm leading-relaxed">
             <Logo variant="white" />
             <p className="max-w-xs text-neutral-300">{dict.meta.siteDescription}</p>
+            <p className="text-xs uppercase tracking-wide text-neutral-400">
+              {dict.footer.partOfGroup}
+            </p>
           </div>
 
           <div className="text-sm leading-relaxed">

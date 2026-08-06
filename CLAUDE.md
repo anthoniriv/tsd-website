@@ -90,7 +90,7 @@ porque los textos localizados se guardan como JSONB `{es, en}`, que mapea 1:1 a
 
 ### Precios: nunca confíes en el cliente
 Tabla `product_prices(product_id, tier, amount_cents)` — un precio **explícito** por tier
-(`us` / `latam` / `es`), editable desde el panel. Ya no hay multiplicador. El carrito del
+(`us` = USA/Canadá · `world` = resto del mundo), editable desde el panel. Ya no hay multiplicador. El carrito del
 navegador guarda **solo `{id, qty}`**; el importe se resuelve siempre en servidor con
 `priceMapFor()` (`lib/pricing.ts`), tanto para mostrar como para cobrar. Los `order_items`
 guardan un **snapshot** de nombre y precio: cambiar el catálogo no reescribe pedidos ya
@@ -197,8 +197,11 @@ Mantener este ritmo al añadir secciones para conservar el "aire".
 
 ## Idioma
 
-**3 locales sobre 2 idiomas de contenido y 3 tiers de precio** (todo USD):
-`en-US` (en / tier us) · `en-LATAM` (en / tier latam) · `es` (es / tier es). El locale se
+**3 locales sobre 2 idiomas de contenido y 2 tiers de precio** (todo USD):
+`en-US` (en / tier `us`) · `en-LATAM` (en / tier `world`) · `es` (es / tier `world`).
+Comercialmente solo existen dos mercados —USA/Canadá y el resto— pero el idioma es
+otra cosa: por eso hay 3 banderas y 2 precios. `latam` y `es` siguen en el enum de
+Postgres porque los pedidos guardan el tier con el que se cotizaron. El locale se
 guarda en la cookie `tds_locale` (no httpOnly, la escribe el `LocaleSwitcher`) y se lee
 con `getLocaleData()` en RSC.
 

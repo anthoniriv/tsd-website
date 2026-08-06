@@ -37,7 +37,8 @@ export async function ProductGrid({
   }));
 
   return (
-    <section className="py-16 sm:py-20">
+    // el anchor permite volver aquí desde la ficha ("Conoce más de este producto")
+    <section id={category ? `hardware-${category}` : undefined} className="scroll-mt-36 py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-2xl font-extrabold uppercase tracking-wide text-foreground">

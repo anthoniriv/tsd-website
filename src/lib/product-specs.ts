@@ -58,6 +58,10 @@ export type LineSpec = {
   vehicleImg: string;
   /** Etiquetas sueltas de la lámina (MHE y Marine las tienen). */
   badges?: Localized<string>[];
+  /** Mini fotos etiquetadas bajo la foto principal (patrón de la lámina AGV). */
+  gallery?: { img: string; label: Localized<string> }[];
+  /** Etiqueta sobre la foto principal, cuando la lámina la lleva. */
+  vehicleLabel?: Localized<string>;
 };
 
 // Bullets compartidos: el docx pide que OHW/AGV/Marine/MHE usen la misma base
@@ -227,7 +231,22 @@ export const LINE_SPECS: Record<AccentKey, LineSpec> = {
       GROWING_COVERAGE,
     ],
     kitImg: `${R2}/lamina-kit-agv-v2-9ea03a01.png`,
-    vehicleImg: `${R2}/lamina-veh-agv-f22d5698.png`,
+    vehicleImg: `${R2}/lamina-veh-agv-v2-dbc1f49e.png`,
+    vehicleLabel: { es: "Cosechadoras", en: "Combines" },
+    gallery: [
+      {
+        img: `${R2}/lamina-agv-tractores-2dd34b6a.png`,
+        label: { es: "Tractores", en: "Tractors" },
+      },
+      {
+        img: `${R2}/lamina-agv-pulverizadoras-86244ae2.png`,
+        label: { es: "Pulverizadoras", en: "Sprayers" },
+      },
+      {
+        img: `${R2}/lamina-agv-picadoras-45bb65fa.png`,
+        label: { es: "Picadoras", en: "Foragers" },
+      },
+    ],
   },
 
   marine: {

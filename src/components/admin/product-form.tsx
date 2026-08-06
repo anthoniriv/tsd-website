@@ -31,6 +31,7 @@ export function ProductForm({ product, prices }: Props) {
   const [state, action, pending] = useActionState(saveProductAction, initial);
   const [kind, setKind] = useState<Product["kind"]>(product?.kind ?? "hardware");
   const [img, setImg] = useState(product?.img ?? "");
+  const [vehicleImg, setVehicleImg] = useState(product?.vehicleImg ?? "");
 
   return (
     <form action={action} className="space-y-8">
@@ -114,10 +115,19 @@ export function ProductForm({ product, prices }: Props) {
         <div className="col-span-full">
           <ImageUploadField name="img" value={img} onChange={setImg} required />
         </div>
+        {/* La foto grande del panel derecho del bloque en /producto */}
+        {kind === "jaltest" && (
+          <div className="col-span-full">
+            <p className="mb-2 text-sm font-semibold text-text-secondary">
+              Foto del equipo (panel derecho de /producto)
+            </p>
+            <ImageUploadField name="vehicleImg" value={vehicleImg} onChange={setVehicleImg} />
+          </div>
+        )}
       </Section>
 
       <Section title="Precios (USD)">
-        <Field label="Estados Unidos">
+        <Field label="Estados Unidos / Canadá">
           <Input
             name="priceUs"
             type="number"
@@ -127,23 +137,13 @@ export function ProductForm({ product, prices }: Props) {
             required
           />
         </Field>
-        <Field label="LATAM">
+        <Field label="Resto del mundo">
           <Input
-            name="priceLatam"
+            name="priceWorld"
             type="number"
             step="0.01"
             min="0"
-            defaultValue={priceOf(prices, "latam")}
-            required
-          />
-        </Field>
-        <Field label="España">
-          <Input
-            name="priceEs"
-            type="number"
-            step="0.01"
-            min="0"
-            defaultValue={priceOf(prices, "es")}
+            defaultValue={priceOf(prices, "world")}
             required
           />
         </Field>

@@ -29,6 +29,20 @@
       "when": 1785285652814,
       "tag": "0003_sweet_shatterstar",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786045574441,
+      "tag": "0004_even_leo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786045606895,
+      "tag": "0005_world_tier_data",
+      "breakpoints": true
     }
   ]
 }

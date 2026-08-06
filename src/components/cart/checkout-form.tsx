@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Lock, Tag } from "lucide-react";
+import { ArrowLeft, Lock, Tag, Truck } from "lucide-react";
 import { getCartItems, type CartItemView } from "@/app/(site)/cart-actions";
 import { applyCoupon } from "@/app/(site)/carrito/actions";
 import { startCheckout } from "@/app/(site)/checkout/actions";
@@ -205,6 +205,12 @@ export function CheckoutForm({
             </p>
           )}
         </div>
+
+        {/* El envío no se cobra en el checkout: se confirma después de la compra */}
+        <p className="flex items-start gap-2 rounded-lg border border-brand/25 bg-brand/5 px-3 py-2.5 text-xs leading-snug text-text-secondary">
+          <Truck className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+          {dict.shippingNotice}
+        </p>
 
         <div className="flex items-center justify-between border-t border-border pt-4">
           <span className="text-sm font-bold text-text-secondary">{cartDict.total}</span>

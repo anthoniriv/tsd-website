@@ -37,7 +37,10 @@ export type Address = {
 export const productKind = pgEnum("product_kind", ["jaltest", "hardware"]);
 export const productCategory = pgEnum("product_category", ["laptop", "cable", "finder"]);
 export const productStatus = pgEnum("product_status", ["draft", "published"]);
-export const priceTier = pgEnum("price_tier", ["us", "latam", "es"]);
+// Comercialmente solo hay dos mercados: `us` (USA/Canadá) y `world` (resto).
+// `latam` y `es` quedan en el enum porque los pedidos históricos los referencian
+// —un pedido guarda el tier con el que se cotizó— pero la app ya no los emite.
+export const priceTier = pgEnum("price_tier", ["us", "latam", "es", "world"]);
 export const orderStatus = pgEnum("order_status", [
   "pending",
   "paid",

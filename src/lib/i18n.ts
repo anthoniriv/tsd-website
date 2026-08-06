@@ -1,17 +1,20 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// i18n TDS — 3 locales (bandera en header) sobre 2 idiomas de contenido + 3 tiers
-// de precio. Todo USD.
+// i18n TDS — 3 locales (bandera en header) sobre 2 idiomas de contenido y solo
+// 2 tiers de precio. Todo USD.
 //
-//   🇺🇸 en-US      → contenido inglés  · precio tier "us"
-//   🌎 en-LATAM   → contenido inglés  · precio tier "latam"
-//   🇪🇸 es         → contenido español · precio tier "es"
+//   🇺🇸 en-US      → contenido inglés  · precio tier "us"     (USA / Canadá)
+//   🌎 en-LATAM   → contenido inglés  · precio tier "world"  (resto del mundo)
+//   🇪🇸 es         → contenido español · precio tier "world"  (resto del mundo)
+//
+// Comercialmente solo existen dos mercados: USA/Canadá y el resto del mundo. El
+// idioma sigue siendo cosa aparte — por eso hay 3 banderas y 2 precios.
 //
 // Este archivo es PURO (sin next/headers) → lo importan client y server. La
 // lectura del locale actual (cookie) vive en `i18n.server.ts`.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type Lang = "en" | "es";
-export type PriceTier = "us" | "latam" | "es";
+export type PriceTier = "us" | "world";
 export type LocaleCode = "en-US" | "en-LATAM" | "es";
 
 export const LOCALE_COOKIE = "tds_locale";
@@ -29,8 +32,8 @@ export type LocaleDef = {
 // Orden en el que aparecen las 3 banderas del header.
 export const LOCALES: LocaleDef[] = [
   { code: "en-US", lang: "en", tier: "us", flag: "🇺🇸", label: "English (USA)", short: "US" },
-  { code: "en-LATAM", lang: "en", tier: "latam", flag: "🌎", label: "English (LATAM)", short: "LATAM" },
-  { code: "es", lang: "es", tier: "es", flag: "🇪🇸", label: "Español", short: "ES" },
+  { code: "en-LATAM", lang: "en", tier: "world", flag: "🌎", label: "English (Rest of world)", short: "INTL" },
+  { code: "es", lang: "es", tier: "world", flag: "🇪🇸", label: "Español", short: "ES" },
 ];
 
 export function resolveLocale(code: string | undefined | null): LocaleDef {
@@ -118,6 +121,7 @@ const es = {
     writeFromContactLink: "contacto",
     follow: "Síguenos",
     followOn: "Síguenos en",
+    partOfGroup: "Parte del Grupo Integra",
     policies: {
       refund: "Política de reembolso",
       privacy: "Política de privacidad",
@@ -245,6 +249,7 @@ const es = {
     askStock: "Consultar disponibilidad por WhatsApp",
     askAdvisor: "¿Dudas? Consulta con un asesor",
     related: "También te puede interesar",
+    learnMore: "Conoce más de este producto",
     trust: {
       shipping: "Envío desde Los Angeles, CA",
       shippingHint: "Despacho en 24–48 h hábiles",
@@ -286,6 +291,8 @@ const es = {
     country: "País",
     shippingCost: "Envío",
     freeShipping: "Gratis",
+    shippingNotice:
+      "El costo de envío se confirma apenas confirmemos tu compra: te escribimos con el monto exacto antes de despachar.",
     estimatedDelivery: "Entrega estimada",
     pay: "Pagar",
     paying: "Redirigiendo al pago…",
@@ -481,6 +488,7 @@ const en: Dict = {
     writeFromContactLink: "contact page",
     follow: "Follow us",
     followOn: "Follow us on",
+    partOfGroup: "Part of Grupo Integra",
     policies: {
       refund: "Refund Policy",
       privacy: "Privacy Policy",
@@ -607,6 +615,7 @@ const en: Dict = {
     askStock: "Ask about availability on WhatsApp",
     askAdvisor: "Questions? Talk to an advisor",
     related: "You may also like",
+    learnMore: "Learn more about this product",
     trust: {
       shipping: "Ships from Los Angeles, CA",
       shippingHint: "Dispatched in 24–48 business hours",
@@ -648,6 +657,8 @@ const en: Dict = {
     country: "Country",
     shippingCost: "Shipping",
     freeShipping: "Free",
+    shippingNotice:
+      "Shipping cost is confirmed as soon as we confirm your order: we'll email you the exact amount before dispatch.",
     estimatedDelivery: "Estimated delivery",
     pay: "Pay",
     paying: "Redirecting to payment…",

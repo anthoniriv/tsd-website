@@ -2,8 +2,8 @@
 // de modo que tras migrar el sitio se vea EXACTAMENTE igual que antes.
 //
 // Los precios por tier se derivan una única vez con el factor DEMO histórico
-// (us=1, latam=1.12, es=1.06). A partir de aquí son valores explícitos y el admin
-// los edita a mano — el multiplicador desaparece del código.
+// (us=1, world=1.06). A partir de aquí son valores explícitos y el admin los
+// edita a mano — el multiplicador desaparece del código.
 //
 //   node --env-file=.env.local node_modules/.bin/tsx src/db/seed.ts
 
@@ -13,7 +13,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 import { CATALOG_SEED, JALTEST_SEED } from "./seed-data";
 
-const SEED_TIER_FACTOR = { us: 1, latam: 1.12, es: 1.06 } as const;
+const SEED_TIER_FACTOR = { us: 1, world: 1.06 } as const;
 
 const db = drizzle(neon(process.env.DATABASE_URL!), { schema });
 
@@ -27,7 +27,7 @@ function slugify(s: string) {
 }
 
 async function priceRows(productId: string, baseUSD: number) {
-  return (["us", "latam", "es"] as const).map((tier) => ({
+  return (["us", "world"] as const).map((tier) => ({
     productId,
     tier,
     amountCents: Math.round(baseUSD * SEED_TIER_FACTOR[tier]) * 100,

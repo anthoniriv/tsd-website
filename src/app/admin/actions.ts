@@ -80,13 +80,14 @@ const productSchema = z.object({
   // Párrafos: se editan como textarea, un párrafo por línea en blanco.
   description: z.object({ es: z.string(), en: z.string() }).optional(),
   img: z.string().min(1, "La imagen es obligatoria."),
+  // Foto del equipo del panel derecho en /producto (solo líneas Jaltest).
+  vehicleImg: z.string().optional(),
   stock: z.coerce.number().int().min(0),
   status: z.enum(["draft", "published"]),
   sort: z.coerce.number().int().min(0),
   // Precios en dólares (lo que teclea el admin); se guardan en centavos.
   priceUs: z.coerce.number().min(0),
-  priceLatam: z.coerce.number().min(0),
-  priceEs: z.coerce.number().min(0),
+  priceWorld: z.coerce.number().min(0),
 });
 
 function paragraphs(raw: string): string[] {
@@ -132,6 +133,7 @@ export async function saveProductAction(
       en: paragraphs(d.description?.en ?? ""),
     },
     img: d.img,
+    vehicleImg: d.kind === "jaltest" ? (d.vehicleImg || null) : null,
     stock: d.stock,
     status: d.status,
     sort: d.sort,
@@ -157,11 +159,10 @@ export async function saveProductAction(
     throw err;
   }
 
-  // Precios: upsert de los 3 tiers.
+  // Precios: upsert de los 2 tiers (USA/Canadá y resto del mundo).
   const tiers = [
     { tier: "us" as const, amountCents: Math.round(d.priceUs * 100) },
-    { tier: "latam" as const, amountCents: Math.round(d.priceLatam * 100) },
-    { tier: "es" as const, amountCents: Math.round(d.priceEs * 100) },
+    { tier: "world" as const, amountCents: Math.round(d.priceWorld * 100) },
   ];
   for (const t of tiers) {
     await db
