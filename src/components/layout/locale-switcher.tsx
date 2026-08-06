@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { cn } from "@/lib/utils";
 import { LOCALES, LOCALE_COOKIE, type LocaleCode } from "@/lib/i18n";
 
@@ -20,6 +20,10 @@ export function LocaleSwitcher({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [code, setCode] = useState<LocaleCode>(current);
+
+  // El estado local es optimista (pinta la bandera antes del refresh), pero si
+  // el locale cambia por fuera —el modal de bienvenida— hay que resincronizar.
+  useEffect(() => setCode(current), [current]);
 
   const select = (next: LocaleCode) => {
     if (next === code) return;

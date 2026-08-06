@@ -17,3 +17,13 @@ export const getLocaleData = cache(async (): Promise<LocaleData> => {
   const locale = resolveLocale(store.get(LOCALE_COOKIE)?.value);
   return { ...locale, dict: getDict(locale.lang) };
 });
+
+/**
+ * ¿El visitante ya eligió región? Si no, el layout muestra el modal de
+ * bienvenida: el locale decide idioma **y** tarifa, así que no queremos que
+ * navegue con precios de otro mercado sin haberlo elegido.
+ */
+export const hasChosenLocale = cache(async (): Promise<boolean> => {
+  const store = await cookies();
+  return store.get(LOCALE_COOKIE)?.value != null;
+});

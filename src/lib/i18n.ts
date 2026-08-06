@@ -60,6 +60,14 @@ const es = {
     requestQuote: "Solicitar una cotización",
     language: "Idioma",
   },
+  localeGate: {
+    title: "Elige tu región",
+    body: "El idioma y los precios dependen de tu región. Puedes cambiarla cuando quieras desde las banderas del encabezado.",
+    suggested: "Sugerido por tu ubicación",
+    priceUs: "Precios para USA y Canadá",
+    priceWorld: "Precios para el resto del mundo",
+    confirm: "Continuar",
+  },
   comingSoon: {
     features: { search: "La búsqueda de productos", account: "Tu cuenta", cart: "El carrito de compras" },
     title: "¡Ops! Próximamente",
@@ -426,6 +434,14 @@ const en: Dict = {
     close: "Close",
     requestQuote: "Request a Quote",
     language: "Language",
+  },
+  localeGate: {
+    title: "Choose your region",
+    body: "Language and pricing depend on your region. You can change it any time from the flags in the header.",
+    suggested: "Suggested by your location",
+    priceUs: "Pricing for USA and Canada",
+    priceWorld: "Pricing for the rest of the world",
+    confirm: "Continue",
   },
   comingSoon: {
     features: { search: "Product search", account: "Your account", cart: "The shopping cart" },
