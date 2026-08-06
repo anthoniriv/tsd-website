@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { cn } from "@/lib/utils";
 import { LANGS, LANG_COOKIE, type Lang } from "@/lib/i18n";
-import { flagEmoji } from "@/lib/countries";
+import { Globe } from "lucide-react";
 
 /**
  * Idioma (ES/EN) + país. Son dos cosas distintas: el idioma cambia el
@@ -73,9 +73,7 @@ export function LocaleSwitcher({
         title={changeLabel}
         className="flex items-center gap-1 rounded-full border border-border bg-white/70 px-2 py-1 text-[11px] font-bold uppercase leading-none text-foreground/70 transition-colors hover:border-brand/40 hover:text-brand"
       >
-        <span aria-hidden className="text-[13px] leading-none">
-          {country ? flagEmoji(country) : "🌎"}
-        </span>
+        <Globe aria-hidden className="h-3.5 w-3.5" />
         <span>{country ?? "—"}</span>
       </a>
     </div>

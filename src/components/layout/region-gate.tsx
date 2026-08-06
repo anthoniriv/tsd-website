@@ -122,7 +122,14 @@ export function RegionGate({
         setOpen(next);
       }}
     >
-      <DialogContent data-region-gate showCloseButton={false} className="sm:max-w-[440px]">
+      <DialogContent
+        data-region-gate
+        showCloseButton={false}
+        className="sm:max-w-[440px]"
+        // El blur del backdrop repinta toda la portada detrás del desplegable
+        // nativo; en Windows eso se nota como lag mientras el modal está abierto.
+        overlayClassName="bg-black/30 backdrop-blur-none supports-backdrop-filter:backdrop-blur-none"
+      >
         <div className="flex flex-col gap-5 px-1 pt-2">
           <div className="space-y-2 text-center">
             <DialogTitle className="text-xl font-extrabold tracking-tight text-text-main">
@@ -151,7 +158,7 @@ export function RegionGate({
                   <optgroup key={group.continent} label={dict.continents[group.continent]}>
                     {group.items.map((c) => (
                       <option key={c.code} value={c.code}>
-                        {c.flag} {c.name}
+                        {c.name}
                       </option>
                     ))}
                   </optgroup>

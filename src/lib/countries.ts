@@ -51,15 +51,10 @@ export function langForCountry(code: string | null | undefined): Lang {
   return code && SPANISH.has(code.toUpperCase()) ? "es" : "en";
 }
 
-/** 🇲🇽 a partir del código: dos "regional indicator symbols". */
-export function flagEmoji(code: string): string {
-  return String.fromCodePoint(
-    ...code
-      .toUpperCase()
-      .split("")
-      .map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-  );
-}
+// Sin banderas emoji: Windows no las tiene (Segoe UI Emoji no incluye los
+// "regional indicator symbols") y las degrada a dos letritas, que es lo que se
+// veía en el selector. Para banderas de verdad haría falta un set de imágenes
+// y un desplegable propio — un <option> nativo no admite imágenes.
 
 /** Nombre del país en el idioma activo. Cae al código si el runtime no lo conoce. */
 export function countryName(code: string, lang: Lang): string {
@@ -88,10 +83,10 @@ const BY_CONTINENT: Record<Continent, readonly string[]> = {
 export function countriesByContinent(
   continent: Continent,
   lang: Lang,
-): { code: string; name: string; flag: string }[] {
+): { code: string; name: string }[] {
   const collator = new Intl.Collator(lang);
   return BY_CONTINENT[continent]
-    .map((code) => ({ code, name: countryName(code, lang), flag: flagEmoji(code) }))
+    .map((code) => ({ code, name: countryName(code, lang) }))
     .sort((a, b) => collator.compare(a.name, b.name));
 }
 
