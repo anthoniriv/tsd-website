@@ -16,7 +16,7 @@ export type ShippingSettings = {
 
 /**
  * Lee (o crea) la fila de ajustes. Cacheado por request. Si no existe todavía —p. ej.
- * una BD sin seed— la crea con valores por defecto (envío gratis, sin ETA).
+ * una BD sin seed— la crea con valores por defecto (envío por confirmar, sin ETA).
  */
 export const getSettings = cache(async (): Promise<AppSettings> => {
   const [row] = await db

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
-import { ACCENT, formatPrice, type JaltestLine } from "@/lib/products";
+import type { JaltestLine } from "@/lib/products";
 import { getHardware, getJaltestLines } from "@/lib/catalog";
 import { getLocaleData } from "@/lib/i18n.server";
 import { ProductHero } from "@/components/product/product-hero";
 import { ProductGrid } from "@/components/product/product-grid";
 import { SmartImage } from "@/components/ui/smart-image";
 import { cn } from "@/lib/utils";
-import { JaltestLogo } from "@/components/product/jaltest-logo";
+import { RuggedHardwareSection } from "@/components/product/rugged-hardware-section";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { dict } = await getLocaleData();
@@ -81,42 +81,7 @@ export default async function ProductoPage() {
           <ProductHero key={line.id} line={line} />
         ))}
 
-      {/* Panasonic / hardware rugged (dentro del wrapper: hereda la base blanca
-          continua y deja ver el sangrado del gris de MHE como su fondo) */}
-      <section className="relative overflow-x-clip pt-10 pb-16 sm:pt-12 sm:pb-20">
-        <div className="mx-auto grid w-full items-center gap-6 px-6 md:grid-cols-[minmax(420px,1fr)_minmax(300px,0.5fr)] md:gap-8 md:px-[6vw]">
-          <div className="max-w-[680px]">
-            <p className="text-[24px] font-black uppercase leading-none tracking-normal text-[#666]">
-              {p.panasonic.kicker}
-            </p>
-            {/* Las dos marcas con las que trabaja TDS. Los logos oficiales
-                sustituirán al texto cuando el cliente los mande. */}
-            <p className="mt-1 flex flex-wrap items-baseline gap-x-5 text-[clamp(40px,5.6vw,64px)] font-black leading-[0.95] tracking-normal text-black">
-              <span>{p.panasonic.brand}</span>
-              <span>{p.panasonic.brand2}</span>
-            </p>
-            <div className="mt-5 space-y-4 text-[15px] font-medium leading-[1.6] text-[#666]">
-              <p>{p.panasonic.p1}</p>
-              <p>{p.panasonic.p2}</p>
-            </div>
-          </div>
-          {/* Una laptop y una tablet en vez de la foto de la técnica */}
-          <div className="mx-auto grid w-full max-w-[380px] grid-cols-2 items-center gap-4">
-            <SmartImage
-              src="/images/laptop.png"
-              alt={p.panasonic.imgAlt}
-              fit="contain"
-              wrapperClassName="aspect-square w-full bg-transparent"
-            />
-            <SmartImage
-              src="https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media/hardware-tablet-jaltest-26b9afab.png"
-              alt={p.panasonic.imgAlt2}
-              fit="contain"
-              wrapperClassName="aspect-square w-full bg-transparent"
-            />
-          </div>
-        </div>
-      </section>
+        <RuggedHardwareSection copy={p.panasonic} />
       </section>
 
       {/* Grids de hardware */}

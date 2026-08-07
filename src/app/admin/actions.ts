@@ -449,8 +449,6 @@ export async function updateShippingSettingsAction(
 
   const parsed = z
     .object({
-      // El admin ingresa dólares; se guardan centavos.
-      shippingAmount: z.coerce.number().min(0, "El costo no puede ser negativo."),
       etaEs: z.string().trim().optional(),
       etaEn: z.string().trim().optional(),
     })
@@ -458,19 +456,18 @@ export async function updateShippingSettingsAction(
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
   const d = parsed.data;
 
-  const shippingCents = Math.round(d.shippingAmount * 100);
   const shippingEta =
     d.etaEs || d.etaEn ? { es: d.etaEs ?? "", en: d.etaEn ?? "" } : null;
 
   await db
     .insert(appSettings)
-    .values({ id: SETTINGS_ID, shippingCents, shippingEta, updatedAt: new Date() })
+    .values({ id: SETTINGS_ID, shippingCents: 0, shippingEta, updatedAt: new Date() })
     .onConflictDoUpdate({
       target: appSettings.id,
-      set: { shippingCents, shippingEta, updatedAt: new Date() },
+      set: { shippingCents: 0, shippingEta, updatedAt: new Date() },
     });
 
-  // El costo/ETA aparecen en checkout y seguimiento (rutas públicas dinámicas).
+  // El ETA aparece en checkout y seguimiento (rutas públicas dinámicas).
   revalidatePublic();
   revalidatePath("/admin/ajustes");
   return { ok: true };

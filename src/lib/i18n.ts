@@ -161,13 +161,40 @@ const es = {
   producto: {
     srHeading: "Catálogo Jaltest: kits CV, OHW, AGV, Marine y MHE, hardware rugged y accesorios",
     panasonic: {
-      kicker: "Catálogo de tablets y laptops",
-      brand: "Panasonic",
-      brand2: "Getac",
-      p1: "Las laptops y tablets rugged están diseñadas para soportar las condiciones más exigentes de trabajo en talleres, flotas, construcción, minería y operaciones de campo. Resistentes al polvo, agua, vibraciones, golpes y temperaturas extremas, ofrecen el rendimiento y la confiabilidad necesarios para trabajar donde una computadora convencional no sobreviviría.",
-      p2: "En Tech Diagnostic Solutions no solo te ayudamos a adquirir el equipo adecuado, también te brindamos asesoría especializada para identificar la mejor opción según tu operación, presupuesto y necesidades. Trabajamos con marcas reconocidas como Panasonic Toughbook, Getac y Dell Rugged.",
-      imgAlt: "Laptop rugged Panasonic Toughbook",
-      imgAlt2: "Tablet rugged Getac",
+      kicker: "Laptops y tablets",
+      title: "Rugged",
+      taglineAccent: "Rendimiento",
+      tagline: "que resiste.",
+      p1: "Las laptops y tablets rugged Panasonic, Dell y Getac están diseñadas para soportar los entornos más exigentes. Con certificación de grado militar y resistencia al agua, polvo, vibraciones y caídas, ofrecen un desempeño confiable en cualquier condición.",
+      p2: "Ideales para talleres, equipos de campo, flotas y mantenimiento industrial. Trabaja con confianza y maximiza tu productividad con tecnología que no te detiene.",
+      devicesAlt: "Laptops y tablet rugged Panasonic Toughbook, Dell y Getac",
+      features: [
+        { title: "Resistencia extrema", desc: "Certificación MIL-STD-810H, resistente a caídas, golpes, polvo y agua." },
+        { title: "Pantalla de alto rendimiento", desc: "Visibilidad perfecta incluso bajo luz solar directa." },
+        { title: "Batería de larga duración", desc: "Autonomía confiable para jornadas completas de trabajo." },
+        { title: "Conectividad completa", desc: "Puertos y opciones de conexión para cualquier entorno operativo." },
+        { title: "Diseño modular y versátil", desc: "Soluciones flexibles que se adaptan a tu forma de trabajar." },
+      ],
+      brands: [
+        {
+          name: "Panasonic Toughbook",
+          desc: "Máxima durabilidad y rendimiento para los entornos más exigentes.",
+          bullets: ["Diseñadas para durar", "Rendimiento sin compromisos", "Seguridad de nivel empresarial", "Soporte y repuestos globales"],
+        },
+        {
+          name: "Dell Technologies",
+          desc: "Potencia, confiabilidad y versatilidad para cada tarea.",
+          bullets: ["Alto rendimiento", "Administración sencilla", "Seguridad avanzada", "Ecosistema empresarial"],
+        },
+        {
+          name: "Getac",
+          desc: "Robustez y tecnología especializada para trabajo sin límites.",
+          bullets: ["Resistencia comprobada", "Conectividad avanzada", "Diseñadas para profesionales", "Productividad en movimiento"],
+        },
+      ],
+      sectorsTitle: "Diseñadas para profesionales de múltiples sectores",
+      sectors: ["Talleres y mantenimiento", "Flotas y transporte", "Construcción y minería", "Seguridad pública", "Energía y servicios", "Industria y manufactura", "Agricultura y entornos rurales", "Marítimo y logística"],
+      trust: ["Tecnología confiable para los que no pueden detenerse", "100% confiable", "Diseñadas para uso profesional 24/7", "Soporte técnico especializado"],
     },
     grids: {
       tabletTitle: "Tablet",
@@ -276,6 +303,7 @@ const es = {
     category: "Categoría",
     allCategories: "Todas",
     categories: {
+      jaltest: "Kits Jaltest",
       laptop: "Laptops y tablets",
       cable: "Cables y adaptadores",
       finder: "Cable finder",
@@ -306,7 +334,7 @@ const es = {
     askStock: "Consultar disponibilidad por WhatsApp",
     askAdvisor: "¿Dudas? Consulta con un asesor",
     related: "También te puede interesar",
-    learnMore: "Conoce más de este producto",
+    learnMore: "Conocer más acerca de este producto",
     trust: {
       shipping: "Envío desde Panamá",
       shippingHint: "Despacho en 24–48 h hábiles",
@@ -347,9 +375,9 @@ const es = {
     postalCode: "Código postal",
     country: "País",
     shippingCost: "Envío",
-    freeShipping: "Gratis",
+    freeShipping: "Costo por confirmar",
     shippingNotice:
-      "El costo de envío se confirma apenas confirmemos tu compra: te escribimos con el monto exacto antes de despachar.",
+      "El costo de envío se confirmará apenas confirmemos tu compra. Te enviaremos el monto exacto antes de despachar.",
     estimatedDelivery: "Entrega estimada",
     pay: "Pagar",
     paying: "Redirigiendo al pago…",
@@ -381,7 +409,9 @@ const es = {
     subtotal: "Subtotal",
     discount: "Descuento",
     shippingFree: "Envío",
-    shippingCalc: "Se calcula al confirmar",
+    shippingCalc: "Costo por confirmar",
+    shippingNotice:
+      "El costo de envío se confirmará apenas confirmemos tu compra. Te enviaremos el monto exacto antes de despachar.",
     total: "Total",
     stockWarning: "Solo quedan {n} unidades de este producto.",
     couponErrors: {
@@ -404,7 +434,9 @@ const es = {
     subtotal: "Subtotal",
     discount: "Descuento",
     shipping: "Envío",
-    freeShipping: "Gratis",
+    freeShipping: "Costo por confirmar",
+    shippingNotice:
+      "El costo de envío se confirmará apenas confirmemos tu compra. Te enviaremos el monto exacto antes de despachar.",
     estimatedDelivery: "Entrega estimada",
     items: "Artículos",
     qty: "Cant.",
@@ -582,13 +614,40 @@ const en: Dict = {
   producto: {
     srHeading: "Jaltest catalog: CV, OHW, AGV, Marine and MHE kits, rugged hardware and accessories",
     panasonic: {
-      kicker: "Tablet and laptop catalog",
-      brand: "Panasonic",
-      brand2: "Getac",
-      p1: "Rugged laptops and tablets are built to withstand the most demanding working conditions in shops, fleets, construction, mining and field operations. Resistant to dust, water, vibration, drops and extreme temperatures, they deliver the performance and reliability you need to work where a conventional computer wouldn't survive.",
-      p2: "At Tech Diagnostic Solutions we not only help you get the right equipment, we also provide specialized guidance to identify the best option for your operation, budget and needs. We work with trusted brands such as Panasonic Toughbook, Getac and Dell Rugged.",
-      imgAlt: "Panasonic Toughbook rugged laptop",
-      imgAlt2: "Getac rugged tablet",
+      kicker: "Laptops and tablets",
+      title: "Rugged",
+      taglineAccent: "Performance",
+      tagline: "that endures.",
+      p1: "Panasonic, Dell and Getac rugged laptops and tablets are designed for the most demanding environments. Military-grade certification and resistance to water, dust, vibration and drops deliver reliable performance in any conditions.",
+      p2: "Ideal for workshops, field teams, fleets and industrial maintenance. Work with confidence and maximize productivity with technology that never slows you down.",
+      devicesAlt: "Panasonic Toughbook, Dell and Getac rugged laptops and tablet",
+      features: [
+        { title: "Extreme durability", desc: "MIL-STD-810H certified and resistant to drops, impacts, dust and water." },
+        { title: "High-performance display", desc: "Perfect visibility even in direct sunlight." },
+        { title: "Long-lasting battery", desc: "Reliable autonomy for full working days." },
+        { title: "Complete connectivity", desc: "Ports and connection options for any operating environment." },
+        { title: "Modular, versatile design", desc: "Flexible solutions that adapt to the way you work." },
+      ],
+      brands: [
+        {
+          name: "Panasonic Toughbook",
+          desc: "Maximum durability and performance for the most demanding environments.",
+          bullets: ["Built to last", "Performance without compromise", "Enterprise-grade security", "Global support and parts"],
+        },
+        {
+          name: "Dell Technologies",
+          desc: "Power, reliability and versatility for every task.",
+          bullets: ["High performance", "Simple management", "Advanced security", "Enterprise ecosystem"],
+        },
+        {
+          name: "Getac",
+          desc: "Rugged technology engineered for work without limits.",
+          bullets: ["Proven durability", "Advanced connectivity", "Designed for professionals", "Productivity on the move"],
+        },
+      ],
+      sectorsTitle: "Designed for professionals across multiple industries",
+      sectors: ["Workshops and maintenance", "Fleets and transportation", "Construction and mining", "Public safety", "Energy and services", "Industry and manufacturing", "Agriculture and rural environments", "Maritime and logistics"],
+      trust: ["Reliable technology for those who cannot stop", "100% reliable", "Designed for professional use 24/7", "Specialized technical support"],
     },
     grids: {
       tabletTitle: "Tablet",
@@ -696,6 +755,7 @@ const en: Dict = {
     category: "Category",
     allCategories: "All",
     categories: {
+      jaltest: "Jaltest kits",
       laptop: "Laptops & tablets",
       cable: "Cables & adapters",
       finder: "Cable finder",
@@ -767,9 +827,9 @@ const en: Dict = {
     postalCode: "ZIP / Postal code",
     country: "Country",
     shippingCost: "Shipping",
-    freeShipping: "Free",
+    freeShipping: "Cost to be confirmed",
     shippingNotice:
-      "Shipping cost is confirmed as soon as we confirm your order: we'll email you the exact amount before dispatch.",
+      "We will confirm the shipping cost as soon as we confirm your order and send you the exact amount before dispatch.",
     estimatedDelivery: "Estimated delivery",
     pay: "Pay",
     paying: "Redirecting to payment…",
@@ -801,7 +861,9 @@ const en: Dict = {
     subtotal: "Subtotal",
     discount: "Discount",
     shippingFree: "Shipping",
-    shippingCalc: "Calculated at confirmation",
+    shippingCalc: "Cost to be confirmed",
+    shippingNotice:
+      "We will confirm the shipping cost as soon as we confirm your order and send you the exact amount before dispatch.",
     total: "Total",
     stockWarning: "Only {n} units left of this product.",
     couponErrors: {
@@ -824,7 +886,9 @@ const en: Dict = {
     subtotal: "Subtotal",
     discount: "Discount",
     shipping: "Shipping",
-    freeShipping: "Free",
+    freeShipping: "Cost to be confirmed",
+    shippingNotice:
+      "We will confirm the shipping cost as soon as we confirm your order and send you the exact amount before dispatch.",
     estimatedDelivery: "Estimated delivery",
     items: "Items",
     qty: "Qty",

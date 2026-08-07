@@ -123,6 +123,14 @@ const s = StyleSheet.create({
   },
   grandLabel: { fontSize: 11, fontWeight: 900, color: C.text },
   grandValue: { fontSize: 16, fontWeight: 900, color: C.brandDark },
+  shippingNote: {
+    marginTop: 14,
+    padding: 10,
+    backgroundColor: C.soft,
+    color: C.secondary,
+    fontSize: 9,
+    lineHeight: 1.5,
+  },
 
   footer: {
     position: "absolute",
@@ -156,7 +164,9 @@ const COPY = {
     subtotal: "Subtotal",
     discount: "Descuento",
     shipping: "Envío",
-    freeShipping: "Gratis",
+    freeShipping: "Costo por confirmar",
+    shippingNotice:
+      "El costo de envío se confirmará apenas confirmemos tu compra. Te enviaremos el monto exacto antes de despachar.",
     thanks: "Gracias por tu compra.",
     status: {
       pending: "Pendiente de pago",
@@ -183,7 +193,9 @@ const COPY = {
     subtotal: "Subtotal",
     discount: "Discount",
     shipping: "Shipping",
-    freeShipping: "Free",
+    freeShipping: "Cost to be confirmed",
+    shippingNotice:
+      "We will confirm the shipping cost as soon as we confirm your order and send you the exact amount before dispatch.",
     thanks: "Thank you for your purchase.",
     status: {
       pending: "Awaiting payment",
@@ -337,6 +349,8 @@ function Receipt({ order }: { order: OrderWithItems }) {
             </View>
           </View>
         </View>
+
+        {order.shippingCents === 0 && <Text style={s.shippingNote}>{t.shippingNotice}</Text>}
 
         <Text style={s.footer} fixed>
           {t.thanks} · {CONTACT.company} · {CONTACT.city}

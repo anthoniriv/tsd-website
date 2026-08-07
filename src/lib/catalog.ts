@@ -8,7 +8,7 @@ import "server-only";
 import { cache } from "react";
 import { and, asc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { productPrices, products, banners } from "@/db/schema";
+import { products, banners } from "@/db/schema";
 import type { PriceTier } from "@/lib/i18n";
 import type { AccentKey, HardwareItem, JaltestLine } from "@/lib/products";
 
@@ -70,6 +70,8 @@ export const getJaltestLines = cache(async (tier: PriceTier): Promise<JaltestLin
 });
 
 type HardwareCategory = HardwareItem["category"];
+export type ShopCategory = HardwareCategory | "jaltest";
+type StoreItem = Omit<HardwareItem, "category">;
 
 export const getHardware = cache(
   async (
@@ -167,17 +169,17 @@ function toHardware(r: {
  * Buscador + filtros del catálogo. `q` busca en el nombre de AMBOS idiomas (el JSONB
  * se aplana con ->>), así el término funciona sea cual sea el locale activo.
  */
-export const searchHardware = cache(
+export const searchProducts = cache(
   async (opts: {
     tier: PriceTier;
     q?: string;
-    category?: HardwareCategory;
+    category?: ShopCategory;
     minCents?: number;
     maxCents?: number;
     inStock?: boolean;
-  }): Promise<HardwareItem[]> => {
+  }): Promise<StoreItem[]> => {
     const price = priceFor(opts.tier);
-    const conds = [eq(products.kind, "hardware"), eq(products.status, "published")];
+    const conds = [eq(products.status, "published")];
 
     if (opts.q?.trim()) {
       const needle = `%${opts.q.trim()}%`;
@@ -191,11 +193,13 @@ export const searchHardware = cache(
         )!,
       );
     }
-    if (opts.category) conds.push(eq(products.category, opts.category));
+    if (opts.category === "jaltest") conds.push(eq(products.kind, "jaltest"));
+    else if (opts.category)
+      conds.push(and(eq(products.kind, "hardware"), eq(products.category, opts.category))!);
     if (opts.inStock) conds.push(sql`${products.stock} > 0`);
 
     const rows = await db
-      .select({ ...baseCols, priceCents: price })
+      .select({ ...baseCols, kind: products.kind, priceCents: price })
       .from(products)
       .where(and(...conds))
       .orderBy(asc(products.sort));
@@ -203,7 +207,15 @@ export const searchHardware = cache(
     // El filtro de precio se aplica en memoria: el precio es una subquery escalar y el
     // catálogo es pequeño (decenas de filas), no compensa complicar el SQL.
     return rows
-      .map(toHardware)
+      .map((r) => ({
+        ...toHardware(r),
+        blurb:
+          r.blurb ??
+          {
+            es: `Solución de diagnóstico profesional Jaltest ${r.variant ?? ""}.`,
+            en: `Professional Jaltest ${r.variant ?? ""} diagnostic solution.`,
+          },
+      }))
       .filter(
         (i) =>
           (opts.minCents == null || (i.priceCents ?? 0) >= opts.minCents) &&

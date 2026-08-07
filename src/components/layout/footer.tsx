@@ -48,9 +48,21 @@ export function Footer({ dict }: { dict: Dict }) {
           <div className="space-y-3 text-sm leading-relaxed">
             <Logo variant="white" />
             <p className="max-w-xs text-neutral-300">{dict.meta.siteDescription}</p>
-            <p className="text-xs uppercase tracking-wide text-neutral-400">
+            <Link
+              href="https://integrasgp.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              prefetch={false}
+              aria-label={`${dict.footer.partOfGroup} — integrasgp.com`}
+              className="inline-flex items-center gap-2 rounded-full border border-[#4fc9e1]/35 bg-[#00609c]/20 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#a6d8ed] transition-colors hover:border-[#4fc9e1] hover:bg-[#00609c]/40 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4fc9e1]"
+            >
+              <span
+                aria-hidden
+                className="h-1.5 w-1.5 rounded-full bg-[#4fc9e1] shadow-[0_0_0_3px_rgba(79,201,225,0.16)]"
+              />
               {dict.footer.partOfGroup}
-            </p>
+              <span aria-hidden>↗</span>
+            </Link>
           </div>
 
           <div className="text-sm leading-relaxed">

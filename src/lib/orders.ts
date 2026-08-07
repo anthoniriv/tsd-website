@@ -16,7 +16,6 @@ import {
 import type { Lang, PriceTier } from "@/lib/i18n";
 import { priceMapFor } from "@/lib/pricing";
 import { consumeCoupon, validateCoupon } from "@/lib/coupons";
-import { getShippingSettings } from "@/lib/settings";
 
 export type DraftLine = { id: string; qty: number };
 
@@ -98,10 +97,6 @@ export async function createPendingOrder(input: {
     couponCode = res.coupon.code;
   }
 
-  // Costo de envío global (config del panel). Snapshot en el pedido: si luego cambia,
-  // este pedido conserva lo que se cobró.
-  const { shippingCents } = await getShippingSettings();
-
   const [order] = await db
     .insert(orders)
     .values({
@@ -117,9 +112,9 @@ export async function createPendingOrder(input: {
       subtotalCents,
       discountCents,
       couponCode,
-      shippingCents,
-      // Sin impuestos. El envío se suma; el descuento se resta (nunca por debajo de 0).
-      totalCents: Math.max(subtotalCents - discountCents, 0) + shippingCents,
+      // El envío se cotiza y cobra después de confirmar la compra.
+      shippingCents: 0,
+      totalCents: Math.max(subtotalCents - discountCents, 0),
       status: "pending",
     })
     .returning();

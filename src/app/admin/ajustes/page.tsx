@@ -17,7 +17,6 @@ export default async function AjustesPage() {
 
       {canEdit ? (
         <ShippingSettingsForm
-          shippingAmount={(settings.shippingCents / 100).toFixed(2)}
           etaEs={settings.shippingEta?.es ?? ""}
           etaEn={settings.shippingEta?.en ?? ""}
         />

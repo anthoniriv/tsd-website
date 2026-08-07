@@ -5,6 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { queueDb, resetDb, valuesWith } from "@/test/db-mock";
 import type { OrderWithItems } from "@/lib/orders";
 
+const sendEmail = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({ data: { id: "re_1" }, error: null }),
+);
+
 vi.mock("@/db", async () => {
   const { installDbMock } = await import("@/test/db-mock");
   return { db: installDbMock() };
@@ -16,7 +20,7 @@ vi.mock("@/lib/pdf/receipt", () => ({
 }));
 vi.mock("resend", () => ({
   Resend: vi.fn(() => ({
-    emails: { send: vi.fn().mockResolvedValue({ data: { id: "re_1" }, error: null }) },
+    emails: { send: sendEmail },
   })),
 }));
 
@@ -30,13 +34,13 @@ const order = (): OrderWithItems =>
     phone: null,
     shipping: { line1: "Calle 1", city: "Doral", state: "Florida", country: "United States" },
     billing: null,
-    locale: "en-US",
+    locale: "en",
     tier: "us",
     subtotalCents: 20000,
     discountCents: 0,
     couponCode: null,
-    shippingCents: 1500,
-    totalCents: 21500,
+    shippingCents: 0,
+    totalCents: 20000,
     currency: "USD",
     status: "paid",
     stripeSessionId: null,
@@ -56,7 +60,10 @@ const order = (): OrderWithItems =>
     ],
   }) as OrderWithItems;
 
-beforeEach(() => resetDb());
+beforeEach(() => {
+  resetDb();
+  sendEmail.mockClear();
+});
 afterEach(() => vi.unstubAllEnvs());
 
 describe("sendOrderConfirmation → order_emails", () => {
@@ -84,6 +91,11 @@ describe("sendOrderConfirmation → order_emails", () => {
     const res = await email.sendOrderConfirmation(order());
 
     expect(res).toMatchObject({ ok: true });
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        html: expect.stringContaining("We will confirm the shipping cost"),
+      }),
+    );
     expect(valuesWith("kind")!.status).toBe("sent");
   });
 });

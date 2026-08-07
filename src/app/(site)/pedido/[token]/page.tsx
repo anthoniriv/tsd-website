@@ -236,10 +236,17 @@ export default async function PedidoPage({
 
             <div className="flex justify-between">
               <span className="text-text-secondary">{d.shipping}</span>
-              <span className="font-semibold tabular-nums">
+              <span className="font-semibold">
                 {order.shippingCents > 0 ? formatPrice(order.shippingCents) : d.freeShipping}
               </span>
             </div>
+
+            {order.shippingCents === 0 && (
+              <p className="flex items-start gap-2 rounded-lg border border-brand/25 bg-brand/5 px-3 py-2.5 text-xs leading-snug text-text-secondary">
+                <Truck className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                {d.shippingNotice}
+              </p>
+            )}
 
             {shippingEta && (
               <p className="text-xs text-text-muted">

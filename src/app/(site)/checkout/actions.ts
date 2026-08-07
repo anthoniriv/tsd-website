@@ -109,20 +109,6 @@ export async function startCheckout(
             },
           ]
         : undefined,
-    // El envío va como shipping_option (tarifa fija) para que el total de Stripe cuadre
-    // con `order.totalCents` (que ya incluye el envío).
-    shipping_options:
-      order.shippingCents > 0
-        ? [
-            {
-              shipping_rate_data: {
-                type: "fixed_amount",
-                display_name: "Envío",
-                fixed_amount: { amount: order.shippingCents, currency: "usd" },
-              },
-            },
-          ]
-        : undefined,
     success_url: `${siteUrl()}/pedido/${order.publicToken}?pago=ok`,
     cancel_url: `${siteUrl()}/checkout?cancelado=1`,
     metadata: { orderId: order.id, orderNumber: order.orderNumber },

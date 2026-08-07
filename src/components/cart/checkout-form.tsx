@@ -19,12 +19,10 @@ import { CountryStateFields } from "@/components/cart/country-state-fields";
 export function CheckoutForm({
   dict,
   cartDict,
-  shippingCents,
   shippingEta,
 }: {
   dict: Dict["checkout"];
   cartDict: Dict["cartPage"];
-  shippingCents: number;
   shippingEta: string | null;
 }) {
   const { lines, count, ready, couponCode } = useCart();
@@ -63,7 +61,7 @@ export function CheckoutForm({
 
   const qtyOf = (id: string) => lines.find((l) => l.id === id)?.qty ?? 0;
   const subtotal = items.reduce((sum, i) => sum + i.priceCents * qtyOf(i.id), 0);
-  const total = Math.max(0, subtotal - discountCents) + shippingCents;
+  const total = Math.max(0, subtotal - discountCents);
 
   // Carrito vacío: no hay nada que pagar, de vuelta al paso 1.
   useEffect(() => {
@@ -194,9 +192,7 @@ export function CheckoutForm({
 
           <div className="flex justify-between">
             <span className="text-text-secondary">{dict.shippingCost}</span>
-            <span className="font-bold tabular-nums">
-              {shippingCents > 0 ? formatPrice(shippingCents) : dict.freeShipping}
-            </span>
+            <span className="font-bold">{dict.freeShipping}</span>
           </div>
 
           {shippingEta && (

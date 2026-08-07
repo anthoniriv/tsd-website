@@ -76,28 +76,28 @@ describe("updateShippingSettingsAction — envío", () => {
     return f;
   };
 
-  it("convierte dólares a centavos y guarda el ETA localizado", async () => {
+  it("mantiene el envío por confirmar y guarda el ETA localizado", async () => {
     queueDb([]);
     const res = await updateShippingSettingsAction({}, fd({
-      shippingAmount: "12.50",
       etaEs: "3–5 días",
       etaEn: "3–5 days",
     }));
     expect(res.ok).toBe(true);
     const v = valuesWith("shippingCents")!;
-    expect(v.shippingCents).toBe(1250);
+    expect(v.shippingCents).toBe(0);
     expect(v.shippingEta).toEqual({ es: "3–5 días", en: "3–5 days" });
   });
 
   it("deja el ETA en null si no se ingresó texto", async () => {
     queueDb([]);
-    await updateShippingSettingsAction({}, fd({ shippingAmount: "0", etaEs: "", etaEn: "" }));
+    await updateShippingSettingsAction({}, fd({ etaEs: "", etaEn: "" }));
     expect(valuesWith("shippingCents")!.shippingEta).toBeNull();
   });
 
-  it("rechaza un costo negativo", async () => {
-    const res = await updateShippingSettingsAction({}, fd({ shippingAmount: "-5" }));
-    expect(res.error).toBeTruthy();
+  it("ignora un costo legado manipulado y conserva el envío pendiente", async () => {
+    queueDb([]);
+    await updateShippingSettingsAction({}, fd({ shippingAmount: "99", etaEs: "", etaEn: "" }));
+    expect(valuesWith("shippingCents")!.shippingCents).toBe(0);
   });
 });
 

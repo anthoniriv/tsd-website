@@ -10,11 +10,9 @@ import { Label } from "@/components/ui/label";
 const initial: ActionState = {};
 
 export function ShippingSettingsForm({
-  shippingAmount,
   etaEs,
   etaEn,
 }: {
-  shippingAmount: string;
   etaEs: string;
   etaEn: string;
 }) {
@@ -28,21 +26,10 @@ export function ShippingSettingsForm({
     <form action={action} className="max-w-lg space-y-5 rounded-2xl border border-border bg-white p-6">
       <h2 className="text-sm font-bold uppercase tracking-wide text-text-secondary">Envío</h2>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="shippingAmount">Costo de envío (USD)</Label>
-        <Input
-          id="shippingAmount"
-          name="shippingAmount"
-          type="number"
-          min="0"
-          step="0.01"
-          defaultValue={shippingAmount}
-          required
-        />
-        <p className="text-xs text-text-muted">
-          Se suma al total y se cobra vía Stripe. Usa 0 para envío gratis.
-        </p>
-      </div>
+      <p className="rounded-xl border border-brand/25 bg-brand/5 px-4 py-3 text-sm text-text-secondary">
+        El costo de envío no se cobra en Stripe: se confirma con el cliente después de la
+        compra y antes del despacho.
+      </p>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">

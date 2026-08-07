@@ -265,6 +265,11 @@ export function CartPage({
           <Row label={dict.shippingFree} value={dict.shippingCalc} muted />
         </div>
 
+        <p className="flex items-start gap-2 rounded-lg border border-brand/25 bg-brand/5 px-3 py-2.5 text-xs leading-snug text-text-secondary">
+          <Truck className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+          {dict.shippingNotice}
+        </p>
+
         {/* Cupón */}
         {couponCode && discountCents > 0 ? (
           <div className="flex items-center justify-between gap-3 rounded-xl bg-jt-agv/10 px-4 py-3">

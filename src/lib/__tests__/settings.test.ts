@@ -25,7 +25,7 @@ describe("getShippingSettings", () => {
     expect(res.shippingEta).toEqual({ es: "3–5 días", en: "3–5 days" });
   });
 
-  it("crea la fila por defecto si aún no existe (envío gratis)", async () => {
+  it("crea la fila por defecto si aún no existe (envío por confirmar)", async () => {
     vi.resetModules();
     const settings = await import("@/lib/settings");
     // 1ª lectura vacía → inserta con onConflictDoNothing → devuelve la fila creada.

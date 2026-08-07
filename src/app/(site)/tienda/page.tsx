@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { getLocaleData } from "@/lib/i18n.server";
-import { searchHardware } from "@/lib/catalog";
+import { searchProducts, type ShopCategory } from "@/lib/catalog";
 import { formatPrice } from "@/lib/products";
-import type { HardwareItem } from "@/lib/products";
 import { ProductCard } from "@/components/product/product-card";
 import { ShopFilters } from "@/components/product/shop-filters";
 
@@ -19,9 +18,16 @@ type Search = {
   stock?: string;
 };
 
-const CATEGORIES: HardwareItem["category"][] = ["laptop", "cable", "finder"];
+const CATEGORIES: ShopCategory[] = [
+  "jaltest",
+  "laptop",
+  "cable",
+  "finder",
+  "renewal",
+  "upgrade",
+];
 
-function toCategory(value: string | undefined): HardwareItem["category"] | undefined {
+function toCategory(value: string | undefined): ShopCategory | undefined {
   return CATEGORIES.find((c) => c === value);
 }
 
@@ -40,7 +46,7 @@ export default async function TiendaPage({
   const { dict, lang, tier } = await getLocaleData();
   const sp = await searchParams;
 
-  const items = await searchHardware({
+  const items = await searchProducts({
     tier,
     q: sp.q,
     category: toCategory(sp.cat),

@@ -15,7 +15,9 @@ const es = {
   subtotal: "Subtotal",
   discount: "Descuento",
   shipping: "Envío",
-  freeShipping: "Gratis",
+  freeShipping: "Costo por confirmar",
+  shippingNotice:
+    "El costo de envío se confirmará apenas confirmemos tu compra. Te enviaremos el monto exacto antes de despachar.",
   total: "Total",
   shipTo: "Enviar a",
   billTo: "Facturar a",
@@ -80,7 +82,9 @@ const en: typeof es = {
   subtotal: "Subtotal",
   discount: "Discount",
   shipping: "Shipping",
-  freeShipping: "Free",
+  freeShipping: "Cost to be confirmed",
+  shippingNotice:
+    "We will confirm the shipping cost as soon as we confirm your order and send you the exact amount before dispatch.",
   total: "Total",
   shipTo: "Ship to",
   billTo: "Bill to",

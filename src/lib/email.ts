@@ -114,7 +114,8 @@ function itemsTable(order: OrderWithItems, lang: Lang): string {
         order.shippingCents > 0 ? formatPrice(order.shippingCents) : t.freeShipping,
       )}
       ${totalRow(t.total, formatPrice(order.totalCents), { big: true, color: BRAND.brandDark })}
-    </table>`;
+    </table>
+    ${order.shippingCents === 0 ? paragraph(`<strong>${t.shipping}:</strong> ${t.shippingNotice}`) : ""}`;
 }
 
 /** Cabecera común: nº de pedido, fecha y estado. */

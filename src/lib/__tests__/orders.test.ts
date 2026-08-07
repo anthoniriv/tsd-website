@@ -1,5 +1,5 @@
 // Pruebas FUNCIONALES del cálculo de importes al crear un pedido (con BD mockeada).
-// El punto crítico: el envío se SUMA y el descuento se RESTA, y ambos quedan en snapshot.
+// El pago inicial excluye el envío; solo cobra productos menos descuentos.
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { queueDb, resetDb, valuesWith } from "@/test/db-mock";
@@ -10,12 +10,10 @@ vi.mock("@/db", async () => {
 });
 vi.mock("@/lib/pricing", () => ({ priceMapFor: vi.fn() }));
 vi.mock("@/lib/coupons", () => ({ validateCoupon: vi.fn(), consumeCoupon: vi.fn() }));
-vi.mock("@/lib/settings", () => ({ getShippingSettings: vi.fn() }));
 
 import { createPendingOrder, OrderError } from "@/lib/orders";
 import { priceMapFor } from "@/lib/pricing";
 import { validateCoupon } from "@/lib/coupons";
-import { getShippingSettings } from "@/lib/settings";
 
 const PID = "11111111-1111-1111-1111-111111111111";
 
@@ -31,7 +29,7 @@ const productRow = (over: Record<string, unknown> = {}) => ({
 const input = (couponCode?: string) => ({
   lines: [{ id: PID, qty: 2 }],
   customer: { name: "Ana", email: "ANA@x.com" },
-  locale: "en-US" as const,
+  locale: "en" as const,
   tier: "us" as const,
   couponCode,
 });
@@ -43,32 +41,21 @@ beforeEach(() => {
   resetDb();
   vi.mocked(priceMapFor).mockResolvedValue(new Map([[PID, 10000]]));
   vi.mocked(validateCoupon).mockReset();
-  vi.mocked(getShippingSettings).mockResolvedValue({ shippingCents: 0, shippingEta: null });
 });
 
 describe("createPendingOrder — importes", () => {
-  it("suma el costo de envío al total y lo guarda en snapshot", async () => {
-    vi.mocked(getShippingSettings).mockResolvedValue({ shippingCents: 1500, shippingEta: null });
+  it("deja el envío por confirmar fuera del pago inicial", async () => {
     happyQueue();
 
     await createPendingOrder(input());
 
     const v = valuesWith("totalCents")!;
     expect(v.subtotalCents).toBe(20000); // 2 × 10000
-    expect(v.shippingCents).toBe(1500);
-    expect(v.totalCents).toBe(21500);
-  });
-
-  it("envío gratis (0) → total = subtotal", async () => {
-    happyQueue();
-    await createPendingOrder(input());
-    const v = valuesWith("totalCents")!;
     expect(v.shippingCents).toBe(0);
     expect(v.totalCents).toBe(20000);
   });
 
-  it("aplica descuento y luego suma envío: (subtotal − descuento) + envío", async () => {
-    vi.mocked(getShippingSettings).mockResolvedValue({ shippingCents: 1500, shippingEta: null });
+  it("aplica el descuento sin sumar envío", async () => {
     vi.mocked(validateCoupon).mockResolvedValue({
       ok: true,
       discountCents: 5000,
@@ -80,7 +67,8 @@ describe("createPendingOrder — importes", () => {
 
     const v = valuesWith("totalCents")!;
     expect(v.discountCents).toBe(5000);
-    expect(v.totalCents).toBe(16500); // (20000 − 5000) + 1500
+    expect(v.shippingCents).toBe(0);
+    expect(v.totalCents).toBe(15000);
   });
 
   it("rechaza si no hay stock suficiente", async () => {

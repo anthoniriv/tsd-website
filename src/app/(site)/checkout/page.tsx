@@ -26,7 +26,6 @@ export default async function CheckoutPage() {
         <CheckoutForm
           dict={dict.checkout}
           cartDict={dict.cartPage}
-          shippingCents={shipping.shippingCents}
           shippingEta={shipping.shippingEta?.[lang] ?? null}
         />
       </div>
