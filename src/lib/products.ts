@@ -48,7 +48,7 @@ export type HardwareItem = {
   slug?: string;
   stock?: number;
   blurb: Localized<string>;
-  category: "laptop" | "cable" | "finder";
+  category: "laptop" | "cable" | "finder" | "renewal" | "upgrade";
 };
 
 const R2 = "https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media";

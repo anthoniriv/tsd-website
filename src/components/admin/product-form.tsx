@@ -65,6 +65,8 @@ export function ProductForm({ product, prices }: Props) {
                 <option value="laptop">Laptop</option>
                 <option value="cable">Cable</option>
                 <option value="finder">Cable finder</option>
+                <option value="renewal">Renovación</option>
+                <option value="upgrade">Ampliación de cobertura</option>
               </select>
             </Field>
             <Field label="SKU">

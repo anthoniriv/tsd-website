@@ -35,7 +35,14 @@ export type Address = {
 };
 
 export const productKind = pgEnum("product_kind", ["jaltest", "hardware"]);
-export const productCategory = pgEnum("product_category", ["laptop", "cable", "finder"]);
+// `renewal` = renovación de licencia · `upgrade` = ampliación de cobertura.
+export const productCategory = pgEnum("product_category", [
+  "laptop",
+  "cable",
+  "finder",
+  "renewal",
+  "upgrade",
+]);
 export const productStatus = pgEnum("product_status", ["draft", "published"]);
 // Comercialmente solo hay dos mercados: `us` (USA/Canadá) y `world` (resto).
 // `latam` y `es` quedan en el enum porque los pedidos históricos los referencian

@@ -52,7 +52,7 @@ export type Localized<T> = Record<Lang, T>;
 // ─────────────────────────────────────────────────────────────────────────────
 
 const es = {
-  nav: { home: "Inicio", product: "Producto", shop: "Tienda", contact: "Contáctenos" },
+  nav: { home: "Inicio", product: "Soluciones", shop: "Tienda", contact: "Contáctenos" },
   header: {
     searchPlaceholder: "Buscar productos, kits, cables…",
     account: "Cuenta",
@@ -175,6 +175,10 @@ const es = {
       cablesTitle: "Cables",
       cablesAccent: "y Adaptadores.",
       finderTitle: "Cables Finder",
+      renewalTitle: "Renueva",
+      renewalAccent: "tu licencia.",
+      upgradeTitle: "Amplía",
+      upgradeAccent: "tu cobertura.",
     },
     renew: {
       heading: "No dejes que tu diagnóstico se quede atrás",
@@ -182,13 +186,41 @@ const es = {
       blockHeading: ["Los equipos evolucionan.", "Las tecnologías cambian.", "Las soluciones también."],
       blockBody:
         "Renueva tu licencia Jaltest y continúa trabajando con acceso a las últimas actualizaciones, nuevas coberturas y funciones avanzadas para mantener tu operación siempre un paso adelante.",
-      benefitsTitle: "Beneficios de renovar:",
+      tagline: "Mantente siempre un paso adelante.",
+      badge: "Una licencia activa es sinónimo de seguridad, eficiencia y rentabilidad.",
+      benefitsTitle: "Beneficios de renovar tu licencia:",
       benefits: [
-        "Nuevas marcas y modelos compatibles",
-        "Actualizaciones de funciones avanzadas",
-        "Información técnica actualizada",
-        "Soporte especializado",
-        "Mayor eficiencia en cada diagnóstico",
+        {
+          title: "Nuevas marcas, modelos y sistemas compatibles",
+          desc: "Cobertura ampliada para los equipos más recientes.",
+        },
+        {
+          title: "Actualizaciones de funciones avanzadas",
+          desc: "Nuevas capacidades de diagnóstico y programación.",
+        },
+        {
+          title: "Información técnica actualizada",
+          desc: "Diagramas, boletines y guías siempre al día.",
+        },
+        {
+          title: "Soporte especializado",
+          desc: "Asistencia experta cuando más lo necesitas.",
+        },
+        {
+          title: "Mayor eficiencia en cada diagnóstico",
+          desc: "Ahorra tiempo, reduce errores y aumenta tu productividad.",
+        },
+        {
+          title: "Sistemas de manejo de talleres (GRP) listos para funcionar",
+          desc: "Con tu licencia renovada sigues teniendo acceso completo a GRP para gestionar clientes, equipos, reportes y más.",
+        },
+      ],
+      chips: [
+        { title: "Descargas rápidas y seguras", desc: "Instala tus actualizaciones de forma sencilla." },
+        { title: "Compatibilidad garantizada", desc: "100% compatible con tu hardware Jaltest." },
+        { title: "Mejor desempeño del software", desc: "Más estabilidad, velocidad y nuevas funcionalidades." },
+        { title: "Protege tu inversión", desc: "Una licencia activa garantiza el máximo rendimiento de tu herramienta." },
+        { title: "Crece con tu negocio", desc: "Mantente competitivo con tecnología de diagnóstico de nivel OEM." },
       ],
       cta: "Solicitar información",
       hexAlt: "Técnico renovando licencia Jaltest",
@@ -247,6 +279,8 @@ const es = {
       laptop: "Laptops y tablets",
       cable: "Cables y adaptadores",
       finder: "Cable finder",
+      renewal: "Renovaciones",
+      upgrade: "Ampliación de cobertura",
     },
     priceRange: "Rango de precio",
     min: "Mín.",
@@ -439,7 +473,7 @@ const es = {
 export type Dict = typeof es;
 
 const en: Dict = {
-  nav: { home: "Home", product: "Product", shop: "Shop", contact: "Contact Us" },
+  nav: { home: "Home", product: "Solutions", shop: "Shop", contact: "Contact Us" },
   header: {
     searchPlaceholder: "Search products, kits, cables…",
     account: "Account",
@@ -562,6 +596,10 @@ const en: Dict = {
       cablesTitle: "Cables",
       cablesAccent: "& Adapters.",
       finderTitle: "Cable Finder",
+      renewalTitle: "Renew",
+      renewalAccent: "your license.",
+      upgradeTitle: "Expand",
+      upgradeAccent: "your coverage.",
     },
     renew: {
       heading: "Don't let your diagnostics fall behind",
@@ -569,13 +607,41 @@ const en: Dict = {
       blockHeading: ["Equipment evolves.", "Technologies change.", "So do the solutions."],
       blockBody:
         "Renew your Jaltest license and keep working with access to the latest updates, new coverage and advanced functions to keep your operation always one step ahead.",
-      benefitsTitle: "Benefits of renewing:",
+      tagline: "Always stay one step ahead.",
+      badge: "An active license means safety, efficiency and profitability.",
+      benefitsTitle: "Benefits of renewing your license:",
       benefits: [
-        "New compatible brands and models",
-        "Advanced function updates",
-        "Up-to-date technical information",
-        "Specialized support",
-        "Greater efficiency in every diagnosis",
+        {
+          title: "New compatible brands, models and systems",
+          desc: "Expanded coverage for the newest equipment.",
+        },
+        {
+          title: "Advanced function updates",
+          desc: "New diagnostic and programming capabilities.",
+        },
+        {
+          title: "Up-to-date technical information",
+          desc: "Diagrams, bulletins and guides always current.",
+        },
+        {
+          title: "Specialized support",
+          desc: "Expert assistance when you need it most.",
+        },
+        {
+          title: "Higher efficiency on every diagnosis",
+          desc: "Save time, reduce errors and increase productivity.",
+        },
+        {
+          title: "Workshop management systems (GRP) ready to go",
+          desc: "With your license renewed you keep full access to GRP to manage customers, equipment, reports and more.",
+        },
+      ],
+      chips: [
+        { title: "Fast, secure downloads", desc: "Install your updates the easy way." },
+        { title: "Guaranteed compatibility", desc: "100% compatible with your Jaltest hardware." },
+        { title: "Better software performance", desc: "More stability, speed and new features." },
+        { title: "Protect your investment", desc: "An active license keeps your tool performing at its best." },
+        { title: "Grow with your business", desc: "Stay competitive with OEM-level diagnostic technology." },
       ],
       cta: "Request information",
       hexAlt: "Technician renewing a Jaltest license",
@@ -633,6 +699,8 @@ const en: Dict = {
       laptop: "Laptops & tablets",
       cable: "Cables & adapters",
       finder: "Cable finder",
+      renewal: "Renewals",
+      upgrade: "Coverage upgrades",
     },
     priceRange: "Price range",
     min: "Min",

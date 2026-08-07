@@ -79,4 +79,6 @@ export const PRODUCT_CATEGORY_LABEL: Record<
   laptop: "Laptop",
   cable: "Cable",
   finder: "Cable finder",
+  renewal: "Renovación",
+  upgrade: "Ampliación de cobertura",
 };

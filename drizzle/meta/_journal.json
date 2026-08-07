@@ -43,6 +43,13 @@
       "when": 1786045606895,
       "tag": "0005_world_tier_data",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786064828166,
+      "tag": "0006_renewal_upgrade_categories",
+      "breakpoints": true
     }
   ]
 }

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = ["laptop", "cable", "finder"] as const;
+const CATEGORIES = ["laptop", "cable", "finder", "renewal", "upgrade"] as const;
 
 export function ShopFilters({ dict }: { dict: Dict["shop"] }) {
   const router = useRouter();
