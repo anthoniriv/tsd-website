@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Check, CreditCard, Package, Truck } from "lucide-react";
 import { getLocaleData } from "@/lib/i18n.server";
 import { getOrderByToken } from "@/lib/orders";
+import { checkRateLimit, clientIp, RateLimitError } from "@/lib/rate-limit";
 import { getShippingSettings } from "@/lib/settings";
 import { formatPrice } from "@/lib/products";
 import type { Address, Order } from "@/db/schema";
@@ -71,6 +72,28 @@ export default async function PedidoPage({
   const { pago } = await searchParams;
   const { dict, lang } = await getLocaleData();
   const d = dict.order;
+
+  // El token es la única credencial de la boleta: un límite por IP hace caro probarlos
+  // en masa. La página es dinámica (lee cookies), así que no hay cacheo que falsear.
+  try {
+    await checkRateLimit(`order-page:${await clientIp()}`, 30, 900);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return (
+        <div className="mx-auto max-w-3xl px-6 py-20 text-center">
+          <h1 className="text-2xl font-black text-text-main">
+            {lang === "es" ? "Demasiadas solicitudes" : "Too many requests"}
+          </h1>
+          <p className="mt-2 text-sm text-text-muted">
+            {lang === "es"
+              ? "Espera unos minutos e inténtalo de nuevo."
+              : "Please wait a few minutes and try again."}
+          </p>
+        </div>
+      );
+    }
+    throw err;
+  }
 
   const order = await getOrderByToken(token);
   if (!order) notFound();

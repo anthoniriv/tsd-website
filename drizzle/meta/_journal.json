@@ -50,6 +50,13 @@
       "when": 1786064828166,
       "tag": "0006_renewal_upgrade_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786123833321,
+      "tag": "0007_mysterious_bill_hollister",
+      "breakpoints": true
     }
   ]
 }

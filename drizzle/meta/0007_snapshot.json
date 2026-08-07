@@ -1,6 +1,6 @@
 {
-  "id": "fe93638e-3006-4d50-9d2a-15412d2b9cd8",
-  "prevId": "fbebcc91-da4f-4b82-9435-11fcecee26ff",
+  "id": "592337cb-e9de-4d19-9c49-79e93d7dbe44",
+  "prevId": "bffa09ee-047f-4ea4-aa0e-f5bd603c6c1b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -594,6 +594,32 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.order_sequence": {
+      "name": "order_sequence",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.orders": {
       "name": "orders",
       "schema": "",
@@ -1092,6 +1118,38 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.rate_limits": {
+      "name": "rate_limits",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "window_start": {
+          "name": "window_start",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.sessions": {
       "name": "sessions",
       "schema": "",
@@ -1225,7 +1283,9 @@
       "values": [
         "laptop",
         "cable",
-        "finder"
+        "finder",
+        "renewal",
+        "upgrade"
       ]
     },
     "public.product_kind": {

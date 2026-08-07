@@ -1,6 +1,6 @@
 {
-  "id": "fbebcc91-da4f-4b82-9435-11fcecee26ff",
-  "prevId": "0f38c55a-97e2-4e0f-8c1a-327cc24759df",
+  "id": "bffa09ee-047f-4ea4-aa0e-f5bd603c6c1b",
+  "prevId": "fe93638e-3006-4d50-9d2a-15412d2b9cd8",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1225,7 +1225,9 @@
       "values": [
         "laptop",
         "cable",
-        "finder"
+        "finder",
+        "renewal",
+        "upgrade"
       ]
     },
     "public.product_kind": {

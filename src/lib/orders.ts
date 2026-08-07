@@ -7,6 +7,7 @@ import { db } from "@/db";
 import {
   orderEmails,
   orderItems,
+  orderSequence,
   orders,
   products,
   type Order,
@@ -21,10 +22,23 @@ export type DraftLine = { id: string; qty: number };
 
 export type OrderWithItems = Order & { items: OrderItem[] };
 
-/** TDS-2026-0007. El sufijo sale de un contador global, no del id (que es un uuid). */
+const ORDER_SEQUENCE_ID = "seq";
+
+/**
+ * TDS-2026-0007. Número atómico: un contador de fila única incrementado con upsert.
+ * `count(*)+1` se pisaba con checkouts concurrentes → constraint violada → 500.
+ */
 async function nextOrderNumber(): Promise<string> {
-  const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(orders);
-  return `TDS-${new Date().getFullYear()}-${String(n + 1).padStart(4, "0")}`;
+  const [row] = await db
+    .insert(orderSequence)
+    .values({ id: ORDER_SEQUENCE_ID, value: 1 })
+    .onConflictDoUpdate({
+      target: orderSequence.id,
+      set: { value: sql`${orderSequence.value} + 1` },
+    })
+    .returning({ value: orderSequence.value });
+
+  return `TDS-${new Date().getFullYear()}-${String(row.value).padStart(4, "0")}`;
 }
 
 export class OrderError extends Error {}

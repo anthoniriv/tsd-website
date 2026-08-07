@@ -3,11 +3,20 @@
 
 import { getOrderByToken } from "@/lib/orders";
 import { receiptFileName, renderReceiptPdf } from "@/lib/pdf/receipt";
+import { checkRateLimit, clientIp, RateLimitError } from "@/lib/rate-limit";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ token: string }> },
 ) {
+  // Mismo razonamiento que la página: el token es la credencial y conviene limitar por IP.
+  try {
+    await checkRateLimit(`order-pdf:${await clientIp()}`, 20, 900);
+  } catch (err) {
+    if (err instanceof RateLimitError) return new Response("Too many requests", { status: 429 });
+    throw err;
+  }
+
   const { token } = await params;
 
   const order = await getOrderByToken(token);

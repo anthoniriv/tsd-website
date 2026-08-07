@@ -325,6 +325,25 @@ export const sessions = pgTable(
   (t) => [index("sessions_user_idx").on(t.userId)],
 );
 
+/**
+ * Contador atómico de los números de pedido (TDS-2026-0001). Fila única que
+ * `nextOrderNumber()` incrementa con un upsert, para no repetir números bajo concurrencia.
+ */
+export const orderSequence = pgTable("order_sequence", {
+  id: text("id").primaryKey(),
+  value: integer("value").notNull().default(0),
+});
+
+/**
+ * Rate limiter respaldado por la BD (funciona en serverless con varias instancias).
+ * Una fila por clave (IP+acción); la ventana se reinicia dentro del propio upsert.
+ */
+export const rateLimits = pgTable("rate_limits", {
+  key: text("key").primaryKey(),
+  windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+  count: integer("count").notNull().default(0),
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Relaciones
 // ─────────────────────────────────────────────────────────────────────────────
@@ -375,6 +394,8 @@ export type ContactRequest = typeof contactRequests.$inferSelect;
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type Coupon = typeof coupons.$inferSelect;
+export type OrderSequence = typeof orderSequence.$inferSelect;
+export type RateLimit = typeof rateLimits.$inferSelect;
 
 /** Producto con sus 3 precios ya resueltos a un mapa por tier. */
 export type ProductWithPrices = Product & { prices: Record<PriceTier, number> };

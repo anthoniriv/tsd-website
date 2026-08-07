@@ -34,8 +34,9 @@ const input = (couponCode?: string) => ({
   couponCode,
 });
 
-// Cola típica: productos → contador nº pedido → insert orders → insert items.
-const happyQueue = () => queueDb([productRow()], [{ n: 0 }], [{ id: "o1" }], [{ id: "i1" }]);
+// Cola típica: productos → upsert del contador nº pedido → insert orders → insert items.
+const happyQueue = () =>
+  queueDb([productRow()], [{ value: 1 }], [{ id: "o1" }], [{ id: "i1" }]);
 
 beforeEach(() => {
   resetDb();

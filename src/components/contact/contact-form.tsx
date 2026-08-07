@@ -66,6 +66,16 @@ export function ContactForm({
         {dict.formHeading}
       </h2>
 
+      {/* Honeypot antispam: invisible para humanos, los bots lo rellenan. */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+      />
+
       <div className="space-y-1.5">
         <Label htmlFor="nombre">
           {dict.name} <span className="text-destructive">*</span>

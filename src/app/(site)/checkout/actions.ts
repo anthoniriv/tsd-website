@@ -9,22 +9,24 @@ import { sendOrderReceived } from "@/lib/email";
 import { getLocaleData } from "@/lib/i18n.server";
 import { createPendingOrder, OrderError, type DraftLine } from "@/lib/orders";
 import { getStripe, siteUrl } from "@/lib/stripe";
+import { checkRateLimit, clientIp, RateLimitError } from "@/lib/rate-limit";
 
 export type CheckoutState = { error?: string };
 
+const maxText = (max: number) => z.string().trim().max(max, "Datos inválidos.");
 const address = (p: string) => ({
-  [`${p}_line1`]: z.string().optional(),
-  [`${p}_line2`]: z.string().optional(),
-  [`${p}_city`]: z.string().optional(),
-  [`${p}_state`]: z.string().optional(),
-  [`${p}_postalCode`]: z.string().optional(),
-  [`${p}_country`]: z.string().optional(),
+  [`${p}_line1`]: maxText(200).optional(),
+  [`${p}_line2`]: maxText(200).optional(),
+  [`${p}_city`]: maxText(100).optional(),
+  [`${p}_state`]: maxText(100).optional(),
+  [`${p}_postalCode`]: maxText(20).optional(),
+  [`${p}_country`]: maxText(60).optional(),
 });
 
 const schema = z.object({
-  name: z.string().min(2, "Ingresa tu nombre."),
-  email: z.email("Email no válido."),
-  phone: z.string().optional(),
+  name: z.string().min(2, "Ingresa tu nombre.").max(120, "Ingresa tu nombre."),
+  email: z.email("Email no válido.").max(254, "Email no válido."),
+  phone: z.string().max(30, "Datos inválidos.").optional(),
   billingSame: z.string().optional(),
   ...address("ship"),
   ...address("bill"),
@@ -60,6 +62,15 @@ export async function startCheckout(
   }
   const d = parsed.data as Record<string, string | undefined>;
   const { lang, tier } = await getLocaleData();
+
+  // Frena el abuso del acuse de recibo (envía a un email arbitrario) y el spam de
+  // pedidos pending: máximo 10 checkouts por IP cada 10 minutos.
+  try {
+    await checkRateLimit(`checkout:${await clientIp()}`, 10, 600);
+  } catch (err) {
+    if (err instanceof RateLimitError) return { error: err.message };
+    throw err;
+  }
 
   const shipping = pickAddress(d, "ship");
   const billingSame = d.billingSame === "on";

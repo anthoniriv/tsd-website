@@ -21,6 +21,7 @@ import {
 } from "@/db/schema";
 import { SETTINGS_ID } from "@/lib/settings";
 import { hashPassword, login, logout, requireRole } from "@/lib/auth";
+import { checkRateLimit, clientIp, RateLimitError } from "@/lib/rate-limit";
 import {
   sendOrderConfirmation,
   sendOrderNotification,
@@ -47,6 +48,17 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
     .safeParse(Object.fromEntries(formData));
 
   if (!parsed.success) return { error: "Datos inválidos." };
+
+  // Anti brute-force: límite por IP y por cuenta. El mensaje no revela cuál saltó.
+  try {
+    await checkRateLimit(`login:ip:${await clientIp()}`, 10, 900);
+    await checkRateLimit(`login:email:${parsed.data.email.toLowerCase()}`, 5, 900);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return { error: "Demasiados intentos. Espera unos minutos." };
+    }
+    throw err;
+  }
 
   const user = await login(parsed.data.email, parsed.data.password);
   if (!user) return { error: "Email o contraseña incorrectos." };
