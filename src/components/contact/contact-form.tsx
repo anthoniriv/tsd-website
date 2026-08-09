@@ -29,11 +29,25 @@ export function ContactForm({
     const email = String(data.get("email") ?? "").trim();
     const asunto = String(data.get("asunto") ?? "").trim();
     const mensaje = String(data.get("mensaje") ?? "").trim();
+    // Los límites replican el schema de contacto/actions.ts: si el cliente deja
+    // pasar algo que el servidor rechaza, el visitante solo ve "Datos inválidos."
+    // sin saber qué campo falló.
     if (!nombre) e.nombre = dict.errors.name;
+    else if (nombre.length < 2) e.nombre = dict.errors.nameShort;
+    else if (nombre.length > 120) e.nombre = dict.errors.tooLong;
+
     if (!email) e.email = dict.errors.email;
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = dict.errors.emailInvalid;
+    else if (email.length > 254) e.email = dict.errors.tooLong;
+
     if (!asunto) e.asunto = dict.errors.subject;
+    else if (asunto.length < 2) e.asunto = dict.errors.subjectShort;
+    else if (asunto.length > 200) e.asunto = dict.errors.tooLong;
+
     if (!mensaje) e.mensaje = dict.errors.message;
+    else if (mensaje.length < 5) e.mensaje = dict.errors.messageShort;
+    else if (mensaje.length > 4000) e.mensaje = dict.errors.tooLong;
+
     return e;
   }
 

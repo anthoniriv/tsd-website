@@ -488,6 +488,11 @@ const es = {
       emailInvalid: "Email no válido.",
       subject: "Ingresa un asunto.",
       message: "Escribe tu mensaje.",
+      // Los mínimos y máximos replican los del servidor (contacto/actions.ts).
+      nameShort: "El nombre debe tener al menos 2 caracteres.",
+      subjectShort: "El asunto debe tener al menos 2 caracteres.",
+      messageShort: "El mensaje debe tener al menos 5 caracteres.",
+      tooLong: "Texto demasiado largo.",
     },
   },
   meta: {
@@ -939,6 +944,10 @@ const en: Dict = {
       emailInvalid: "Invalid email.",
       subject: "Enter a subject.",
       message: "Write your message.",
+      nameShort: "Name must be at least 2 characters.",
+      subjectShort: "Subject must be at least 2 characters.",
+      messageShort: "Message must be at least 5 characters.",
+      tooLong: "Text is too long.",
     },
   },
   meta: {
