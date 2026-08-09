@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
-import type { JaltestLine } from "@/lib/products";
 import { getHardware, getJaltestLines } from "@/lib/catalog";
 import { getLocaleData } from "@/lib/i18n.server";
 import { ProductHero } from "@/components/product/product-hero";
 import { ProductGrid } from "@/components/product/product-grid";
 import { SmartImage } from "@/components/ui/smart-image";
-import { cn } from "@/lib/utils";
 import { RuggedHardwareSection } from "@/components/product/rugged-hardware-section";
+import { ExpandCoverage } from "@/components/product/expand-coverage";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { dict } = await getLocaleData();
@@ -16,43 +15,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const HEX = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
-
-function RenewalVehicles({ alts }: { alts: Record<JaltestLine["id"], string> }) {
-  const vehicles = [
-    { src: "/images/veh-ohw.png", alt: alts.ohw, className: "z-10 w-[29%] -translate-y-[3%]" },
-    {
-      src: "/images/veh-marine.png",
-      alt: alts.marine,
-      className: "z-20 -ml-[13%] w-[28%] translate-y-[12%]",
-    },
-    { src: "/images/veh-cv.png", alt: alts.cv, className: "z-30 -ml-[8%] w-[31%]" },
-    {
-      src: "/images/veh-mhe.png",
-      alt: alts.mhe,
-      className: "z-20 -ml-[8%] w-[18%] translate-y-[5%]",
-    },
-    {
-      src: "/images/tractor.png",
-      alt: alts.agv,
-      className: "z-10 -ml-[5%] w-[31%] translate-y-[7%]",
-    },
-  ];
-
-  return (
-    <div className="mx-auto flex w-full max-w-6xl items-end justify-center px-4">
-      {vehicles.map((vehicle) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={vehicle.src}
-          src={vehicle.src}
-          alt={vehicle.alt}
-          loading="lazy"
-          className={cn("relative h-auto object-contain", vehicle.className)}
-        />
-      ))}
-    </div>
-  );
-}
 
 export default async function ProductoPage() {
   const { dict, tier } = await getLocaleData();
@@ -205,25 +167,9 @@ export default async function ProductoPage() {
         category="renewal"
       />
 
-      {/* franja de vehículos: encabeza la sección de ampliar cobertura */}
-      <div className="relative h-[clamp(150px,16.8vw,216px)]">
-        <div className="absolute inset-x-0 bottom-0 h-[58%] bg-[#efeee9]" />
-        <div className="absolute inset-x-0 bottom-[6%]">
-          <RenewalVehicles alts={p.vehicleAlts} />
-        </div>
-      </div>
-
-      <section className="bg-[#efeee9] pb-16 pt-8 sm:pb-20 sm:pt-10">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="text-center text-[clamp(24px,2.76vw,35px)] font-extrabold uppercase leading-tight tracking-normal text-[#0085C9] md:whitespace-nowrap">
-            {p.more.heading}
-          </h2>
-          <div className="mx-auto mt-8 grid max-w-[900px] gap-10 text-[18px] font-semibold leading-[1.22] text-[#666] md:grid-cols-2">
-            <p>{p.more.p1}</p>
-            <p>{p.more.p2}</p>
-          </div>
-        </div>
-      </section>
+      {/* Ampliar cobertura: los vehículos ahora viven dentro de la sección, cada uno
+          con su etiqueta, en vez de como franja solapada previa. */}
+      <ExpandCoverage copy={p.more} alts={p.vehicleAlts} />
 
       {/* Productos de ampliación de cobertura */}
       <ProductGrid

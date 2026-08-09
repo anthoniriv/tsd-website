@@ -254,9 +254,40 @@ const es = {
       price: "Price",
     },
     more: {
-      heading: "¿Necesitas diagnosticar más tipos de equipos?",
-      p1: "Es posible que la cobertura que tienes hoy sea suficiente para tu operación actual. Sin embargo, si tus clientes o tu flota evolucionan, Jaltest te brinda la posibilidad de incorporar nuevas coberturas cuando lo necesites.",
-      p2: "De esta manera podrás seguir utilizando una herramienta que ya conoces y en la que confías, ampliando sus capacidades. Tu diagnóstico no tiene por qué quedarse donde empezó. Crece contigo.",
+      eyebrow: "Amplía tu cobertura. Potencia tu taller.",
+      headingTop: "¿Necesitas diagnosticar",
+      headingBottom: "más tipos de equipos?",
+      subtitle: "Jaltest te permite",
+      subtitleStrong: "ir más allá.",
+      // Las 5 coberturas, en el mismo orden que la franja de vehículos.
+      equipment: [
+        { name: "Equipos de", accent: "Construcción", code: "(OHW)" },
+        { name: "Embarcaciones", accent: "Marinas", code: "(MARINE)" },
+        { name: "Vehículos", accent: "Comerciales", code: "(CV)" },
+        { name: "Equipos de manejo", accent: "de Materiales", code: "(MHE)" },
+        { name: "Equipos", accent: "Agrícolas", code: "(AGV)" },
+      ],
+      panels: [
+        {
+          title: "La tecnología evoluciona.",
+          title2: "Tus necesidades también.",
+          body: "Es posible que la cobertura que tienes hoy sea suficiente para tu operación actual. Sin embargo, si tus clientes o tu flota evolucionan, Jaltest te brinda la posibilidad de incorporar nuevas coberturas cuando lo necesites.",
+        },
+        {
+          title: "Una herramienta, más posibilidades.",
+          title2: "Más negocio.",
+          body: "De esta manera podrás seguir utilizando una herramienta que ya conoces y en la que confías, ampliando sus capacidades. Tu diagnóstico no tiene por qué quedarse donde empezó. Crece contigo.",
+        },
+      ],
+      features: [
+        { title: "Cobertura flexible", desc: "Añade solo lo que necesitas, cuando lo necesitas." },
+        { title: "Diagnóstico avanzado", desc: "Accede a funciones especiales, calibraciones y más." },
+        { title: "Inversión inteligente", desc: "Maximiza el valor de tu equipo y tu retorno de inversión." },
+        { title: "Soporte experto", desc: "Acompañamiento técnico en cada paso." },
+        { title: "Crece tu negocio", desc: "Atiende más equipos, más clientes y más oportunidades." },
+      ],
+      ctaTitle: "Amplía tu cobertura y lleva tu taller al siguiente nivel.",
+      ctaLink: "Consulta con tu asesor Jaltest y descubre todo lo que puedes lograr.",
     },
     vehicleAlts: {
       ohw: "Excavadora",
@@ -714,9 +745,39 @@ const en: Dict = {
       price: "Price",
     },
     more: {
-      heading: "Need to diagnose more types of equipment?",
-      p1: "The coverage you have today may be enough for your current operation. However, if your customers or your fleet evolve, Jaltest lets you add new coverage whenever you need it.",
-      p2: "That way you can keep using a tool you already know and trust, expanding its capabilities. Your diagnostics don't have to stay where they started. It grows with you.",
+      eyebrow: "Expand your coverage. Power up your shop.",
+      headingTop: "Need to diagnose",
+      headingBottom: "more types of equipment?",
+      subtitle: "Jaltest lets you",
+      subtitleStrong: "go further.",
+      equipment: [
+        { name: "Construction", accent: "Equipment", code: "(OHW)" },
+        { name: "Marine", accent: "Vessels", code: "(MARINE)" },
+        { name: "Commercial", accent: "Vehicles", code: "(CV)" },
+        { name: "Material Handling", accent: "Equipment", code: "(MHE)" },
+        { name: "Agricultural", accent: "Equipment", code: "(AGV)" },
+      ],
+      panels: [
+        {
+          title: "Technology evolves.",
+          title2: "So do your needs.",
+          body: "The coverage you have today may be enough for your current operation. However, if your customers or your fleet evolve, Jaltest lets you add new coverage whenever you need it.",
+        },
+        {
+          title: "One tool, more possibilities.",
+          title2: "More business.",
+          body: "That way you can keep using a tool you already know and trust, expanding its capabilities. Your diagnostics don't have to stay where they started. It grows with you.",
+        },
+      ],
+      features: [
+        { title: "Flexible coverage", desc: "Add only what you need, when you need it." },
+        { title: "Advanced diagnostics", desc: "Access special functions, calibrations and more." },
+        { title: "Smart investment", desc: "Maximize the value of your tool and your return." },
+        { title: "Expert support", desc: "Technical guidance at every step." },
+        { title: "Grow your business", desc: "Serve more equipment, more customers, more opportunities." },
+      ],
+      ctaTitle: "Expand your coverage and take your shop to the next level.",
+      ctaLink: "Talk to your Jaltest advisor and discover everything you can achieve.",
     },
     vehicleAlts: {
       ohw: "Excavator",
