@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Dict } from "@/lib/i18n";
 import type { JaltestLine } from "@/lib/products";
+import { cn } from "@/lib/utils";
 
 /**
  * "¿Necesitas diagnosticar más tipos de equipos?" — cierre de /producto, según la
@@ -34,12 +35,19 @@ const FEATURE_ICONS = [ShieldCheck, Cog, CircleDollarSign, Headset, ChartColumnI
 
 const PANEL_ICONS = [TrendingUp, Puzzle] as const;
 
+/**
+ * Anchos ajustados a ojo para que todos "pesen" parecido pese a proporciones muy
+ * distintas: la excavadora y el yate son apaisados, el montacargas casi cuadrado.
+ * `veh-cv-solo` es el tráiler central recortado del montaje de tres camiones.
+ */
 const VEHICLES: { src: string; id: JaltestLine["id"]; className: string }[] = [
-  { src: "/images/veh-ohw.png", id: "ohw", className: "w-[92%]" },
-  { src: "/images/veh-marine.png", id: "marine", className: "w-[96%]" },
-  { src: "/images/veh-cv.png", id: "cv", className: "w-[78%]" },
-  { src: "/images/veh-mhe.png", id: "mhe", className: "w-[62%]" },
-  { src: "/images/tractor.png", id: "agv", className: "w-[88%]" },
+  { src: "/images/veh-ohw.png", id: "ohw", className: "w-[108%] max-w-none" },
+  // El yate es muy apaisado: a ancho de columna quedaría mucho más bajo que el
+  // resto, así que se le deja sangrar sobre las columnas vecinas.
+  { src: "/images/veh-marine.png", id: "marine", className: "w-[124%] max-w-none" },
+  { src: "/images/veh-cv-solo.png", id: "cv", className: "w-[72%]" },
+  { src: "/images/veh-mhe.png", id: "mhe", className: "w-[80%]" },
+  { src: "/images/tractor.png", id: "agv", className: "w-full" },
 ];
 
 export function ExpandCoverage({
@@ -50,7 +58,9 @@ export function ExpandCoverage({
   alts: Record<JaltestLine["id"], string>;
 }) {
   return (
-    <section className="bg-[#efeee9] pb-16 pt-12 sm:pb-20 sm:pt-14">
+    // La lámina va sobre blanco que vira a gris azulado en la mitad inferior, con
+    // el corte a la altura del suelo de los vehículos.
+    <section className="bg-gradient-to-b from-white via-white to-[#eef1f6] pb-16 pt-12 sm:pb-20 sm:pt-14">
       <div className="mx-auto max-w-6xl px-6">
         {/* Cabecera */}
         <div className="flex items-center justify-center gap-3">
@@ -72,16 +82,14 @@ export function ExpandCoverage({
         </p>
 
         {/* Las 5 coberturas */}
-        <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-0">
+        <ul className="mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-1">
           {VEHICLES.map((vehicle, i) => {
             const item = copy.equipment[i];
             const Icon = EQUIPMENT_ICONS[i];
             return (
-              <li
-                key={vehicle.id}
-                className="flex flex-col items-center lg:border-l lg:border-black/10 lg:px-3 lg:first:border-l-0"
-              >
-                <div className="flex h-[clamp(96px,11vw,148px)] w-full items-end justify-center">
+              <li key={vehicle.id} className="flex flex-col">
+                {/* Todos apoyan en la misma línea de suelo, como en la lámina. */}
+                <div className="flex h-[clamp(120px,17vw,232px)] w-full items-end justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={vehicle.src}
@@ -90,9 +98,16 @@ export function ExpandCoverage({
                     className={`h-auto max-h-full object-contain ${vehicle.className}`}
                   />
                 </div>
-                <div className="mt-4 flex items-start gap-2.5">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0085C9] text-white">
-                    <Icon className="h-4 w-4" />
+                {/* El separador vive en la etiqueta, no en la columna entera: si
+                    abarcara la imagen cortaría a los vehículos que sangran. */}
+                <div
+                  className={cn(
+                    "mt-5 flex items-start gap-2.5",
+                    i > 0 && "lg:border-l lg:border-black/10 lg:pl-4",
+                  )}
+                >
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0085C9] text-white">
+                    <Icon className="h-[18px] w-[18px]" />
                   </span>
                   <span className="leading-tight">
                     <span className="block text-[11px] font-black uppercase tracking-wide text-text-main">
@@ -101,7 +116,7 @@ export function ExpandCoverage({
                     <span className="block text-[11px] font-black uppercase tracking-wide text-[#0085C9]">
                       {item.accent}
                     </span>
-                    <span className="mt-0.5 block text-[10px] font-semibold text-text-muted">
+                    <span className="mt-1 block text-[10px] font-semibold text-text-muted">
                       {item.code}
                     </span>
                   </span>
@@ -135,12 +150,12 @@ export function ExpandCoverage({
         </div>
 
         {/* Franja de beneficios */}
-        <ul className="mt-6 grid gap-5 rounded-2xl border border-black/5 bg-white/70 p-6 sm:grid-cols-2 lg:grid-cols-5 lg:divide-x lg:divide-black/10">
+        <ul className="mt-6 grid gap-5 rounded-2xl bg-[#eaeff7] p-6 sm:grid-cols-2 lg:grid-cols-5 lg:divide-x lg:divide-black/10">
           {copy.features.map((feature, i) => {
             const Icon = FEATURE_ICONS[i];
             return (
               <li key={feature.title} className="flex gap-3 lg:[&:not(:first-child)]:pl-5">
-                <Icon className="mt-0.5 h-6 w-6 shrink-0 text-[#0085C9]" strokeWidth={1.75} />
+                <Icon className="mt-0.5 h-7 w-7 shrink-0 text-[#0b3a6f]" strokeWidth={1.6} />
                 <span className="leading-snug">
                   <span className="block text-[12px] font-black uppercase tracking-wide text-text-main">
                     {feature.title}
