@@ -32,6 +32,15 @@ import {
 
 const FROM = process.env.ORDER_FROM_EMAIL ?? "TDS · Tech Diagnostic Solutions <onboarding@resend.dev>";
 
+/**
+ * Copia de los avisos internos (pedidos y consultas). Acepta varias direcciones
+ * separadas por comas. Solo aplica a los correos que van a TDS, nunca a los del
+ * cliente: nadie que compra debe ver a quién más se le avisa.
+ */
+const NOTIFY_CC = process.env.ORDER_NOTIFY_CC?.split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 /** Si no hay API key, los envíos se registran en consola en vez de romper el flujo. */
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -296,6 +305,7 @@ export async function sendOrderNotification(order: OrderWithItems) {
 
   const result = await send({
     to,
+    cc: NOTIFY_CC,
     subject: `🛒 Nuevo pedido ${order.orderNumber} — ${formatPrice(order.totalCents)}`,
     html: emailLayout({
       title: `Nuevo pedido ${order.orderNumber}`,
@@ -332,6 +342,7 @@ export async function sendContactNotification(input: {
 
   await send({
     to,
+    cc: NOTIFY_CC,
     subject: `✉️ Nueva consulta: ${input.subject}`,
     html: emailLayout({
       title: `Nueva consulta: ${input.subject}`,
@@ -395,6 +406,7 @@ type SendResult = { ok: boolean; error?: string };
 
 async function send(msg: {
   to: string;
+  cc?: string[];
   subject: string;
   html: string;
   attachments?: { filename: string; content: string }[];
