@@ -10,9 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = ["jaltest", "laptop", "cable", "finder", "renewal", "upgrade"] as const;
+/** Orden de presentación; se muestran solo las que el servidor marque disponibles. */
+const CATEGORY_ORDER = ["jaltest", "laptop", "cable", "finder", "renewal", "upgrade"] as const;
 
-export function ShopFilters({ dict }: { dict: Dict["shop"] }) {
+export function ShopFilters({
+  dict,
+  available,
+}: {
+  dict: Dict["shop"];
+  /** Categorías con producto publicado. Evita chips que devuelven cero. */
+  available: readonly string[];
+}) {
+  const CATEGORIES = CATEGORY_ORDER.filter((c) => available.includes(c));
   const router = useRouter();
   const params = useSearchParams();
 

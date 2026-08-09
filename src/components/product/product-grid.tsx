@@ -24,6 +24,11 @@ export async function ProductGrid({
   category?: HardwareItem["category"];
   initialCount?: number;
 }) {
+  // Sin productos no se pinta nada: un título de sección sobre una rejilla vacía
+  // se lee como un error de carga. Pasa cuando una categoría se queda sin stock
+  // publicado (p.ej. cables pendientes de que el cliente confirme precios).
+  if (items.length === 0) return null;
+
   const { dict, lang } = await getLocaleData();
 
   const cards: CardData[] = items.map((item) => ({

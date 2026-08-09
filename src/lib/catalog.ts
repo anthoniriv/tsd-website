@@ -97,6 +97,24 @@ export const getHardware = cache(
 );
 
 /**
+ * Categorías con al menos un producto publicado, para no ofrecer filtros que no
+ * devuelven nada. `jaltest` va aparte: son las líneas, no hardware.
+ */
+export const getAvailableCategories = cache(async (): Promise<ShopCategory[]> => {
+  const rows = await db
+    .selectDistinct({ category: products.category, kind: products.kind })
+    .from(products)
+    .where(eq(products.status, "published"));
+
+  const cats = new Set<ShopCategory>();
+  for (const r of rows) {
+    if (r.kind === "jaltest") cats.add("jaltest");
+    else if (r.category) cats.add(r.category);
+  }
+  return [...cats];
+});
+
+/**
  * Recomendaciones de la ficha: misma categoría primero; si no llenan el cupo, se completa
  * con otros productos publicados para no dejar la sección a medias.
  */

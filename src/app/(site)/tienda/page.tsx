@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getLocaleData } from "@/lib/i18n.server";
-import { searchProducts, type ShopCategory } from "@/lib/catalog";
+import { getAvailableCategories, searchProducts, type ShopCategory } from "@/lib/catalog";
 import { formatPrice } from "@/lib/products";
 import { ProductCard } from "@/components/product/product-card";
 import { ShopFilters } from "@/components/product/shop-filters";
@@ -46,14 +46,17 @@ export default async function TiendaPage({
   const { dict, lang, tier } = await getLocaleData();
   const sp = await searchParams;
 
-  const items = await searchProducts({
-    tier,
-    q: sp.q,
-    category: toCategory(sp.cat),
-    minCents: toCents(sp.min),
-    maxCents: toCents(sp.max),
-    inStock: sp.stock === "1",
-  });
+  const [items, available] = await Promise.all([
+    searchProducts({
+      tier,
+      q: sp.q,
+      category: toCategory(sp.cat),
+      minCents: toCents(sp.min),
+      maxCents: toCents(sp.max),
+      inStock: sp.stock === "1",
+    }),
+    getAvailableCategories(),
+  ]);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
@@ -75,7 +78,7 @@ export default async function TiendaPage({
       </header>
 
       <div className="grid gap-8 md:grid-cols-[220px_1fr]">
-        <ShopFilters dict={dict.shop} />
+        <ShopFilters dict={dict.shop} available={available} />
 
         <div>
           {items.length === 0 ? (
