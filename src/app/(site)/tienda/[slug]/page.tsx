@@ -115,9 +115,7 @@ export default async function ProductoDetallePage({
             ) : lowStock ? (
               <span className="text-jt-ohw">{dict.product.lastUnits}</span>
             ) : (
-              <span className="text-[#5f8f14]">
-                {product.stock} {dict.product.stockLeft}
-              </span>
+              <span className="text-[#5f8f14]">{dict.product.available}</span>
             )}
           </p>
 

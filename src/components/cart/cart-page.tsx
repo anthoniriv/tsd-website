@@ -222,7 +222,7 @@ export function CartPage({
 
                 {lowStock && (
                   <p className="mt-2 text-xs font-semibold text-jt-ohw">
-                    {dict.stockWarning.replace("{n}", String(item.stock))}
+                    {dict.stockWarning}
                   </p>
                 )}
               </div>

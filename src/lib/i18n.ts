@@ -325,7 +325,9 @@ const es = {
   },
   product: {
     backToShop: "Volver a la tienda",
-    stockLeft: "disponibles",
+    // Por decisión del cliente no se publica el número de unidades: solo si hay
+    // existencias, si quedan pocas o si se agotó.
+    available: "Disponible",
     lastUnits: "¡Últimas unidades!",
     outOfStock: "Sin stock",
     addToCart: "Añadir al carrito",
@@ -413,7 +415,7 @@ const es = {
     shippingNotice:
       "El costo de envío se confirmará apenas confirmemos tu compra. Te enviaremos el monto exacto antes de despachar.",
     total: "Total",
-    stockWarning: "Solo quedan {n} unidades de este producto.",
+    stockWarning: "Has alcanzado el máximo disponible de este producto.",
     couponErrors: {
       notFound: "Ese cupón no existe.",
       inactive: "Ese cupón ya no está activo.",
@@ -782,7 +784,7 @@ const en: Dict = {
   },
   product: {
     backToShop: "Back to shop",
-    stockLeft: "in stock",
+    available: "In stock",
     lastUnits: "Only a few left!",
     outOfStock: "Out of stock",
     addToCart: "Add to cart",
@@ -870,7 +872,7 @@ const en: Dict = {
     shippingNotice:
       "We will confirm the shipping cost as soon as we confirm your order and send you the exact amount before dispatch.",
     total: "Total",
-    stockWarning: "Only {n} units left of this product.",
+    stockWarning: "You've reached the maximum available for this product.",
     couponErrors: {
       notFound: "That coupon doesn't exist.",
       inactive: "That coupon is no longer active.",
