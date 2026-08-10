@@ -27,6 +27,7 @@ vi.mock("@/lib/orders", () => ({ getOrderWithItems: vi.fn() }));
 
 import {
   resendOrderEmailAction,
+  saveSiteMediaAction,
   updateShippingSettingsAction,
   updateUserRoleAction,
 } from "@/app/admin/actions";
@@ -147,5 +148,39 @@ describe("resendOrderEmailAction — enrutado", () => {
   it("rechaza un kind inválido", async () => {
     const res = await resendOrderEmailAction(OTHER, "foo" as never);
     expect(res.error).toBeTruthy();
+  });
+});
+
+describe("saveSiteMediaAction — láminas", () => {
+  const fd = (o: Record<string, string>) => {
+    const f = new FormData();
+    for (const [k, v] of Object.entries(o)) f.set(k, v);
+    return f;
+  };
+
+  it("guarda la imagen y la etiqueta de un slot válido", async () => {
+    const res = await saveSiteMediaAction(
+      {},
+      fd({
+        "img:line.agv.main": "https://cdn/agv.png",
+        "labelEs:line.agv.main": "Cosechadoras",
+        "labelEn:line.agv.main": "Combines",
+      }),
+    );
+
+    expect(res.ok).toBe(true);
+    expect(valuesWith("key")).toMatchObject({
+      key: "line.agv.main",
+      img: "https://cdn/agv.png",
+      label: { es: "Cosechadoras", en: "Combines" },
+    });
+  });
+
+  // Las claves las declara el diseño: una inventada desde el cliente no debe escribir.
+  it("ignora claves que no existen en el diseño", async () => {
+    const res = await saveSiteMediaAction({}, fd({ "img:line.hack.main": "https://cdn/x.png" }));
+
+    expect(res.error).toBeTruthy();
+    expect(valuesWith("key")).toBeUndefined();
   });
 });

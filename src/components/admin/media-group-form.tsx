@@ -7,6 +7,7 @@ import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import type { MediaGroup } from "@/lib/site-media";
 
 const initial: ActionState = {};
@@ -34,17 +35,43 @@ export function MediaGroupForm({
     ),
   );
 
+  // Lo guardado por última vez. Comparado con `slots` da el estado "sin guardar":
+  // subir una imagen solo la coloca en el formulario, persiste el botón.
+  const [saved, setSaved] = useState(() => JSON.stringify(slots));
+  const dirty = JSON.stringify(slots) !== saved;
+
   useEffect(() => {
-    if (state.ok) toast.success("Imágenes guardadas.");
+    if (state.ok) {
+      toast.success("Imágenes guardadas.");
+      setSaved(JSON.stringify(slots));
+    }
     if (state.error) toast.error(state.error);
+    // `slots` a propósito fuera de las dependencias: solo interesa su valor en el
+    // momento en que el guardado responde, no en cada tecla.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
+
+  // Red de seguridad: recargar o cerrar con cambios pendientes avisa.
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
 
   const update = (key: string, patch: Partial<SlotValue>) =>
     setSlots((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }));
 
   return (
     <form action={action} className="rounded-2xl border border-border bg-white p-6">
-      <h2 className="text-sm font-black uppercase tracking-wide text-text-main">{group.title}</h2>
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="text-sm font-black uppercase tracking-wide text-text-main">{group.title}</h2>
+        {dirty && (
+          <span className="rounded-full bg-jt-ohw/15 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-[#a06f00]">
+            Cambios sin guardar
+          </span>
+        )}
+      </div>
 
       <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
         {group.slots.map((slot) => {
@@ -90,9 +117,23 @@ export function MediaGroupForm({
         </p>
       )}
 
-      <Button type="submit" disabled={pending} className="mt-6 bg-brand hover:bg-brand-dark">
-        {pending ? "Guardando…" : "Guardar lámina"}
-      </Button>
+      {/* Pegado al fondo mientras haya cambios: con 6 láminas en la página, el botón
+          de la que estás editando puede quedar fuera de pantalla. */}
+      <div
+        className={cn(
+          "mt-6 flex items-center gap-3",
+          dirty && "sticky bottom-4 z-10 rounded-xl border border-brand/30 bg-white/95 p-3 shadow-lg",
+        )}
+      >
+        <Button type="submit" disabled={pending} className="bg-brand hover:bg-brand-dark">
+          {pending ? "Guardando…" : "Guardar lámina"}
+        </Button>
+        {dirty && (
+          <p className="text-xs font-semibold text-text-secondary">
+            Subir una imagen no la publica: guarda para que quede.
+          </p>
+        )}
+      </div>
     </form>
   );
 }
