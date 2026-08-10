@@ -1,7 +1,14 @@
 import { requireUser } from "@/lib/auth";
 import { getJaltestLines, getSiteMedia } from "@/lib/catalog";
 import { LINE_SPECS } from "@/lib/product-specs";
-import { ACCENT_KEYS, lineDefaults, MEDIA_GROUPS, type MediaDefault } from "@/lib/site-media";
+import {
+  ACCENT_KEYS,
+  lineDefaults,
+  MEDIA_GROUPS,
+  RUGGED_DEFAULTS,
+  SOLUTIONS_FALLBACK_IMG,
+  type MediaDefault,
+} from "@/lib/site-media";
 import { MediaGroupForm, type SlotValue } from "@/components/admin/media-group-form";
 
 /**
@@ -16,7 +23,11 @@ export default async function LaminasPage() {
   // El tier no altera las imágenes; se pide uno cualquiera para leer las líneas.
   const [media, lines] = await Promise.all([getSiteMedia(), getJaltestLines("us")]);
 
-  const defaults: Record<string, MediaDefault> = {};
+  const defaults: Record<string, MediaDefault> = {
+    ...RUGGED_DEFAULTS,
+    // El hexágono de cables publica hoy la foto genérica en la primera posición.
+    "solutions.cables.1": { img: SOLUTIONS_FALLBACK_IMG },
+  };
   for (const id of ACCENT_KEYS) {
     const line = lines.find((l) => l.id === id);
     Object.assign(defaults, lineDefaults(id, LINE_SPECS[id], line?.vehicleImg));

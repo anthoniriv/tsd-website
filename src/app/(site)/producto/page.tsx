@@ -9,7 +9,7 @@ import { SmartImage } from "@/components/ui/smart-image";
 import { RuggedHardwareSection } from "@/components/product/rugged-hardware-section";
 import { ExpandCoverage } from "@/components/product/expand-coverage";
 import { SolutionsSection } from "@/components/product/solutions-section";
-import { SOLUTIONS_GROUP } from "@/lib/site-media";
+import { SOLUTIONS_FALLBACK_IMG, SOLUTIONS_GROUP } from "@/lib/site-media";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { dict } = await getLocaleData();
@@ -46,7 +46,7 @@ export default async function ProductoPage() {
           <ProductHero key={line.id} line={line} media={media} />
         ))}
 
-        <RuggedHardwareSection copy={p.panasonic} />
+        <RuggedHardwareSection copy={p.panasonic} media={media} />
       </section>
 
       {/* Grids de hardware */}
@@ -64,7 +64,7 @@ export default async function ProductoPage() {
           const shots = SOLUTIONS_GROUP.slots
             .map((slot) => media[slot.key]?.img)
             .filter((img): img is string => Boolean(img));
-          return shots.length > 0 ? shots : ["/images/cable-b.png"];
+          return shots.length > 0 ? shots : [SOLUTIONS_FALLBACK_IMG];
         })()}
       />
 

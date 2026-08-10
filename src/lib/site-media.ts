@@ -76,7 +76,44 @@ export const SOLUTIONS_GROUP: MediaGroup = {
   })),
 };
 
-export const MEDIA_GROUPS: MediaGroup[] = [...LINE_MEDIA_GROUPS, SOLUTIONS_GROUP];
+/** Foto que se publica en el hexágono de cables mientras no suban las suyas. */
+export const SOLUTIONS_FALLBACK_IMG = "/images/cable-b.png";
+
+const R2 = "https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media";
+
+/** Lámina Panasonic/Dell/Getac: la foto de equipos y los 3 logos de marca. */
+export const RUGGED_GROUP: MediaGroup = {
+  id: "rugged",
+  title: "Laptops y tablets rugged (Panasonic · Dell · Getac)",
+  slots: [
+    {
+      key: "rugged.devices",
+      title: "Equipos",
+      hint: "El montaje de laptops y tablet de la cabecera de la sección.",
+      size: "1900 × 800 px · PNG con transparencia",
+    },
+    ...["Panasonic", "Dell", "Getac"].map((brand, i) => ({
+      key: `rugged.brand${i + 1}`,
+      title: `Logo ${brand}`,
+      hint: "Logo sobre fondo transparente, dentro de su tarjeta.",
+      size: "400 × 140 px · PNG con transparencia",
+    })),
+  ],
+};
+
+/** Imágenes que trae la lámina Panasonic de fábrica, por slot. */
+export const RUGGED_DEFAULTS: Record<string, MediaDefault> = {
+  "rugged.devices": { img: `${R2}/rugged-devices-a4e81fd3.png` },
+  "rugged.brand1": { img: `${R2}/logo-panasonic-bcdd119d.png` },
+  "rugged.brand2": { img: `${R2}/logo-dell-abed8ab5.png` },
+  "rugged.brand3": { img: `${R2}/logo-getac-7c91fe68.png` },
+};
+
+export const MEDIA_GROUPS: MediaGroup[] = [
+  ...LINE_MEDIA_GROUPS,
+  RUGGED_GROUP,
+  SOLUTIONS_GROUP,
+];
 
 /** Todas las claves válidas, para validar en la Server Action. */
 export const MEDIA_KEYS: string[] = MEDIA_GROUPS.flatMap((g) => g.slots.map((s) => s.key));

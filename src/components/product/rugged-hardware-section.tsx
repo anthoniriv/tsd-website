@@ -19,15 +19,11 @@ import {
 } from "lucide-react";
 import type { Dict } from "@/lib/i18n";
 import { SmartImage } from "@/components/ui/smart-image";
+import { RUGGED_DEFAULTS, type MediaMap } from "@/lib/site-media";
 
 const FEATURE_ICONS = [ShieldCheck, Sun, BatteryCharging, Network, Laptop];
 const SECTOR_ICONS = [Wrench, Truck, Construction, Shield, Zap, Factory, Sprout, Ship];
 const TRUST_ICONS = [ShieldCheck, CheckCircle2, CalendarCheck, Headphones];
-const BRAND_IMAGES = [
-  "https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media/logo-panasonic-bcdd119d.png",
-  "https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media/logo-dell-abed8ab5.png",
-  "https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media/logo-getac-7c91fe68.png",
-];
 
 function IconList({
   items,
@@ -50,7 +46,15 @@ function IconList({
   });
 }
 
-export function RuggedHardwareSection({ copy }: { copy: Dict["producto"]["panasonic"] }) {
+export function RuggedHardwareSection({
+  copy,
+  media = {},
+}: {
+  copy: Dict["producto"]["panasonic"];
+  media?: MediaMap;
+}) {
+  const img = (key: string) => media[key]?.img || RUGGED_DEFAULTS[key]?.img || "";
+
   return (
     <section id="rugged" className="scroll-mt-32 overflow-hidden bg-white pb-12 pt-14 sm:pb-16 sm:pt-20">
       <div className="mx-auto max-w-6xl px-6">
@@ -73,7 +77,7 @@ export function RuggedHardwareSection({ copy }: { copy: Dict["producto"]["panaso
           </div>
 
           <SmartImage
-            src="https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media/rugged-devices-a4e81fd3.png"
+            src={img("rugged.devices")}
             alt={copy.devicesAlt}
             fit="contain"
             wrapperClassName="aspect-[19/8] w-full bg-transparent lg:-mr-10"
@@ -89,7 +93,7 @@ export function RuggedHardwareSection({ copy }: { copy: Dict["producto"]["panaso
             {copy.brands.map((brand, index) => (
               <article key={brand.name} className="border-b border-[#cbd3e0] p-6 last:border-b-0 sm:border-b-0">
                 <SmartImage
-                  src={BRAND_IMAGES[index]}
+                  src={img(`rugged.brand${index + 1}`)}
                   alt={brand.name}
                   fit="contain"
                   wrapperClassName="h-14 w-full bg-transparent"
