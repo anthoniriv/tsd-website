@@ -18,7 +18,9 @@ import {
   orders,
   productPrices,
   products,
+  siteMedia,
 } from "@/db/schema";
+import { MEDIA_KEYS } from "@/lib/site-media";
 import { SETTINGS_ID } from "@/lib/settings";
 import { hashPassword, login, logout, requireRole } from "@/lib/auth";
 import { checkRateLimit, clientIp, RateLimitError } from "@/lib/rate-limit";
@@ -85,7 +87,10 @@ const productSchema = z.object({
     .min(2)
     .regex(/^[a-z0-9-]+$/, "El slug solo admite minúsculas, números y guiones."),
   kind: z.enum(["jaltest", "hardware"]),
-  category: z.enum(["laptop", "cable", "finder"]).nullable().optional(),
+  category: z
+    .enum(["laptop", "cable", "finder", "renewal", "upgrade"])
+    .nullable()
+    .optional(),
   sku: z.string().nullable().optional(),
   name: localized,
   blurb: localized.optional(),
@@ -94,6 +99,9 @@ const productSchema = z.object({
   img: z.string().min(1, "La imagen es obligatoria."),
   // Foto del equipo del panel derecho en /producto (solo líneas Jaltest).
   vehicleImg: z.string().optional(),
+  // Hasta 3 imágenes de apoyo para la galería de la ficha. Los huecos vacíos se
+  // descartan al guardar, así el orden nunca queda con agujeros.
+  gallery: z.array(z.string()).max(3).optional(),
   stock: z.coerce.number().int().min(0),
   status: z.enum(["draft", "published"]),
   sort: z.coerce.number().int().min(0),
@@ -118,6 +126,7 @@ function formToProduct(formData: FormData) {
     description: { es: raw.description_es ?? "", en: raw.description_en ?? "" },
     category: raw.category || null,
     sku: raw.sku || null,
+    gallery: formData.getAll("gallery").map(String).filter(Boolean),
   });
 }
 
@@ -145,6 +154,7 @@ export async function saveProductAction(
       en: paragraphs(d.description?.en ?? ""),
     },
     img: d.img,
+    gallery: d.gallery ?? [],
     vehicleImg: d.kind === "jaltest" ? (d.vehicleImg || null) : null,
     stock: d.stock,
     status: d.status,
@@ -546,6 +556,59 @@ export async function deleteBannerAction(formData: FormData) {
 
   revalidatePublic();
   revalidatePath("/admin/banners");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Láminas de /producto (imágenes por slot)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Guarda un grupo de slots de lámina. El form manda, por cada slot, `img:<clave>`
+ * y opcionalmente `labelEs:<clave>` / `labelEn:<clave>`.
+ *
+ * Las claves NO vienen del cliente como dato libre: solo se aceptan las que el
+ * diseño declara en `MEDIA_KEYS`. Un slot enviado vacío borra la fila → el
+ * componente vuelve a la imagen por defecto de la lámina original.
+ */
+export async function saveSiteMediaAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireRole("editor");
+
+  const allowed = new Set(MEDIA_KEYS);
+  const seen = new Set<string>();
+
+  for (const [field, value] of formData.entries()) {
+    if (!field.startsWith("img:")) continue;
+    const key = field.slice(4);
+    if (!allowed.has(key) || seen.has(key)) continue;
+    seen.add(key);
+
+    const img = String(value).trim();
+    const es = String(formData.get(`labelEs:${key}`) ?? "").trim();
+    const en = String(formData.get(`labelEn:${key}`) ?? "").trim();
+    const label = es || en ? { es, en } : null;
+
+    if (!img) {
+      await db.delete(siteMedia).where(eq(siteMedia.key, key));
+      continue;
+    }
+
+    await db
+      .insert(siteMedia)
+      .values({ key, img, label, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: siteMedia.key,
+        set: { img, label, updatedAt: new Date() },
+      });
+  }
+
+  if (seen.size === 0) return { error: "No se recibió ninguna imagen válida." };
+
+  revalidatePublic();
+  revalidatePath("/admin/laminas");
+  return { ok: true };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

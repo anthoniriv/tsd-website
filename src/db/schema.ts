@@ -170,6 +170,23 @@ export const banners = pgTable(
   (t) => [index("banners_key_sort_idx").on(t.key, t.sort)],
 );
 
+/**
+ * Imágenes de las láminas institucionales de `/producto`, editables desde
+ * `/admin/laminas`. Es un diccionario `clave → imagen`: la clave la define el
+ * diseño (ver `MEDIA_SLOTS` en `src/lib/site-media.ts`), no el admin, así que no
+ * hay altas ni bajas — solo reemplazo. Si una clave no existe, el componente cae
+ * al asset por defecto de `product-specs.ts`.
+ *
+ * `label` es la etiqueta que va sobre la foto (COSECHADORAS, TRACTORES…). Solo la
+ * usan los slots que la lámina rotula.
+ */
+export const siteMedia = pgTable("site_media", {
+  key: text("key").primaryKey(),
+  img: text("img").notNull(),
+  label: jsonb("label").$type<Loc<string>>(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Pedidos (checkout como invitado — no hay cuentas de cliente)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -386,6 +403,7 @@ export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type ProductPrice = typeof productPrices.$inferSelect;
 export type Banner = typeof banners.$inferSelect;
+export type SiteMedia = typeof siteMedia.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type OrderEmail = typeof orderEmails.$inferSelect;

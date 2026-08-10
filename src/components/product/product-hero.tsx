@@ -26,6 +26,7 @@ import { getLocaleData } from "@/lib/i18n.server";
 import { SmartImage } from "@/components/ui/smart-image";
 import { JaltestLogo } from "@/components/product/jaltest-logo";
 import { ProductHeroActions } from "@/components/product/product-hero-actions";
+import { lineKey, type MediaMap } from "@/lib/site-media";
 
 /** Hexágono apuntando arriba-abajo (el del precio en la lámina). */
 const HEX = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
@@ -77,7 +78,7 @@ const READABLE: Record<JaltestLine["id"], { title: string; onAccent: string }> =
  * imágenes los recortes que no se pueden recrear: el grid de logos de marca,
  * la foto del equipo y la del kit (`src/lib/product-specs.ts`).
  */
-export async function ProductHero({ line }: { line: JaltestLine }) {
+export async function ProductHero({ line, media = {} }: { line: JaltestLine; media?: MediaMap }) {
   const accent = ACCENT[line.id];
   const ink = READABLE[line.id];
   const spec = LINE_SPECS[line.id];
@@ -88,8 +89,27 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
   const name = `${line.brand} ${line.variant}`;
   const actionLabels = { ...t, addedToast: dict.cart.addedToast };
   const demoHref = `/contacto?asunto=demo&linea=${line.id}`;
-  // La foto del panel derecho se puede cambiar desde el panel; si no hay, la de la lámina.
-  const vehicleImg = line.vehicleImg || spec.vehicleImg;
+
+  // Prioridad de imágenes: lo que se editó en /admin/laminas → el producto →
+  // el recorte original de la lámina. Así el panel manda sin dejar huecos.
+  const slot = (name: "kit" | "main" | "sub1" | "sub2" | "sub3") => media[lineKey(line.id, name)];
+
+  const kitImg = slot("kit")?.img || spec.kitImg;
+  const mainSlot = slot("main");
+  const vehicleImg = mainSlot?.img || line.vehicleImg || spec.vehicleImg;
+  const vehicleLabel = mainSlot?.label?.[lang] || spec.vehicleLabel?.[lang];
+
+  // Las 3 mini fotos etiquetadas son ahora el patrón de TODAS las líneas (antes
+  // solo AGV): si el panel no las ha cargado, se usan las de la lámina original.
+  const gallery = (["sub1", "sub2", "sub3"] as const)
+    .map((key, i) => {
+      const entry = slot(key);
+      const fallback = spec.gallery?.[i];
+      const img = entry?.img || fallback?.img;
+      if (!img) return null;
+      return { img, label: entry?.label?.[lang] || fallback?.label[lang] || "" };
+    })
+    .filter((shot): shot is { img: string; label: string } => shot !== null);
 
   return (
     <article id={line.id} className="scroll-mt-36 border-b border-border/60 bg-white">
@@ -118,7 +138,7 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
 
             {/* kit: protagónico, como pide el docx de retoques */}
             <SmartImage
-              src={spec.kitImg}
+              src={kitImg}
               alt={`Kit ${name}`}
               fit="contain"
               loading="eager"
@@ -133,7 +153,7 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
             <div
               className={cn(
                 "relative w-full overflow-hidden rounded-xl lg:rounded-none",
-                spec.gallery ? "h-40 sm:h-52 lg:flex-[3]" : "h-52 sm:h-72 lg:flex-1"
+                gallery.length > 0 ? "h-40 sm:h-52 lg:flex-[3]" : "h-52 sm:h-72 lg:flex-1"
               )}
             >
               <span className="absolute inset-0 hidden lg:block" style={{ clipPath: PHOTO_CLIP }}>
@@ -148,34 +168,36 @@ export async function ProductHero({ line }: { line: JaltestLine }) {
                 alt={`${line.variant} — ${spec.headline[lang][1]}`}
                 wrapperClassName="absolute inset-0 h-full w-full lg:hidden"
               />
-              {spec.vehicleLabel && (
+              {vehicleLabel && (
                 <span
                   className="absolute bottom-2 right-2 rounded px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide shadow-sm"
                   style={{ backgroundColor: accent.color, color: ink.onAccent }}
                 >
-                  {spec.vehicleLabel[lang]}
+                  {vehicleLabel}
                 </span>
               )}
             </div>
 
-            {spec.gallery && (
+            {gallery.length > 0 && (
               <ul className="grid grid-cols-3 gap-2 lg:flex-[2]">
-                {spec.gallery.map((shot) => (
+                {gallery.map((shot) => (
                   <li
                     key={shot.img}
                     className="relative h-24 overflow-hidden rounded-lg sm:h-28 lg:h-full"
                   >
                     <SmartImage
                       src={shot.img}
-                      alt={shot.label[lang]}
+                      alt={shot.label}
                       wrapperClassName="absolute inset-0 h-full w-full"
                     />
-                    <span
-                      className="absolute inset-x-0 bottom-0 px-1 py-1 text-center text-[10px] font-bold uppercase leading-tight tracking-wide"
-                      style={{ backgroundColor: accent.color, color: ink.onAccent }}
-                    >
-                      {shot.label[lang]}
-                    </span>
+                    {shot.label && (
+                      <span
+                        className="absolute inset-x-0 bottom-0 px-1 py-1 text-center text-[10px] font-bold uppercase leading-tight tracking-wide"
+                        style={{ backgroundColor: accent.color, color: ink.onAccent }}
+                      >
+                        {shot.label}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

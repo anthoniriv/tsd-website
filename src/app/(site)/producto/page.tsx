@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
-import { getHardware, getJaltestLines } from "@/lib/catalog";
+import { getHardware, getJaltestLines, getSiteMedia } from "@/lib/catalog";
 import { getLocaleData } from "@/lib/i18n.server";
 import { ProductHero } from "@/components/product/product-hero";
 import { ProductGrid } from "@/components/product/product-grid";
 import { SmartImage } from "@/components/ui/smart-image";
 import { RuggedHardwareSection } from "@/components/product/rugged-hardware-section";
 import { ExpandCoverage } from "@/components/product/expand-coverage";
+import { SolutionsSection } from "@/components/product/solutions-section";
+import { SOLUTIONS_GROUP } from "@/lib/site-media";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { dict } = await getLocaleData();
@@ -24,8 +26,9 @@ export default async function ProductoPage() {
   // "Ver más". El catálogo completo vive en /tienda.
   const MAX_PER_SECTION = 8;
 
-  const [lines, laptops, cables, renewals, upgrades] = await Promise.all([
+  const [lines, media, laptops, cables, renewals, upgrades] = await Promise.all([
     getJaltestLines(tier),
+    getSiteMedia(),
     getHardware("laptop", tier, MAX_PER_SECTION),
     getHardware("cable", tier, MAX_PER_SECTION),
     getHardware("renewal", tier, MAX_PER_SECTION),
@@ -40,7 +43,7 @@ export default async function ProductoPage() {
           decorativas (gris -z-20, triángulo -z-10) se ordenan en este contexto */}
       <section className="relative isolate bg-white">
         {lines.map((line) => (
-          <ProductHero key={line.id} line={line} />
+          <ProductHero key={line.id} line={line} media={media} />
         ))}
 
         <RuggedHardwareSection copy={p.panasonic} />
@@ -53,6 +56,18 @@ export default async function ProductoPage() {
         items={laptops}
         category="laptop"
       />
+      {/* Lámina de cables y adaptadores: entra justo antes de su grid de productos.
+          Sin imágenes cargadas en el panel cae a la foto genérica de cable. */}
+      <SolutionsSection
+        copy={p.solutions}
+        images={(() => {
+          const shots = SOLUTIONS_GROUP.slots
+            .map((slot) => media[slot.key]?.img)
+            .filter((img): img is string => Boolean(img));
+          return shots.length > 0 ? shots : ["/images/cable-b.png"];
+        })()}
+      />
+
       <ProductGrid
         title={p.grids.cablesTitle}
         accentWord={p.grids.cablesAccent}

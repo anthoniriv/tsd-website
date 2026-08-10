@@ -32,6 +32,15 @@ export function ProductForm({ product, prices }: Props) {
   const [kind, setKind] = useState<Product["kind"]>(product?.kind ?? "hardware");
   const [img, setImg] = useState(product?.img ?? "");
   const [vehicleImg, setVehicleImg] = useState(product?.vehicleImg ?? "");
+  // Siempre 3 huecos de apoyo: el admin ve la ficha completa aunque estén vacíos.
+  // Los vacíos se descartan al guardar.
+  const [gallery, setGallery] = useState<string[]>(() => {
+    const list = product?.gallery ?? [];
+    return [0, 1, 2].map((i) => list[i] ?? "");
+  });
+
+  const setGalleryAt = (i: number, url: string) =>
+    setGallery((prev) => prev.map((v, j) => (j === i ? url : v)));
 
   return (
     <form action={action} className="space-y-8">
@@ -113,17 +122,47 @@ export function ProductForm({ product, prices }: Props) {
         </Field>
       </Section>
 
-      <Section title="Imagen">
-        <div className="col-span-full">
-          <ImageUploadField name="img" value={img} onChange={setImg} required />
+      <Section title="Imágenes">
+        <div className="col-span-full grid gap-5 sm:grid-cols-4">
+          <div>
+            <p className="mb-2 text-sm font-semibold text-text-main">Principal</p>
+            <ImageUploadField
+              name="img"
+              value={img}
+              onChange={setImg}
+              required
+              hint="1200 × 1200 px · fondo blanco"
+            />
+          </div>
+          {/* Las 3 de apoyo alimentan la galería de la ficha (miniaturas). */}
+          {gallery.map((url, i) => (
+            <div key={i}>
+              <p className="mb-2 text-sm font-semibold text-text-secondary">Apoyo {i + 1}</p>
+              <ImageUploadField
+                name="gallery"
+                value={url}
+                onChange={(v) => setGalleryAt(i, v)}
+                hint="1200 × 1200 px"
+              />
+            </div>
+          ))}
         </div>
+
         {/* La foto grande del panel derecho del bloque en /producto */}
         {kind === "jaltest" && (
           <div className="col-span-full">
             <p className="mb-2 text-sm font-semibold text-text-secondary">
               Foto del equipo (panel derecho de /producto)
             </p>
-            <ImageUploadField name="vehicleImg" value={vehicleImg} onChange={setVehicleImg} />
+            <div className="max-w-md">
+              <ImageUploadField
+                name="vehicleImg"
+                value={vehicleImg}
+                onChange={setVehicleImg}
+                previewClassName="aspect-[16/10] w-full"
+                hint="1400 × 900 px · también editable en Láminas"
+              />
+            </div>
           </div>
         )}
       </Section>

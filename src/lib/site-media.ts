@@ -1,0 +1,88 @@
+// Catálogo de "slots" de imagen de las láminas institucionales de /producto.
+//
+// El diseño define QUÉ imágenes existen (esta lista); el panel solo decide CUÁL
+// archivo va en cada una. Por eso las claves son constantes de código y no filas
+// que el admin pueda crear o borrar: si una lámina deja de necesitar una foto,
+// se quita el slot aquí y la fila huérfana se ignora.
+//
+// Convención de claves: `line.<accentKey>.<slot>` y `solutions.<bloque>.<n>`.
+
+import type { AccentKey } from "@/lib/products";
+
+/** Un hueco de imagen editable. `ratio` es lo que se le pide al diseñador. */
+export type MediaSlot = {
+  key: string;
+  title: string;
+  hint: string;
+  /** El slot lleva rótulo sobre la foto (COSECHADORAS, TRACTORES…). */
+  labeled?: boolean;
+  /** Tamaño recomendado, en px. Se muestra en el panel y en la guía del cliente. */
+  size: string;
+};
+
+export type MediaGroup = { id: string; title: string; slots: MediaSlot[] };
+
+const LINE_TITLES: Record<AccentKey, string> = {
+  cv: "Jaltest CV — Vehículos comerciales",
+  ohw: "Jaltest OHW — Maquinaria pesada",
+  agv: "Jaltest AGV — Maquinaria agrícola",
+  marine: "Jaltest Marine — Náutica",
+  mhe: "Jaltest MHE — Manejo de materiales",
+};
+
+export const ACCENT_KEYS: AccentKey[] = ["cv", "ohw", "agv", "marine", "mhe"];
+
+/** Los 5 slots que tiene toda línea: kit del producto + foto grande + 3 de apoyo. */
+function lineSlots(id: AccentKey): MediaSlot[] {
+  return [
+    {
+      key: `line.${id}.kit`,
+      title: "Kit del producto",
+      hint: "El equipo Jaltest sobre fondo transparente, bajo el texto de la lámina.",
+      size: "1200 × 700 px · PNG con transparencia",
+    },
+    {
+      key: `line.${id}.main`,
+      title: "Foto principal",
+      hint: "La grande del panel derecho. Se recorta en diagonal: deja aire a la izquierda.",
+      labeled: true,
+      size: "1400 × 900 px · JPG o PNG",
+    },
+    ...[1, 2, 3].map((n) => ({
+      key: `line.${id}.sub${n}`,
+      title: `Foto de apoyo ${n}`,
+      hint: "Mini foto etiquetada bajo la principal.",
+      labeled: true,
+      size: "600 × 600 px · JPG o PNG",
+    })),
+  ];
+}
+
+export const LINE_MEDIA_GROUPS: MediaGroup[] = ACCENT_KEYS.map((id) => ({
+  id,
+  title: LINE_TITLES[id],
+  slots: lineSlots(id),
+}));
+
+/** Las 3 fotos que rotan dentro del hexágono de la sección "Soluciones". */
+export const SOLUTIONS_GROUP: MediaGroup = {
+  id: "solutions-cables",
+  title: "Soluciones — Cables y adaptadores",
+  slots: [1, 2, 3].map((n) => ({
+    key: `solutions.cables.${n}`,
+    title: `Foto ${n} del hexágono`,
+    hint: "Set de cables sobre fondo claro. Las 3 se alternan con fundido.",
+    size: "1000 × 1000 px · PNG sobre fondo claro",
+  })),
+};
+
+export const MEDIA_GROUPS: MediaGroup[] = [...LINE_MEDIA_GROUPS, SOLUTIONS_GROUP];
+
+/** Todas las claves válidas, para validar en la Server Action. */
+export const MEDIA_KEYS: string[] = MEDIA_GROUPS.flatMap((g) => g.slots.map((s) => s.key));
+
+export type MediaEntry = { img: string; label: Record<"es" | "en", string> | null };
+export type MediaMap = Record<string, MediaEntry | undefined>;
+
+export const lineKey = (id: AccentKey, slot: "kit" | "main" | "sub1" | "sub2" | "sub3") =>
+  `line.${id}.${slot}`;

@@ -5,7 +5,7 @@ import { ArrowRight, ChevronRight, Headset, ShieldCheck, Truck } from "lucide-re
 import { getLocaleData } from "@/lib/i18n.server";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/products";
-import { SmartImage } from "@/components/ui/smart-image";
+import { ProductGallery } from "@/components/product/product-gallery";
 import { AddToCart } from "@/components/cart/add-to-cart";
 import { WhatsAppButton } from "@/components/product/whatsapp-button";
 import { ProductCard } from "@/components/product/product-card";
@@ -87,13 +87,9 @@ export default async function ProductoDetallePage({
       </nav>
 
       <div className="grid gap-10 md:grid-cols-2">
-        <SmartImage
-          src={product.img}
-          alt={name}
-          fit="contain"
-          wrapperClassName="aspect-square w-full rounded-2xl border border-border bg-brand-light/10"
-          className="p-8"
-        />
+        {/* Principal + hasta 3 de apoyo. `gallery` puede traer huecos vacíos de
+            ediciones antiguas: el componente los filtra. */}
+        <ProductGallery images={[product.img, ...(product.gallery ?? [])]} alt={name} />
 
         <div>
           {product.sku && (

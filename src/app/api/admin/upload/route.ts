@@ -44,6 +44,60 @@ function slugify(filename: string): string {
   );
 }
 
+/**
+ * Plan B: el binario SÍ pasa por aquí.
+ *
+ * La subida directa al bucket depende de que la política CORS de R2 liste el
+ * origen desde el que se abre el panel; cuando no lo lista (previews de Vercel,
+ * un puerto distinto, un dominio nuevo), el navegador aborta el PUT y el panel
+ * queda inservible. Este PUT es mismo-origen, así que no hay CORS que valga: el
+ * servidor recibe el archivo y lo reenvía firmado a R2.
+ *
+ * Se usa solo como reintento — el camino normal sigue siendo el directo, que no
+ * gasta CPU de función ni ancho de banda de Vercel.
+ */
+export async function PUT(request: Request): Promise<NextResponse> {
+  try {
+    await requireRole("editor");
+
+    const filename = new URL(request.url).searchParams.get("filename") ?? "imagen";
+    const contentType = request.headers.get("content-type") ?? "";
+
+    if (!ALLOWED.has(contentType)) {
+      return NextResponse.json({ error: "Formato no permitido." }, { status: 400 });
+    }
+
+    const body = await request.arrayBuffer();
+    if (body.byteLength > MAX_BYTES) {
+      return NextResponse.json({ error: "La imagen supera los 8 MB." }, { status: 400 });
+    }
+
+    const key = `media/${slugify(filename)}-${crypto.randomUUID().slice(0, 8)}.${EXT[contentType]}`;
+
+    // Se reusa la URL prefirmada en vez de exponer otra ruta de escritura: el
+    // permiso de subida sigue viviendo en un solo sitio (`lib/r2.ts`).
+    const res = await fetch(await signedUploadUrl(key, contentType), {
+      method: "PUT",
+      headers: { "content-type": contentType },
+      body,
+    });
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: `El bucket rechazó la subida (${res.status}).` },
+        { status: 502 },
+      );
+    }
+
+    return NextResponse.json({ url: publicUrl(key) });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Error al subir la imagen." },
+      { status: 400 },
+    );
+  }
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     await requireRole("editor");

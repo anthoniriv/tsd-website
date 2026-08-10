@@ -61,8 +61,8 @@ src/
       pedido/[token]/   #   seguimiento sin cuenta
       contacto/         #   hero + LocationMap + ContactForm (+ actions.ts)
       cart-actions.ts   #   detalles del carrito resueltos en servidor
-    admin/              # panel (sidebar propia) — productos, banners, pedidos,
-      actions.ts        #   contacto, usuarios. TODA escritura pasa por actions.ts
+    admin/              # panel (sidebar propia) — productos, banners, láminas,
+      actions.ts        #   pedidos, contacto, usuarios. TODA escritura por actions.ts
     api/stripe/webhook/ # única fuente de verdad del pago
   proxy.ts              # (el "middleware" de Next 16) filtra /admin por cookie
   db/
@@ -108,6 +108,16 @@ cookie *exista* (filtro barato); la validación real (token vivo + rol) está en
 Roles: `owner` ⊃ `admin` ⊃ `editor`.
 
 Constantes globales (nav, dirección, redes, policies) en `src/lib/site.ts`.
+
+### Imágenes editables: productos y `site_media`
+Un producto tiene **1 principal + hasta 3 de apoyo** (`products.gallery`, jsonb): la ficha
+`/tienda/[slug]` las pinta como galería con miniaturas (`ProductGallery`). Las imágenes de
+las **láminas** de `/producto` viven en la tabla `site_media` (`clave → {img, label}`) y se
+editan en `/admin/laminas`. Los slots los declara el diseño en `src/lib/site-media.ts`
+(`line.<accent>.{kit,main,sub1..3}`, `solutions.cables.1..3`) — el admin solo reemplaza el
+archivo; un slot vacío cae al recorte original de `product-specs.ts`. Cada línea Jaltest usa
+ahora el mismo patrón **1 foto grande + 3 etiquetadas** (antes solo AGV).
+Tamaños recomendados y política CORS del bucket: `docs/imagenes.md`.
 
 ### Imágenes: `SmartImage` (no `next/image`)
 `components/ui/smart-image.tsx` envuelve un `<img>` plano con **skeleton + lazy + fade-in**

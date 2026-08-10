@@ -8,9 +8,10 @@ import "server-only";
 import { cache } from "react";
 import { and, asc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { products, banners } from "@/db/schema";
+import { products, banners, siteMedia } from "@/db/schema";
 import type { PriceTier } from "@/lib/i18n";
 import type { AccentKey, HardwareItem, JaltestLine } from "@/lib/products";
+import type { MediaMap } from "@/lib/site-media";
 
 /**
  * Precio del tier pedido, como subquery escalar — evita el N+1 y el join extra.
@@ -39,6 +40,7 @@ const baseCols = {
   blurb: products.blurb,
   description: products.description,
   img: products.img,
+  gallery: products.gallery,
   vehicleImg: products.vehicleImg,
   logo: products.logo,
   category: products.category,
@@ -250,6 +252,22 @@ export const getProductBySlug = cache(async (slug: string, tier: PriceTier) => {
     .limit(1);
 
   return row ?? null;
+});
+
+/**
+ * Imágenes de lámina editadas desde el panel, como diccionario `clave → {img,label}`.
+ * Se lee entera (son ~30 filas) y se cachea por request: /producto la consulta una
+ * sola vez aunque la usen los 5 bloques y la sección de soluciones.
+ */
+export const getSiteMedia = cache(async (): Promise<MediaMap> => {
+  const rows = await db.select().from(siteMedia);
+  const map: MediaMap = {};
+  for (const r of rows) {
+    // Una fila con la URL vacía equivale a "sin personalizar": el componente cae
+    // al asset por defecto en vez de pintar un hueco roto.
+    if (r.img) map[r.key] = { img: r.img, label: r.label };
+  }
+  return map;
 });
 
 /** Slides del hero del home, ordenados. */

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Image,
+  Images,
   Inbox,
   LayoutDashboard,
   Package,
@@ -18,6 +19,7 @@ const LINKS = [
   { href: "/admin", label: "Resumen", icon: LayoutDashboard },
   { href: "/admin/productos", label: "Productos", icon: Package },
   { href: "/admin/banners", label: "Banners", icon: Image },
+  { href: "/admin/laminas", label: "Láminas", icon: Images },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag },
   { href: "/admin/cupones", label: "Cupones", icon: Tag },
   { href: "/admin/contacto", label: "Solicitudes", icon: Inbox },
