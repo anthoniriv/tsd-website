@@ -1,16 +1,26 @@
 import { requireUser } from "@/lib/auth";
-import { getSiteMedia } from "@/lib/catalog";
-import { MEDIA_GROUPS } from "@/lib/site-media";
+import { getJaltestLines, getSiteMedia } from "@/lib/catalog";
+import { LINE_SPECS } from "@/lib/product-specs";
+import { ACCENT_KEYS, lineDefaults, MEDIA_GROUPS, type MediaDefault } from "@/lib/site-media";
 import { MediaGroupForm, type SlotValue } from "@/components/admin/media-group-form";
 
 /**
  * Imágenes de las láminas institucionales de /producto. No hay altas ni bajas:
  * los huecos los define el diseño; aquí solo se reemplaza el archivo de cada uno.
- * Un hueco vacío devuelve la imagen original de la lámina.
+ * Un hueco sin personalizar enseña —marcada como tal— la imagen que el visitante
+ * está viendo hoy, que sale del diseño original.
  */
 export default async function LaminasPage() {
   await requireUser();
-  const media = await getSiteMedia();
+
+  // El tier no altera las imágenes; se pide uno cualquiera para leer las líneas.
+  const [media, lines] = await Promise.all([getSiteMedia(), getJaltestLines("us")]);
+
+  const defaults: Record<string, MediaDefault> = {};
+  for (const id of ACCENT_KEYS) {
+    const line = lines.find((l) => l.id === id);
+    Object.assign(defaults, lineDefaults(id, LINE_SPECS[id], line?.vehicleImg));
+  }
 
   return (
     <>
@@ -19,6 +29,8 @@ export default async function LaminasPage() {
         <p className="text-sm text-text-muted">
           Imágenes de la página <strong>Producto</strong>: la foto principal y las 3 de apoyo
           de cada línea Jaltest, el kit del producto y las fotos de la sección de cables.
+          Las marcadas como <strong>Actual · del diseño</strong> son las que ya se ven en la
+          web; sube una encima para reemplazarlas.
         </p>
       </header>
 
@@ -37,7 +49,14 @@ export default async function LaminasPage() {
               ];
             }),
           );
-          return <MediaGroupForm key={group.id} group={group} values={values} />;
+          return (
+            <MediaGroupForm
+              key={group.id}
+              group={group}
+              values={values}
+              defaults={defaults}
+            />
+          );
         })}
       </div>
     </>

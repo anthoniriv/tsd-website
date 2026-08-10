@@ -81,6 +81,40 @@ export const MEDIA_GROUPS: MediaGroup[] = [...LINE_MEDIA_GROUPS, SOLUTIONS_GROUP
 /** Todas las claves válidas, para validar en la Server Action. */
 export const MEDIA_KEYS: string[] = MEDIA_GROUPS.flatMap((g) => g.slots.map((s) => s.key));
 
+/** Lo que se publica en un slot cuando nadie lo ha personalizado. */
+export type MediaDefault = { img?: string; labelEs?: string; labelEn?: string };
+
+/**
+ * Imagen y etiqueta que hoy salen en cada slot de una línea, con la MISMA
+ * prioridad que usa `ProductHero`: producto → recorte original de la lámina.
+ * El panel las enseña como "actual", así lo que ves en `/admin/laminas` es lo
+ * que ve el visitante.
+ */
+export function lineDefaults(
+  id: AccentKey,
+  spec: {
+    kitImg: string;
+    vehicleImg: string;
+    vehicleLabel?: Record<"es" | "en", string>;
+    gallery?: { img: string; label: Record<"es" | "en", string> }[];
+  },
+  productVehicleImg?: string | null,
+): Record<string, MediaDefault> {
+  const out: Record<string, MediaDefault> = {
+    [lineKey(id, "kit")]: { img: spec.kitImg },
+    [lineKey(id, "main")]: {
+      img: productVehicleImg || spec.vehicleImg,
+      labelEs: spec.vehicleLabel?.es,
+      labelEn: spec.vehicleLabel?.en,
+    },
+  };
+  for (const [i, slot] of (["sub1", "sub2", "sub3"] as const).entries()) {
+    const shot = spec.gallery?.[i];
+    out[lineKey(id, slot)] = { img: shot?.img, labelEs: shot?.label.es, labelEn: shot?.label.en };
+  }
+  return out;
+}
+
 export type MediaEntry = { img: string; label: Record<"es" | "en", string> | null };
 export type MediaMap = Record<string, MediaEntry | undefined>;
 

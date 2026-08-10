@@ -16,6 +16,12 @@ type Props = {
   previewClassName?: string;
   /** Tamaño recomendado, se muestra bajo el recuadro. */
   hint?: string;
+  /**
+   * Imagen que se está publicando hoy si el campo está vacío (la del diseño
+   * original). Se muestra marcada como heredada: el hueco no está "vacío", solo
+   * no personalizado, y subir una la reemplaza.
+   */
+  fallback?: string;
   required?: boolean;
 };
 
@@ -80,6 +86,7 @@ export function ImageUploadField({
   onChange,
   previewClassName = "aspect-square",
   hint,
+  fallback,
   required,
 }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -188,6 +195,32 @@ export function ImageUploadField({
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Quitar
+              </button>
+            </div>
+          </>
+        ) : fallback ? (
+          // Hueco sin personalizar pero CON imagen publicada: se enseña la que el
+          // visitante ve hoy, para que el panel no parezca vacío cuando no lo está.
+          <>
+            <SmartImage
+              src={fallback}
+              alt="Imagen actual"
+              fit="contain"
+              wrapperClassName="absolute inset-0 h-full w-full bg-white"
+              className="p-2"
+            />
+            <span className="absolute left-2 top-2 rounded bg-black/65 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              Actual · del diseño
+            </span>
+            <div className="absolute inset-x-0 bottom-0 flex bg-gradient-to-t from-black/60 to-transparent p-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={() => fileRef.current?.click()}
+                className="inline-flex items-center gap-1.5 rounded-md bg-white/95 px-2.5 py-1.5 text-xs font-bold text-text-main hover:bg-white"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Reemplazar
               </button>
             </div>
           </>

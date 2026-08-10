@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import type { MediaGroup } from "@/lib/site-media";
+import type { MediaDefault, MediaGroup } from "@/lib/site-media";
 
 const initial: ActionState = {};
 
@@ -24,9 +24,12 @@ export type SlotValue = { img: string; labelEs: string; labelEn: string };
 export function MediaGroupForm({
   group,
   values,
+  defaults = {},
 }: {
   group: MediaGroup;
   values: Record<string, SlotValue>;
+  /** Lo que se publica hoy en cada slot si nadie lo ha personalizado. */
+  defaults?: Record<string, MediaDefault>;
 }) {
   const [state, action, pending] = useActionState(saveSiteMediaAction, initial);
   const [slots, setSlots] = useState<Record<string, SlotValue>>(() =>
@@ -76,6 +79,7 @@ export function MediaGroupForm({
       <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
         {group.slots.map((slot) => {
           const value = slots[slot.key];
+          const fallback = defaults[slot.key];
           return (
             <div key={slot.key} className="space-y-2">
               <p className="text-sm font-bold text-text-main">{slot.title}</p>
@@ -84,24 +88,27 @@ export function MediaGroupForm({
                 value={value.img}
                 onChange={(img) => update(slot.key, { img })}
                 hint={slot.size}
+                fallback={fallback?.img}
               />
               <p className="text-[11px] leading-snug text-text-muted">{slot.hint}</p>
 
               {slot.labeled && (
                 <div className="space-y-1.5 pt-1">
                   <Label className="text-[11px]">Etiqueta sobre la foto</Label>
+                  {/* El placeholder es la etiqueta que se publica hoy, no un
+                      ejemplo inventado: dejarlo vacío mantiene esa. */}
                   <Input
                     name={`labelEs:${slot.key}`}
                     value={value.labelEs}
                     onChange={(e) => update(slot.key, { labelEs: e.target.value })}
-                    placeholder="ES · Cosechadoras"
+                    placeholder={fallback?.labelEs ? `ES · ${fallback.labelEs}` : "ES · sin etiqueta"}
                     className="text-xs"
                   />
                   <Input
                     name={`labelEn:${slot.key}`}
                     value={value.labelEn}
                     onChange={(e) => update(slot.key, { labelEn: e.target.value })}
-                    placeholder="EN · Combines"
+                    placeholder={fallback?.labelEn ? `EN · ${fallback.labelEn}` : "EN · sin etiqueta"}
                     className="text-xs"
                   />
                 </div>
