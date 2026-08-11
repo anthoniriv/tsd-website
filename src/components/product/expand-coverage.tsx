@@ -36,18 +36,17 @@ const FEATURE_ICONS = [ShieldCheck, Cog, CircleDollarSign, Headset, ChartColumnI
 const PANEL_ICONS = [TrendingUp, Puzzle] as const;
 
 /**
- * Anchos ajustados a ojo para que todos "pesen" parecido pese a proporciones muy
- * distintas: la excavadora y el yate son apaisados, el montacargas casi cuadrado.
- * `veh-cv-solo` es el tráiler central recortado del montaje de tres camiones.
+ * Los cinco recortes salen de la misma lámina y a la misma escala (anchos de
+ * 308–326 px), así que a `w-full` reproducen tal cual las proporciones del
+ * diseño: la excavadora es la más alta y el yate el más bajo. Apoyan todos en
+ * la misma línea de suelo (`items-end` en el contenedor).
  */
-const VEHICLES: { src: string; id: JaltestLine["id"]; className: string }[] = [
-  { src: "/images/veh-ohw.png", id: "ohw", className: "w-[108%] max-w-none" },
-  // El yate es muy apaisado: a ancho de columna quedaría mucho más bajo que el
-  // resto, así que se le deja sangrar sobre las columnas vecinas.
-  { src: "/images/veh-marine.png", id: "marine", className: "w-[124%] max-w-none" },
-  { src: "/images/veh-cv-solo.png", id: "cv", className: "w-[72%]" },
-  { src: "/images/veh-mhe.png", id: "mhe", className: "w-[80%]" },
-  { src: "/images/tractor.png", id: "agv", className: "w-full" },
+const VEHICLES: { src: string; id: JaltestLine["id"] }[] = [
+  { src: "/images/laminas/veh-ohw.png", id: "ohw" },
+  { src: "/images/laminas/veh-marine.png", id: "marine" },
+  { src: "/images/laminas/veh-cv.png", id: "cv" },
+  { src: "/images/laminas/veh-mhe.png", id: "mhe" },
+  { src: "/images/laminas/veh-agv.png", id: "agv" },
 ];
 
 export function ExpandCoverage({
@@ -95,7 +94,7 @@ export function ExpandCoverage({
                     src={vehicle.src}
                     alt={alts[vehicle.id]}
                     loading="lazy"
-                    className={`h-auto max-h-full object-contain ${vehicle.className}`}
+                    className="h-auto max-h-full w-full object-contain"
                   />
                 </div>
                 {/* El separador vive en la etiqueta, no en la columna entera: si
