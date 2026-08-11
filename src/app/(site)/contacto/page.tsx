@@ -66,12 +66,22 @@ export default async function ContactoPage({
 
       <section className="py-16 sm:py-20">
         <div className="mx-auto grid max-w-5xl gap-10 px-6 md:grid-cols-2">
-          <div className="space-y-5">
-            <LocationMap title={mapTitle} />
-            {/* Las dos sedes: Panamá primero, que es la principal */}
-            <ul className="grid gap-4 sm:grid-cols-2">
+          {/* Columna en flex: el mapa (`h-full`) toma el alto que sobra y las sedes
+              conservan el suyo. Con `space-y-5` el mapa se comía la columna entera
+              y las tarjetas se salían por debajo, encima del footer. */}
+          <div className="flex flex-col gap-5">
+            <div className="min-h-[360px] flex-1">
+              <LocationMap title={mapTitle} />
+            </div>
+            {/* Las dos sedes: Panamá primero, que es la principal. Como cabinet
+                de altura fija: la dirección de Panamá envuelve a dos líneas y sin
+                esto las dos tarjetas quedaban desparejas. */}
+            <ul className="grid items-stretch gap-4 sm:grid-cols-2">
               {[CONTACT, CONTACT_US_OFFICE].map((office) => (
-                <li key={office.city} className="text-sm leading-relaxed">
+                <li
+                  key={office.city}
+                  className="flex h-full flex-col rounded-xl border border-border bg-bg-soft/50 p-4 text-sm leading-relaxed"
+                >
                   <p className="font-bold text-text-main">{office.city}</p>
                   <p className="text-text-secondary">{office.address}</p>
                 </li>

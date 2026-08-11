@@ -142,7 +142,7 @@ const es = {
     writeFromContactLink: "contacto",
     follow: "Síguenos",
     followOn: "Síguenos en",
-    partOfGroup: "Parte del Grupo Integra",
+    partOfGroup: "Una marca de Integra SGP LLC",
     policies: {
       refund: "Política de reembolso",
       privacy: "Política de privacidad",
@@ -335,7 +335,6 @@ const es = {
       { title: "Soporte técnico", desc: "especializado" },
     ],
     advancedFunctions: "Funciones avanzadas",
-    andManyMore: "… y muchas más",
   },
   productCard: {
     cta: "Añadir al carrito",
@@ -655,7 +654,7 @@ const en: Dict = {
     writeFromContactLink: "contact page",
     follow: "Follow us",
     followOn: "Follow us on",
-    partOfGroup: "Part of Grupo Integra",
+    partOfGroup: "A brand of Integra SGP LLC",
     policies: {
       refund: "Refund Policy",
       privacy: "Privacy Policy",
@@ -845,7 +844,6 @@ const en: Dict = {
       { title: "Technical support", desc: "specialized" },
     ],
     advancedFunctions: "Advanced functions",
-    andManyMore: "… and many more",
   },
   productCard: {
     cta: "Add to cart",

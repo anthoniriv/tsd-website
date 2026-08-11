@@ -99,12 +99,12 @@ export const COVERAGE_KITS = [
  */
 export const COVERAGE_COLLAGE_IMG = `${R2}/renovaciones-cobertura-jaltest-6fee44fb.png`;
 
-// Laptops y Tablets comparten la categoría `laptop` en BD: hoy el filtro de /tienda
-// no las separa. Si el cliente quiere filtros distintos hace falta una categoría nueva.
+// Los tres hexágonos llevan a su sección institucional de /producto, no al catálogo:
+// el cliente quiere que primero se lea la solución y desde ahí se salte a la tienda.
 export const HARDWARE_KITS = [
-  { key: "laptops", img: "/images/laptop.png", href: "/tienda?cat=laptop" },
-  { key: "tablets", img: `${R2}/hardware-tablet-jaltest-26b9afab.png`, href: "/tienda?cat=laptop" },
-  { key: "cables", img: "/images/cable-b.png", href: "/tienda?cat=cable" },
+  { key: "laptops", img: "/images/laptop.png", href: "/producto#rugged" },
+  { key: "tablets", img: `${R2}/hardware-tablet-jaltest-26b9afab.png`, href: "/producto#rugged" },
+  { key: "cables", img: "/images/cable-b.png", href: "/producto#soluciones" },
 ] as const;
 
 /** Helper: resuelve un campo localizado al idioma dado. */

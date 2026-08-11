@@ -122,13 +122,16 @@ export function RuggedHardwareSection({
             </h3>
             <span className="h-px flex-1 bg-[#0c54ba]" />
           </div>
-          <ul className="grid grid-cols-2 gap-y-7 sm:grid-cols-4 lg:grid-cols-8 lg:divide-x lg:divide-[#cbd3e0]">
+          {/* 4 columnas y no 8: con 8 los rótulos largos ("Agricultura y entornos
+              rurales") no caben y se salían por la derecha. `min-w-0` deja que el
+              texto envuelva en vez de desbordar el separador. */}
+          <ul className="grid grid-cols-2 gap-x-2 gap-y-7 sm:grid-cols-4 sm:divide-x sm:divide-[#cbd3e0] sm:[&>li:nth-child(4n+1)]:border-l-0">
             {copy.sectors.map((sector, index) => {
               const Icon = SECTOR_ICONS[index];
               return (
-                <li key={sector} className="flex items-center gap-3 px-3 lg:px-4">
+                <li key={sector} className="flex items-center gap-3 px-3 lg:px-5">
                   <Icon className="h-9 w-9 shrink-0 text-[#073a91]" strokeWidth={1.8} />
-                  <span className="text-[10px] font-black uppercase leading-snug text-[#071a4f]">
+                  <span className="min-w-0 break-words text-[11px] font-black uppercase leading-snug text-[#071a4f]">
                     {sector}
                   </span>
                 </li>

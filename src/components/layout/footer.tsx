@@ -70,11 +70,16 @@ export function Footer({ dict }: { dict: Dict }) {
               {dict.footer.contactWith} {CONTACT.company}
             </h3>
             <p className="font-semibold text-white">{CONTACT.company}</p>
-            {/* Panamá es la oficina principal; LA queda como segunda sede */}
-            <p>{CONTACT.address}</p>
-            <p>{CONTACT.city}</p>
-            <p className="mt-3">{CONTACT_US_OFFICE.address}</p>
-            <p>{CONTACT_US_OFFICE.city}</p>
+            {/* Panamá es la oficina principal; LA queda como segunda sede.
+                Ciudad arriba y dirección debajo, igual que en /contacto. */}
+            <ul className="mt-3 space-y-3">
+              {[CONTACT, CONTACT_US_OFFICE].map((office) => (
+                <li key={office.city}>
+                  <p className="font-semibold text-white">{office.city}</p>
+                  <p>{office.address}</p>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="text-sm leading-relaxed">
