@@ -36,10 +36,10 @@ const FEATURE_ICONS = [ShieldCheck, Cog, CircleDollarSign, Headset, ChartColumnI
 const PANEL_ICONS = [TrendingUp, Puzzle] as const;
 
 /**
- * Los cinco recortes salen de la misma lámina y a la misma escala (anchos de
- * 308–326 px), así que a `w-full` reproducen tal cual las proporciones del
- * diseño: la excavadora es la más alta y el yate el más bajo. Apoyan todos en
- * la misma línea de suelo (`items-end` en el contenedor).
+ * Fotos originales del cliente, que ya venían con transparencia: aquí no se
+ * recorta fondo, solo se ajustaron al contenido y se bajaron a 600 px.
+ * A `w-full` cada una conserva su proporción y todas apoyan en la misma línea
+ * de suelo (`items-end` en el contenedor), como en la lámina.
  */
 const VEHICLES: { src: string; id: JaltestLine["id"] }[] = [
   { src: "/images/laminas/veh-ohw.png", id: "ohw" },
