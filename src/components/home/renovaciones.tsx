@@ -5,13 +5,17 @@ import { SmartImage } from "@/components/ui/smart-image";
 import { JaltestLogo } from "@/components/product/jaltest-logo";
 import { getJaltestLines } from "@/lib/catalog";
 
-// Posición de cada logo sobre un vértice del hexágono (coordenadas % del contenedor).
-const NODES = [
-  { id: "ohw", pos: "left-[14%] top-[27%]" },
-  { id: "cv", pos: "left-1/2 top-[6%]" },
-  { id: "agv", pos: "left-[86%] top-[27%]" },
-  { id: "mhe", pos: "left-[14%] top-[73%]" },
-  { id: "marine", pos: "left-[86%] top-[73%]" },
+/**
+ * Zona sensible de cada cuña sobre la rueda de cobertura (`cobertura-hex.png`,
+ * el gráfico que mandó el cliente). Coordenadas en % del contenedor, centradas
+ * sobre el logo de cada línea.
+ */
+const WEDGES = [
+  { id: "cv", pos: "left-[20%] top-[13%] w-[27%] h-[19%]" },
+  { id: "agv", pos: "left-[58%] top-[25%] w-[27%] h-[19%]" },
+  { id: "ohw", pos: "left-[5%] top-[38%] w-[27%] h-[19%]" },
+  { id: "marine", pos: "left-[58%] top-[55%] w-[27%] h-[19%]" },
+  { id: "mhe", pos: "left-[23%] top-[63%] w-[27%] h-[19%]" },
 ] as const;
 
 /**
@@ -68,34 +72,17 @@ export async function Renovaciones() {
             </span>
           </div>
 
-          {/* red hexagonal de logos (desktop) */}
-          <div className="relative mx-auto hidden aspect-[1.1/1] w-full max-w-[460px] md:block">
-            {/* contorno del hexágono que une los logos */}
-            <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              className="absolute inset-0 h-full w-full"
-              aria-hidden
-            >
-              <polygon
-                points="50,10 82,30 82,74 50,94 18,74 18,30"
-                fill="none"
-                stroke="var(--color-accent)"
-                strokeWidth={1.5}
-                vectorEffect="non-scaling-stroke"
-              />
-            </svg>
-
-            {/* laptop al centro */}
+          {/* rueda de cobertura (desktop): el gráfico del cliente con una zona
+              sensible por cuña, cada una al bloque de su línea en /producto */}
+          <div className="relative mx-auto hidden aspect-[856/935] w-full max-w-[430px] md:block">
             <SmartImage
-              src="/images/logo-computer.svg"
-              alt="Equipo de diagnóstico Jaltest"
+              src="/images/laminas/cobertura-hex.png"
+              alt={dict.renovaciones.title}
               fit="contain"
-              wrapperClassName="absolute left-1/2 top-1/2 w-[18%] -translate-x-1/2 -translate-y-1/2 bg-transparent"
+              wrapperClassName="absolute inset-0 h-full w-full bg-transparent"
             />
 
-            {/* logos en los vértices: cada uno lleva al bloque de su línea */}
-            {NODES.map(({ id, pos }) => {
+            {WEDGES.map(({ id, pos }) => {
               const line = byId[id];
               if (!line) return null;
               return (
@@ -104,33 +91,12 @@ export async function Renovaciones() {
                   href={`/producto#${id}`}
                   aria-label={`Jaltest ${line.variant}`}
                   className={cn(
-                    "absolute -translate-x-1/2 -translate-y-1/2 rounded-md p-1 transition-transform duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
+                    "absolute rounded-md transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
                     pos
                   )}
-                >
-                  <JaltestLogo
-                    src={line.logo}
-                    alt={`Jaltest ${line.variant}`}
-                    size="sm"
-                    className="h-[2.36rem]"
-                  />
-                </Link>
+                />
               );
             })}
-
-            {/* +Cobertura: hexágono sólido en el vértice inferior → catálogo completo */}
-            <Link
-              href="/producto"
-              aria-label={dict.renovaciones.plusCoverage}
-              className="absolute left-1/2 top-[94%] w-[20%] -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-            >
-              <div className="hex-clip flex aspect-[1/1.1] flex-col items-center justify-center gap-0.5 bg-brand text-white">
-                <span className="text-xl font-bold leading-none">+</span>
-                <span className="text-[9px] font-semibold uppercase tracking-wide">
-                  {dict.renovaciones.plusCoverage}
-                </span>
-              </div>
-            </Link>
           </div>
 
           {/* logos apilados (mobile) */}

@@ -7,34 +7,50 @@
 // están pensados para eso (`Localized<T>` mapea 1:1 con lo que guarda la BD).
 //
 // Los recortes (`brandsImg`, `kitImg`, `vehicleImg`) salen de las láminas
-// originales y se sirven desde R2: el grid de logos de fabricantes no se puede
-// recrear en HTML sin los assets de cada marca.
+// originales: el grid de logos de fabricantes no se puede recrear en HTML sin
+// los assets de cada marca. Las fotos de equipo siguen en R2; los recortes
+// rehechos a partir de las láminas definitivas viven en el repo
+// (`public/images/laminas/`) como PNG con transparencia real.
 //
 // Retoques ya aplicados (docx "Retoques en diseño"):
 //  · "Diagnóstico en tiempo real" → "Diagramas eléctricos" (mismo icono).
 //  · "Información y guías de reparación" → "… en tu idioma".
 //  · "1 año de actualizaciones" → "1 año de licencia y actualizaciones".
-//  · Funciones avanzadas termina en "… y muchas más".
 //  · Fuera el panel "Solicitar cotización": su lugar lo ocupan los dos CTA.
+//
+// Retoques del docx "últimos cambios" (08/08/2026):
+//  · Funciones y marcas alineadas una a una con las 5 láminas definitivas.
+//  · El kit deja de ser el de cada lámina: todas usan el kit standard (Marine,
+//    el suyo). Los recortes de marcas se rehicieron sin el fondo gris.
+//  · Fuera los pies "… y muchas más" / "Y muchos fabricantes más…".
+//  · El "+" de las cifras va delante del número, no detrás.
 
 import type { Localized } from "@/lib/i18n";
 import type { AccentKey } from "@/lib/products";
 
 const R2 = "https://pub-d51770ee631f4c29836b56b7e8e01dd6.r2.dev/media";
 
+/** Recortes rehechos desde las láminas definitivas, ya sin fondo. */
+const LAM = "/images/laminas";
+
+/** El mismo kit standard en las cinco líneas; Marine trae el suyo. */
+const KIT_STANDARD = `${LAM}/kit-standard.png`;
+const KIT_STANDARD_MARINE = `${LAM}/kit-standard-marine.png`;
+
 /** Iconos disponibles para los bullets de "Funciones avanzadas". */
 export type FeatureIcon =
   | "dpf"
   | "update"
   | "wiring"
+  | "hydraulic"
   | "injector"
   | "bidirectional"
   | "manual"
   | "params"
   | "calibration"
   | "fault"
-  | "actuator"
-  | "config"
+  | "keyprog"
+  | "throttle"
   | "report"
   | "realtime";
 
@@ -51,8 +67,6 @@ export type LineSpec = {
   /** Título del panel de marcas ("Compatible con más de 100 marcas líderes"). */
   brandsTitle: Localized<string>;
   brandsImg: string;
-  /** Pie del panel de marcas. */
-  brandsFootnote: Localized<string>;
   stats: Stat[];
   kitImg: string;
   vehicleImg: string;
@@ -78,6 +92,13 @@ const F = {
   wiring: {
     icon: "wiring" as const,
     label: { es: "Diagramas eléctricos", en: "Wiring diagrams" },
+  },
+  hydraulic: {
+    icon: "hydraulic" as const,
+    label: {
+      es: "Diagnóstico integral en sistemas hidráulicos",
+      en: "Comprehensive hydraulic system diagnostics",
+    },
   },
   injector: {
     icon: "injector" as const,
@@ -106,21 +127,24 @@ const F = {
     icon: "fault" as const,
     label: { es: "Lectura y borrado de fallas", en: "Fault reading and clearing" },
   },
-  actuator: {
-    icon: "actuator" as const,
-    label: { es: "Pruebas de actuadores", en: "Actuator tests" },
+  keyprog: {
+    icon: "keyprog" as const,
+    label: { es: "Programación de llaves", en: "Key programming" },
   },
-  config: {
-    icon: "config" as const,
-    label: { es: "Configuración de componentes", en: "Component configuration" },
+  throttle: {
+    icon: "throttle" as const,
+    label: {
+      es: "Configuración de palancas de velocidad",
+      en: "Throttle lever configuration",
+    },
   },
   report: {
     icon: "report" as const,
-    label: { es: "Registro y reporte de datos", en: "Data logging and reporting" },
+    label: { es: "Registro de datos", en: "Data logging" },
   },
   realtime: {
     icon: "realtime" as const,
-    label: { es: "Datos en tiempo real", en: "Real-time data" },
+    label: { es: "Diagnóstico en tiempo real", en: "Real-time diagnostics" },
   },
 };
 
@@ -150,20 +174,29 @@ export const LINE_SPECS: Record<AccentKey, LineSpec> = {
         "More coverage, more functions, more productivity for your shop or fleet.",
       ],
     },
-    features: [F.dpf, F.update, F.wiring, F.injector, F.bidirectional, F.manual, F.params, F.calibration],
+    features: [
+      F.dpf,
+      F.update,
+      F.wiring,
+      F.injector,
+      F.bidirectional,
+      F.manual,
+      F.params,
+      F.calibration,
+      F.fault,
+    ],
     brandsTitle: {
       es: "Compatible con más de 100 marcas líderes",
       en: "Compatible with over 100 leading brands",
     },
-    brandsImg: `${R2}/lamina-brands-cv-b2b88615.png`,
-    brandsFootnote: { es: "Y muchos fabricantes más…", en: "And many more manufacturers…" },
+    brandsImg: `${LAM}/brands-cv.png`,
     stats: [
-      { value: "100+", label: { es: "marcas", en: "brands" } },
-      { value: "35,000+", label: { es: "sistemas", en: "systems" } },
+      { value: "+100", label: { es: "marcas", en: "brands" } },
+      { value: "+35,000", label: { es: "sistemas", en: "systems" } },
       UPDATES_PER_YEAR,
       GROWING_COVERAGE,
     ],
-    kitImg: `${R2}/lamina-kit-cv-v2-9c6a9bac.png`,
+    kitImg: KIT_STANDARD,
     vehicleImg: `${R2}/lamina-veh-cv-8d6611e1.png`,
   },
 
@@ -182,23 +215,30 @@ export const LINE_SPECS: Record<AccentKey, LineSpec> = {
         "The ideal tool for shops, rental companies, contractors and fleets.",
       ],
     },
-    features: [F.params, F.dpf, F.calibration, F.injector, F.bidirectional, F.wiring, F.update, F.manual],
+    features: [
+      F.dpf,
+      F.update,
+      F.wiring,
+      F.hydraulic,
+      F.injector,
+      F.bidirectional,
+      F.manual,
+      F.params,
+      F.calibration,
+      F.fault,
+    ],
     brandsTitle: {
-      es: "Compatible con los principales fabricantes",
-      en: "Compatible with the leading manufacturers",
+      es: "Compatible con más de 70 fabricantes líderes",
+      en: "Compatible with over 70 leading manufacturers",
     },
-    brandsImg: `${R2}/lamina-brands-ohw-b67a43fb.png`,
-    brandsFootnote: {
-      es: "Y más de 70 marcas líderes en maquinaria pesada y construcción",
-      en: "And over 70 leading heavy machinery and construction brands",
-    },
+    brandsImg: `${LAM}/brands-ohw.png`,
     stats: [
-      { value: "70+", label: { es: "marcas", en: "brands" } },
-      { value: "20,000+", label: { es: "sistemas", en: "systems" } },
+      { value: "+70", label: { es: "marcas", en: "brands" } },
+      { value: "+20,000", label: { es: "sistemas", en: "systems" } },
       UPDATES_PER_YEAR,
       GROWING_COVERAGE,
     ],
-    kitImg: `${R2}/lamina-kit-ohw-v2-6b7ff33d.png`,
+    kitImg: KIT_STANDARD,
     vehicleImg: `${R2}/lamina-veh-ohw-1de22235.png`,
   },
 
@@ -217,20 +257,30 @@ export const LINE_SPECS: Record<AccentKey, LineSpec> = {
         "Access advanced functions, technical information and continuous updates to keep your operation productive.",
       ],
     },
-    features: [F.dpf, F.update, F.wiring, F.injector, F.bidirectional, F.manual, F.params, F.calibration],
+    features: [
+      F.dpf,
+      F.update,
+      F.wiring,
+      F.hydraulic,
+      F.injector,
+      F.bidirectional,
+      F.manual,
+      F.params,
+      F.calibration,
+      F.fault,
+    ],
     brandsTitle: {
       es: "Compatible con más de 70 fabricantes líderes",
       en: "Compatible with over 70 leading manufacturers",
     },
-    brandsImg: `${R2}/lamina-brands-agv-34647443.png`,
-    brandsFootnote: { es: "Y muchos fabricantes más…", en: "And many more manufacturers…" },
+    brandsImg: `${LAM}/brands-agv.png`,
     stats: [
-      { value: "70+", label: { es: "fabricantes compatibles", en: "compatible manufacturers" } },
-      { value: "20,000+", label: { es: "sistemas cubiertos", en: "systems covered" } },
+      { value: "+70", label: { es: "marcas", en: "brands" } },
+      { value: "+20,000", label: { es: "sistemas", en: "systems" } },
       UPDATES_PER_YEAR,
       GROWING_COVERAGE,
     ],
-    kitImg: `${R2}/lamina-kit-agv-v2-9ea03a01.png`,
+    kitImg: KIT_STANDARD,
     vehicleImg: `${R2}/lamina-veh-agv-v2-dbc1f49e.png`,
     vehicleLabel: { es: "Cosechadoras", en: "Combines" },
     gallery: [
@@ -263,29 +313,28 @@ export const LINE_SPECS: Record<AccentKey, LineSpec> = {
       ],
     },
     features: [
-      F.update,
-      F.calibration,
-      F.wiring,
-      F.fault,
-      F.actuator,
-      F.config,
-      F.realtime,
+      F.injector,
+      F.keyprog,
       F.manual,
+      F.params,
+      F.bidirectional,
+      F.realtime,
+      F.throttle,
+      F.calibration,
       F.report,
     ],
     brandsTitle: {
       es: "Compatible con más de 88 marcas líderes",
       en: "Compatible with over 88 leading brands",
     },
-    brandsImg: `${R2}/lamina-brands-marine-8b6bad06.png`,
-    brandsFootnote: { es: "Y muchas marcas más…", en: "And many more brands…" },
+    brandsImg: `${LAM}/brands-marine.png`,
     stats: [
-      { value: "88+", label: { es: "marcas compatibles", en: "compatible brands" } },
-      { value: "10,000+", label: { es: "sistemas cubiertos", en: "systems covered" } },
+      { value: "+88", label: { es: "marcas", en: "brands" } },
+      { value: "+10,000", label: { es: "sistemas", en: "systems" } },
       UPDATES_PER_YEAR,
       GROWING_COVERAGE,
     ],
-    kitImg: `${R2}/lamina-kit-marine-v2-53247f3f.png`,
+    kitImg: KIT_STANDARD_MARINE,
     vehicleImg: `${R2}/lamina-veh-marine-08548049.png`,
     badges: [
       { es: "Solución multimarca", en: "Multi-brand solution" },
@@ -310,32 +359,28 @@ export const LINE_SPECS: Record<AccentKey, LineSpec> = {
       ],
     },
     features: [
-      F.fault,
-      F.calibration,
-      F.actuator,
-      F.params,
+      F.dpf,
       F.wiring,
-      F.config,
+      F.hydraulic,
+      F.injector,
       F.bidirectional,
       F.manual,
-      F.report,
+      F.params,
+      F.calibration,
+      F.fault,
     ],
     brandsTitle: {
-      es: "Compatible con múltiples marcas líderes",
-      en: "Compatible with multiple leading brands",
+      es: "Compatible con más de 70 marcas líderes",
+      en: "Compatible with over 70 leading brands",
     },
-    brandsImg: `${R2}/lamina-brands-mhe-0456f5e8.png`,
-    brandsFootnote: { es: "Y muchas marcas más…", en: "And many more brands…" },
+    brandsImg: `${LAM}/brands-mhe.png`,
     stats: [
-      { value: "70+", label: { es: "marcas", en: "brands" } },
-      {
-        value: "1000s",
-        label: { es: "sistemas cubiertos y en crecimiento", en: "systems covered and growing" },
-      },
+      { value: "+70", label: { es: "marcas", en: "brands" } },
+      { value: "+35,000", label: { es: "sistemas", en: "systems" } },
       UPDATES_PER_YEAR,
       GROWING_COVERAGE,
     ],
-    kitImg: `${R2}/lamina-kit-mhe-v2-f5bb66ee.png`,
+    kitImg: KIT_STANDARD,
     vehicleImg: `${R2}/lamina-veh-mhe-7a243f17.png`,
     badges: [
       { es: "Equipos eléctricos", en: "Electric equipment" },

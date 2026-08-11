@@ -4,9 +4,11 @@ import {
   CircuitBoard,
   Cpu,
   Download,
+  Droplets,
   FileText,
-  Fuel,
+  Gauge,
   Headset,
+  KeyRound,
   Laptop,
   LineChart,
   RefreshCw,
@@ -16,7 +18,6 @@ import {
   SlidersHorizontal,
   Syringe,
   TrendingUp,
-  Wrench,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -38,14 +39,15 @@ const FEATURE_ICONS: Record<FeatureIcon, LucideIcon> = {
   dpf: CircuitBoard,
   update: Download,
   wiring: Activity,
+  hydraulic: Droplets,
   injector: Syringe,
   bidirectional: ShieldCheck,
   manual: BookOpen,
   params: SlidersHorizontal,
   calibration: Settings,
   fault: ScanSearch,
-  actuator: Fuel,
-  config: Wrench,
+  keyprog: KeyRound,
+  throttle: Gauge,
   report: FileText,
   realtime: LineChart,
 };
@@ -282,9 +284,6 @@ export async function ProductHero({ line, media = {} }: { line: JaltestLine; med
                 );
               })}
             </ul>
-            <p className="mt-4 pt-1 text-[13px] font-bold" style={{ color: ink.title }}>
-              {t.andManyMore}
-            </p>
           </section>
 
           <section className="rounded-xl border border-border p-4">
@@ -301,9 +300,6 @@ export async function ProductHero({ line, media = {} }: { line: JaltestLine; med
               fit="contain"
               wrapperClassName="h-[clamp(110px,13vw,145px)] w-full bg-transparent"
             />
-            <p className="mt-3 text-center text-[13px] font-bold uppercase tracking-wide text-text-secondary">
-              {spec.brandsFootnote[lang]}
-            </p>
           </section>
         </div>
 
@@ -331,13 +327,7 @@ export async function ProductHero({ line, media = {} }: { line: JaltestLine; med
             })}
           </ul>
 
-          <div className="flex flex-col justify-center gap-4 rounded-xl border border-border p-5">
-            <SmartImage
-              src="/images/logo-tds.png"
-              alt="Tech Diagnostic Solutions"
-              fit="contain"
-              wrapperClassName="mx-auto h-10 w-[180px] bg-transparent sm:mx-0"
-            />
+          <div className="flex flex-col justify-center rounded-xl border border-border p-5">
             <ProductHeroActions
               productId={line.productId}
               name={name}
