@@ -14,6 +14,7 @@ import {
 } from "@/lib/admin-labels";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
 import { ResendEmailButton } from "@/components/admin/resend-email-button";
+import { LocalDate } from "@/components/admin/local-date";
 import { SmartImage } from "@/components/ui/smart-image";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -38,7 +39,15 @@ function AddressBlock({ address }: { address: Address }) {
   );
 }
 
-function Meta({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function Meta({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: React.ReactNode;
+  strong?: boolean;
+}) {
   return (
     <div>
       <p className="text-xs font-bold uppercase tracking-wide text-text-muted">{label}</p>
@@ -68,12 +77,6 @@ export default async function AdminOrderDetailPage({
     "status_update",
     "notification",
   ];
-
-  const date = order.createdAt.toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
 
   return (
     <>
@@ -119,7 +122,7 @@ export default async function AdminOrderDetailPage({
       <article className="overflow-hidden rounded-2xl border border-border bg-white">
         <div className="grid gap-6 border-b border-border px-7 py-6 sm:grid-cols-4">
           <Meta label="Pedido" value={order.orderNumber} strong />
-          <Meta label="Fecha" value={date} />
+          <Meta label="Fecha" value={<LocalDate value={order.createdAt} format="long" />} />
           <Meta label="Método de pago" value="Tarjeta (Stripe)" />
           <div>
             <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-text-muted">
@@ -196,13 +199,7 @@ export default async function AdminOrderDetailPage({
                   </span>
                   {e.recipient && <span className="text-text-secondary">{e.recipient}</span>}
                   <span className="ml-auto tabular-nums text-xs text-text-muted">
-                    {e.createdAt.toLocaleString("es-ES", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    <LocalDate value={e.createdAt} format="datetime" />
                   </span>
                   {e.status === "failed" && e.error && (
                     <span className="w-full text-xs text-jt-mhe">{e.error}</span>

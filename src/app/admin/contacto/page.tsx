@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { contactRequests } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { toggleContactReadAction } from "@/app/admin/actions";
+import { LocalDate } from "@/components/admin/local-date";
 import { cn } from "@/lib/utils";
 
 export default async function ContactoPage() {
@@ -60,7 +61,7 @@ export default async function ContactoPage() {
 
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-text-muted">
-                    {r.createdAt.toLocaleDateString("es-ES")}
+                    <LocalDate value={r.createdAt} format="datetime" />
                   </span>
                   <form action={toggleContactReadAction}>
                     <input type="hidden" name="id" value={r.id} />
