@@ -5,6 +5,7 @@ import { bulkUpdateOrderStatusAction } from "@/app/admin/actions";
 import { formatPrice } from "@/lib/products";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
 import { DataTable, type Column } from "@/components/admin/data-table";
+import { LocalDate } from "@/components/admin/local-date";
 import {
   ORDER_STATUS_LABEL,
   ORDER_STATUS_STYLE,
@@ -48,7 +49,7 @@ const columns: Column<Order>[] = [
   {
     header: "Fecha",
     cell: (o) => (
-      <span className="text-text-secondary">{o.createdAt.toLocaleDateString("es-ES")}</span>
+      <LocalDate value={o.createdAt} className="text-text-secondary" />
     ),
   },
   {
