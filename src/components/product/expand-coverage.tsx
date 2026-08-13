@@ -59,7 +59,10 @@ export function ExpandCoverage({
   return (
     // La lámina va sobre blanco que vira a gris azulado en la mitad inferior, con
     // el corte a la altura del suelo de los vehículos.
-    <section className="bg-gradient-to-b from-white via-white to-[#eef1f6] pb-16 pt-12 sm:pb-20 sm:pt-14">
+    <section
+      id="ampliar"
+      className="scroll-mt-24 bg-gradient-to-b from-white via-white to-[#eef1f6] pb-16 pt-12 sm:pb-20 sm:pt-14"
+    >
       <div className="mx-auto max-w-6xl px-6">
         {/* Cabecera */}
         <div className="flex items-center justify-center gap-3">
