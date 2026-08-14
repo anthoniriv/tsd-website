@@ -14,6 +14,9 @@ const initial: ActionState = {};
 
 export type SlotValue = { img: string; labelEs: string; labelEn: string };
 
+/** Precios (en dólares) de la línea Jaltest que publica esta lámina. */
+export type LinePrices = { productId: string; priceUs: string; priceWorld: string };
+
 /**
  * Un formulario por lámina. Cada slot manda `img:<clave>` (+ etiquetas), y la
  * Server Action solo acepta claves que el diseño declara.
@@ -25,11 +28,14 @@ export function MediaGroupForm({
   group,
   values,
   defaults = {},
+  prices,
 }: {
   group: MediaGroup;
   values: Record<string, SlotValue>;
   /** Lo que se publica hoy en cada slot si nadie lo ha personalizado. */
   defaults?: Record<string, MediaDefault>;
+  /** Solo en láminas de línea: precios por tarifa de su producto Jaltest. */
+  prices?: LinePrices;
 }) {
   const [state, action, pending] = useActionState(saveSiteMediaAction, initial);
   const [slots, setSlots] = useState<Record<string, SlotValue>>(() =>
@@ -37,20 +43,23 @@ export function MediaGroupForm({
       group.slots.map((s) => [s.key, values[s.key] ?? { img: "", labelEs: "", labelEn: "" }]),
     ),
   );
+  const [priceUs, setPriceUs] = useState(prices?.priceUs ?? "");
+  const [priceWorld, setPriceWorld] = useState(prices?.priceWorld ?? "");
 
-  // Lo guardado por última vez. Comparado con `slots` da el estado "sin guardar":
-  // subir una imagen solo la coloca en el formulario, persiste el botón.
-  const [saved, setSaved] = useState(() => JSON.stringify(slots));
-  const dirty = JSON.stringify(slots) !== saved;
+  // Lo guardado por última vez. Comparado con el estado actual da "sin guardar":
+  // subir una imagen o teclear un precio solo lo coloca en el formulario.
+  const snapshot = JSON.stringify({ slots, priceUs, priceWorld });
+  const [saved, setSaved] = useState(snapshot);
+  const dirty = snapshot !== saved;
 
   useEffect(() => {
     if (state.ok) {
-      toast.success("Imágenes guardadas.");
-      setSaved(JSON.stringify(slots));
+      toast.success(prices ? "Lámina y precios guardados." : "Imágenes guardadas.");
+      setSaved(snapshot);
     }
     if (state.error) toast.error(state.error);
-    // `slots` a propósito fuera de las dependencias: solo interesa su valor en el
-    // momento en que el guardado responde, no en cada tecla.
+    // `snapshot` a propósito fuera de las dependencias: solo interesa su valor en
+    // el momento en que el guardado responde, no en cada tecla.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
@@ -117,6 +126,41 @@ export function MediaGroupForm({
           );
         })}
       </div>
+
+      {/* Precios de la línea: la misma tabla que /admin/productos, aquí a mano
+          porque el cliente cambia tarifa y fotos en la misma pasada. */}
+      {prices && (
+        <div className="mt-6 rounded-xl border border-border bg-bg-soft/60 p-4">
+          <input type="hidden" name="productId" value={prices.productId} />
+          <p className="text-sm font-bold text-text-main">Precios (USD)</p>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:max-w-lg">
+            <div className="space-y-1.5">
+              <Label className="text-[11px]">Estados Unidos / Canadá</Label>
+              <Input
+                name="priceUs"
+                type="number"
+                step="0.01"
+                min="0"
+                value={priceUs}
+                onChange={(e) => setPriceUs(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[11px]">Resto del mundo</Label>
+              <Input
+                name="priceWorld"
+                type="number"
+                step="0.01"
+                min="0"
+                value={priceWorld}
+                onChange={(e) => setPriceWorld(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {state.error && (
         <p role="alert" className="mt-4 text-sm font-semibold text-jt-mhe">
