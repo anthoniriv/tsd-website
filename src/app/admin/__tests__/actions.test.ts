@@ -2,7 +2,7 @@
 // Cubren: guardas de roles, conversión USD→centavos de envío y el enrutado del reintento.
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { queueDb, resetDb, valuesWith } from "@/test/db-mock";
+import { dbCalls, queueDb, resetDb, valuesWith } from "@/test/db-mock";
 
 vi.mock("@/db", async () => {
   const { installDbMock } = await import("@/test/db-mock");
@@ -182,5 +182,48 @@ describe("saveSiteMediaAction — láminas", () => {
 
     expect(res.error).toBeTruthy();
     expect(valuesWith("key")).toBeUndefined();
+  });
+
+  it("guarda los 2 precios de la línea junto con la lámina", async () => {
+    // Primero se resuelve el upsert de la imagen; después el select de la línea.
+    queueDb([], [{ id: OTHER }]);
+
+    const res = await saveSiteMediaAction(
+      {},
+      fd({
+        "img:line.agv.main": "https://cdn/agv.png",
+        productId: OTHER,
+        priceUs: "1999.50",
+        priceWorld: "2200",
+      }),
+    );
+
+    expect(res.ok).toBe(true);
+    const inserts = dbCalls()
+      .filter((c) => c.method === "values")
+      .map((c) => c.args[0] as Record<string, unknown>)
+      .filter((v) => "tier" in v);
+    expect(inserts).toEqual([
+      { productId: OTHER, tier: "us", amountCents: 199950 },
+      { productId: OTHER, tier: "world", amountCents: 220000 },
+    ]);
+  });
+
+  // La lámina no es una puerta trasera para tocar el precio de cualquier producto.
+  it("rechaza precios sobre un producto que no es una línea Jaltest", async () => {
+    queueDb([]); // el select no encuentra línea
+
+    const res = await saveSiteMediaAction(
+      {},
+      fd({
+        "img:line.agv.main": "https://cdn/agv.png",
+        productId: OTHER,
+        priceUs: "10",
+        priceWorld: "10",
+      }),
+    );
+
+    expect(res.error).toBeTruthy();
+    expect(valuesWith("tier")).toBeUndefined();
   });
 });

@@ -5,7 +5,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { ORDER_STATUSES } from "@/lib/admin-labels";
@@ -563,6 +563,51 @@ export async function deleteBannerAction(formData: FormData) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
+ * Precios de la lámina de una línea Jaltest (`productId` + `priceUs`/`priceWorld`,
+ * en dólares). Solo se aceptan sobre productos `jaltest`: la lámina no es una vía
+ * para editar el precio de cualquier producto. Devuelve el mensaje de error o
+ * `null` si no había precios que guardar.
+ */
+async function saveLinePrices(formData: FormData): Promise<string | null> {
+  const raw = formData.get("productId");
+  if (!raw) return null;
+
+  const parsed = z
+    .object({
+      productId: z.uuid(),
+      priceUs: z.coerce.number().min(0),
+      priceWorld: z.coerce.number().min(0),
+    })
+    .safeParse({
+      productId: raw,
+      priceUs: formData.get("priceUs"),
+      priceWorld: formData.get("priceWorld"),
+    });
+  if (!parsed.success) return "Precios inválidos.";
+
+  const { productId, priceUs, priceWorld } = parsed.data;
+  const [line] = await db
+    .select({ id: products.id })
+    .from(products)
+    .where(and(eq(products.id, productId), eq(products.kind, "jaltest")));
+  if (!line) return "La línea Jaltest de esta lámina ya no existe.";
+
+  for (const t of [
+    { tier: "us" as const, amountCents: Math.round(priceUs * 100) },
+    { tier: "world" as const, amountCents: Math.round(priceWorld * 100) },
+  ]) {
+    await db
+      .insert(productPrices)
+      .values({ productId, ...t })
+      .onConflictDoUpdate({
+        target: [productPrices.productId, productPrices.tier],
+        set: { amountCents: t.amountCents },
+      });
+  }
+  return null;
+}
+
+/**
  * Guarda un grupo de slots de lámina. El form manda, por cada slot, `img:<clave>`
  * y opcionalmente `labelEs:<clave>` / `labelEn:<clave>`.
  *
@@ -606,8 +651,14 @@ export async function saveSiteMediaAction(
 
   if (seen.size === 0) return { error: "No se recibió ninguna imagen válida." };
 
+  // Las láminas de línea traen además los 2 precios de su producto Jaltest, para
+  // no obligar a saltar a /admin/productos por un cambio de tarifa.
+  const priceError = await saveLinePrices(formData);
+  if (priceError) return { error: priceError };
+
   revalidatePublic();
   revalidatePath("/admin/laminas");
+  revalidatePath("/admin/productos");
   return { ok: true };
 }
 
